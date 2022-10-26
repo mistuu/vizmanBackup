@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "125322571852",
+    "firebase_url": "https://vizman-e18a8.firebaseio.com",
+    "project_id": "vizman-e18a8",
+    "storage_bucket": "vizman-e18a8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:125322571852:android:c38579fb30b922974184e9",
+        "android_client_info": {
+          "package_name": "com.vizman"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "125322571852-jva4endds00g5vsctv9e9qstsltl7q28.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCzNUUvf_L6GyKvpeKB8X9BLn9ULIljEw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "125322571852-jva4endds00g5vsctv9e9qstsltl7q28.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "125322571852-n7tg4m48l9uh2p68a159pph9te6o1fc3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.Vizman"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
