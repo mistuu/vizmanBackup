@@ -17,7 +17,7 @@ import { mapStateToProps } from '../../../Reducers/ApiClass';
 import { axiosAuthGet, axiosPost } from '../../../utility/apiConnection';
 import { Header } from '../../CusComponent';
 import { Picker } from '@react-native-community/picker';
-import ImagePicker, { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { Hoshi } from 'react-native-textinput-effects';
 import { COLORS, IMAGES } from '../../../Assets';
 import { Image } from 'react-native';
@@ -27,6 +27,7 @@ import SimpleToast from 'react-native-simple-toast';
 import Images from '../../../Assets/Images';
 import { PermissionsAndroid } from 'react-native';
 import ImageResizer from 'react-native-image-resizer';
+import ImagePicker from 'react-native-image-crop-picker';
 
 const { width, height } = Dimensions.get('window');
 const textField = Yup.object().shape({
@@ -151,112 +152,148 @@ class UpdateCourier extends React.Component {
       if (Platform.OS === 'android') {
         // Calling the permission function
         const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.CAMERA,
-          {
-            title: 'VizMan Camera Permission',
-            message: 'Vizman needs access to your camera',
-          },
+          PermissionsAndroid.PERMISSIONS.CAMERA
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          const options = {
-            // quality: 1.0,
-            // maxWidth: 500,
-            // maxHeight: 500,
-            // storageOptions: {
-            //   skipBackup: true
-            // }
-            cameraType: 'front'
-          };
-          launchCamera(options, async(response) => {
-
-            if (response.didCancel) {
-              this.setState({ modalVisible: false })
-
-            }
-            else {
-              console.log(response);
-              response = response.assets
-              response = Object.assign({}, ...response)
-              var u;
-             await ImageResizer.createResizedImage(response.uri, response.height, response.width, 'JPEG', 100, 0, undefined, false)
-                .then(async (res) => {
-                  u = await res.uri
-                  console.log("Resize", res);
-                })
-                .catch(err => {
-               
-                });
-              if (Platform.OS == 'ios') {
-                var tempSplit = response.uri.split("/")
-                response.fileName = tempSplit[tempSplit.length - 1]
-              }
-              let ImageResponse = { fileName: response.fileName, data: "data:image/jpeg;base64," + response }
-
-              // if (type == 'Photo') {
-              // const VisitorDetails = Object.assign({}, this.state.VisitorDetails, { imageBase64StringPhotoProof: ImageResponse.data })
-              // this.setState({ VisitorDetails, imageBase64StringPhotoProof: response });
+          // Permission Granted
+          // proceed();
+          // alert('CAMERA Permission ');
+          // const options = {
+          //   quality: 1,
+          //   mediaType: 'photo',
+          //   // includeBase64:true,
+          //   maxWidth: 350,
+          //   maxHeight: 350,
+          //   storageOptions: {
+          //     skipBackup: true
+          //   }
+          // };
+          ImagePicker.openCamera({
+            
+            cropping: false,
+          }).then(async image => {
+            var u;
+            var imgName;
+            console.log(image);
+            await ImageResizer.createResizedImage(image.path,
+              image.height,
+              image.width,
+              'JPEG',
+              100,
+              0,
+              undefined,
+              false,
+)
+              .then(async (res) => {
+                this.setState({ imageBase64StringPhotoProof:{fileName:res.name} });
+                u = res.uri
+                imgName=res.name
+                console.log("Resize", res);
+              })
+              .catch(err => {
+             
+              });
               ImgToBase64.getBase64String(u)
-                .then(base64String => {
-                  this.setState({ imagePath: response.fileName + "," + base64String, photo: { uri: "data:image/jpeg;base64," + base64String } })
+              .then(base64String => {
+                  console.log(base64String);
+                  this.setState({ imagePath: imgName + "," + base64String,photo: { uri: "data:image/jpeg;base64," + base64String } })
                   // console.log("+++++++", response.fileName + "," + base64String);
                 }
                 )
                 .catch();
               this.setState({ modalVisible: false })
-              // console.log(this.state.imageBase64StringPhotoProof);
-              // } else if (type == 'Id') {
-              // const VisitorDetails = Object.assign({}, this.state.VisitorDetails, { imageBase64StringIdProof: ImageResponse.data })
-              // this.setState({ VisitorDetails, imageBase64StringIdProof: ImageResponse });
-              // }
-            }
-          });
+          })
+
+          // launchCamera(options,async (response) => {
+
+          //   if (response.didCancel) {
+          //     this.setState({ modalVisible: false })
+
+          //   }
+          //   else {
+          //     response = response.assets
+          //     response = Object.assign({}, ...response)
+          //     console.log(response);
+          //     // 385x256
+          //     // response.fileName + "," + "data:" + response.type + ";base64," + base64String.trim()
+          //     // if (Platform.OS == 'ios') {
+          //     //   var tempSplit = response.uri.split("/")
+          //     //   response.fileName = tempSplit[tempSplit.length - 1]
+          //     // }
+          //     let ImageResponse = { fileName: response.fileName, data: "data:image/jpeg;base64," + response }
+
+          //     // if (type == 'Photo') {
+          //     // const VisitorDetails = Object.assign({}, this.state.VisitorDetails, { imageBase64StringPhotoProof: ImageResponse.data })
+          //     this.setState({ imageBase64StringPhotoProof: response });
+          //     var u;
+          //     await ImageResizer.createResizedImage(response.uri, 1000, 1000, 'PNG', 100, 0, undefined, false)
+          //     .then(async (res) => {
+          //       u = res.uri
+          //       console.log("Resize", res);
+          //     })
+          //     .catch(err => {
+             
+          //     });
+          //     ImgToBase64.getBase64String(u)
+          //     .then(base64String => {
+          //         console.log(base64String);
+          //         this.setState({ imagePath: response.fileName + "," + base64String })
+          //         // console.log("+++++++", response.fileName + "," + base64String);
+          //       }
+          //       )
+          //       .catch();
+          //     this.setState({ modalVisible: false })
+          //     // console.log(this.state.imageBase64StringPhotoProof);
+          //     // } else if (type == 'Id') {
+          //     // const VisitorDetails = Object.assign({}, this.state.VisitorDetails, { imageBase64StringIdProof: ImageResponse.data })
+          //     // this.setState({ VisitorDetails, imageBase64StringIdProof: ImageResponse });
+          //     // }
+          //   }
+          // });
         } else {
           // Permission Denied
           alert('CAMERA Permission Denied');
         }
-      } else {
+      } 
+      else {
         // proceed();
-        const options = {
-          quality: 1.0,
-          maxWidth: 500,
-          maxHeight: 500,
-          storageOptions: {
-            skipBackup: true
-          }
-        };
-        launchCamera(options, (response) => {
-
-          if (response.didCancel) {
-            this.setState({ modalVisible: false })
-
-          }
-          else {
-            response = response.assets
-            response = Object.assign({}, ...response)
-
-            // response.fileName + "," + "data:" + response.type + ";base64," + base64String.trim()
-
-            let ImageResponse = { fileName: response.fileName, data: "data:image/jpeg;base64," + response }
-
-            // if (type == 'Photo') {
-            // const VisitorDetails = Object.assign({}, this.state.VisitorDetails, { imageBase64StringPhotoProof: ImageResponse.data })
-            // this.setState({ VisitorDetails, imageBase64StringPhotoProof: response });
-            ImgToBase64.getBase64String(response.uri)
-              .then(base64String => {
-                this.setState({ imagePath: response.fileName + "," + base64String, photo: { uri: "data:image/jpeg;base64," + base64String } })
-                console.log("+++++++", response.fileName + "," + base64String);
+        ImagePicker.openCamera({
+            
+          cropping: false,
+        }).then(async image => {
+          var u;
+          var imgName;
+          console.log(image);
+          await ImageResizer.createResizedImage(image.path,
+            image.height,
+            image.width,
+            'JPEG',
+            100,
+            0,
+            undefined,
+            false,
+            ).then(async (res) => {
+              this.setState({ imageBase64StringPhotoProof:{fileName:res.name} });
+              u = res.uri
+              imgName=res.name
+              console.log("Resize", res);
+            })
+            .catch(err => {
+              console.log(err);
+            });
+            ImgToBase64.getBase64String(u)
+            .then(base64String => {
+                console.log(base64String);
+                this.setState({ imagePath: imgName + "," + base64String,photo: { uri: "data:image/jpeg;base64," + base64String } })
+                // console.log("+++++++", response.fileName + "," + base64String);
               }
               )
               .catch();
             this.setState({ modalVisible: false })
-            // console.log(this.state.imageBase64StringPhotoProof);
-            // } else if (type == 'Id') {
-            // const VisitorDetails = Object.assign({}, this.state.VisitorDetails, { imageBase64StringIdProof: ImageResponse.data })
-            // this.setState({ VisitorDetails, imageBase64StringIdProof: ImageResponse });
-            // }
-          }
-        });
+        })
+          
       }
+
     } catch (err) {
       console.warn(err);
     }
@@ -271,41 +308,69 @@ class UpdateCourier extends React.Component {
         skipBackup: true
       }
     };
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        this.setState({ modalVisible: false })
-
-      }
-      else {
-        response = response.assets
-        response = Object.assign({}, ...response)
-        console.log(response);
-
-        // response.fileName + "," + "data:" + response.type + ";base64," + base64String.trim()
-        if (Platform.OS == 'ios') {
-          var tempSplit = response.uri.split("/")
-          response.fileName = tempSplit[tempSplit.length - 1]
-        }
-        let ImageResponse = { fileName: response.fileName, data: "data:image/jpeg;base64," + response }
-
-        // if (type == 'Photo') {
-        // const VisitorDetails = Object.assign({}, this.state.VisitorDetails, { imageBase64StringPhotoProof: ImageResponse.data })
-        // this.setState({ VisitorDetails, imageBase64StringPhotoProof: response });
-        ImgToBase64.getBase64String(response.uri)
+    ImagePicker.openPicker({
+      cropping: false,
+    }).then(async image => {
+      var u;
+      var imgName;
+      await ImageResizer.createResizedImage(
+        image.path,
+        image.height,
+        image.width,
+        'JPEG',
+        100,
+        0,
+        undefined,
+        false,
+      ).then(async res => {
+        console.log('Hello world', res.name);
+        this.setState({ imageBase64StringPhotoProof:{fileName:res.name} });
+        imgName=res.name
+        u = res.uri;
+  
+        ImgToBase64.getBase64String(u)
           .then(base64String => {
-            this.setState({ imagePath: response.fileName + "," + base64String, photo: { uri: "data:image/jpeg;base64," + base64String } })
-            console.log("+++++++", response.fileName + "," + base64String);
-          }
-          )
+            this.setState({imagePath: imgName + ',' + base64String,photo: { uri: "data:image/jpeg;base64," + base64String }});
+            // console.log("+++++++", response.fileName + "," + base64String);
+          })
           .catch();
-        this.setState({ modalVisible: false })
-        // console.log(this.state.imageBase64StringPhotoProof);
-        // } else if (type == 'Id') {
-        // const VisitorDetails = Object.assign({}, this.state.VisitorDetails, { imageBase64StringIdProof: ImageResponse.data })
-        // this.setState({ VisitorDetails, imageBase64StringIdProof: ImageResponse });
-        // }
-      }
+      });
+      this.setState({modalVisible: false});
     });
+    // launchImageLibrary(options, (response) => {
+    //   if (response.didCancel) {
+    //     this.setState({ modalVisible: false })
+
+    //   }
+    //   else {
+
+    //     response = response.assets
+    //     response = Object.assign({}, ...response)
+    //     console.log(response);
+
+    //     // response.fileName + "," + "data:" + response.type + ";base64," + base64String.trim()
+    //     if (Platform.OS == 'ios') {
+    //       var tempSplit = response.uri.split("/")
+    //       response.fileName = tempSplit[tempSplit.length - 1]
+    //     }
+    //     let ImageResponse = { fileName: response.fileName, data: "data:image/jpeg;base64," + response }
+        
+    //     // if (type == 'Photo') {
+    //     // const VisitorDetails = Object.assign({}, this.state.VisitorDetails, { imageBase64StringPhotoProof: ImageResponse.data })
+    //     this.setState({ imageBase64StringPhotoProof: response });
+    //     ImgToBase64.getBase64String(response.uri)
+    //       .then(base64String => {
+    //         this.setState({ imagePath: response.fileName + "," + base64String })
+    //         console.log("+++++++", response.fileName + "," + base64String);
+    //       }).catch();
+    //     this.setState({ modalVisible: false })
+    //     // console.log(this.state.imageBase64StringPhotoProof);
+    //     // } else if (type == 'Id') {
+    //     // const VisitorDetails = Object.assign({}, this.state.VisitorDetails, { imageBase64StringIdProof: ImageResponse.data })
+    //     // this.setState({ VisitorDetails, imageBase64StringIdProof: ImageResponse });
+    //     // }
+    //   }
+    // });
   }
   setModalVisible(visible) {
     this.setState({ modalVisible: visible })
