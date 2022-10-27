@@ -1141,8 +1141,10 @@ class ReceptionDashboard extends React.Component {
                                   ? null
                                   : Moment(moment.utc(item.inTime)).format(
                                       'hh:mm A',
-                                    ));
-                        }
+                                    ))
+                                    
+                                  }
+                                  
                         {
                           this.props.LoginDetails.userRoleId === 2
                             ? (outTime =
@@ -1359,11 +1361,13 @@ class ReceptionDashboard extends React.Component {
 
                                   {
                                   (
-                                   console.log(item.outTime),
-                                    dateTime <= otime && date >= b[0] && date <= x[0] 
+                                   console.log("chec in==",inTime),
+                                    dateTime <= otime && date >= b[0] && date <= x[0]
                                   //  cuTime>=otime
-                                      ? (
+                                      ?
+                                       (
                                         item.checkInTime === null && item.status !== 2 && item.status !== 3 ? (
+                                          
                                         <TouchableOpacity
                                           onPress={() => {
                                             var imgTemp = {
@@ -1402,9 +1406,21 @@ class ReceptionDashboard extends React.Component {
                                             Check In
                                           </Text>
                                         </TouchableOpacity>
-                                      ) : null
+                                      ):item.checkInTime!=null &&
+                                      <Text
+                                      style={{
+                                        width: width / 6,
+                                        textAlign: 'center',
+                                        fontWeight: 'bold',
+                                        fontSize: RFPercentage(1.7),
+                                      }}>
+                                      {' '}
+                                      {inTime}{' '}
+                                    </Text>
+                                            
                                     )  
-                                    : item.outTime==null  && 
+                                    :
+                                    item.outTime==null  && 
                                     item.checkInTime === null && item.status !== 2 && item.status !== 3 ? (
                                       <TouchableOpacity
                                         onPress={() => {
@@ -1445,8 +1461,10 @@ class ReceptionDashboard extends React.Component {
                                         </Text>
                                       </TouchableOpacity>
                                     ) : inTime === null ? (
-                                      <Text numberOfLines={1}> </Text>
+                                     
+                                      <Text numberOfLines={1}></Text>
                                     ) : (
+                                    
                                       <Text
                                         style={{
                                           width: width / 6,
@@ -1460,6 +1478,7 @@ class ReceptionDashboard extends React.Component {
                                     )
                                     )
                                   }
+                                  
                                   {/* </View> */}
                                   {/* <View style={{ alignItems: "center", width: width / 3 }}> */}
                                   {item.checkOutTime === null &&
