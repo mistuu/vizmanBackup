@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@openspacelabs/react-native-zoomable-view": "^2.0.4",
-    "@react-native-community/async-storage": "^1.12.1",
+    "@react-native-async-storage/async-storage": "^1.17.10",
     "@react-native-community/cli-platform-ios": "^4.13.0",
     "@react-native-community/datetimepicker": "2.6.2",
     "@react-native-community/geolocation": "^2.1.0",
@@ -86,7 +86,7 @@
     "react-native-textinput-effects": "^0.6.1",
     "react-native-vector-icons": "^7.1.0",
     "react-native-version-check": "^3.4.2",
-    "react-native-webview": "^11.17.2",
+    "react-native-webview": "^11.23.1",
     "react-navigation": "^4.3.9",
     "react-navigation-stack": "^2.5.1",
     "react-redux": "^7.2.6",
