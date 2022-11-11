@@ -2458,7 +2458,9 @@ class VisitorForm extends React.Component {
                 this.props.ChkSubscriptionLimit(this.props.LoginDetails.userID);
                 this.props.GetAllSettings(this.props.LoginDetails.userID);
                 this.props.GetWhoomToMEet(this.props.LoginDetails.userID);
+
                 var VisitorDetails;
+
                 // if (
                 //   this.props.LoginDetails.userRoleId == 4 ||
                 //   this.props.LoginDetails.userRoleId == 1
@@ -2474,6 +2476,7 @@ class VisitorForm extends React.Component {
                 //   });
                 // } else {
                 // }
+
                 VisitorDetails = visitorDetailEmpty;
 
                 this.setState({

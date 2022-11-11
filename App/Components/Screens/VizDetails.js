@@ -43,7 +43,6 @@ import {actions, RichEditor, RichToolbar} from 'react-native-pell-rich-editor';
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import ImageResizer from 'react-native-image-resizer';
 import {KeyboardAvoidingView} from 'react-native';
-import {WebView} from 'react-native-webview';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
 import axios from 'axios';
@@ -748,7 +747,7 @@ const result = this.state.remarks.replace(regex, '');
                   <TouchableOpacity
                     style={{
                       height: 70,
-                      width: 90,
+                      width: 92,
                       marginLeft: 10,
                       backgroundColor: Colors.white,
                       padding: 10,
@@ -771,7 +770,7 @@ const result = this.state.remarks.replace(regex, '');
                       source={Images.reInvite}
                       style={{height: 25, width: 25, alignSelf: 'center'}}
                     />
-                    <Text style={{marginBottom: 35}}>Re-Invite</Text>
+                    <Text style={{marginTop:5}}>Re-Invite</Text>
                   </TouchableOpacity>
                 )}
 
@@ -1530,9 +1529,9 @@ const result = this.state.remarks.replace(regex, '');
                       </View>
                     )}
 
-                  {this.props.LoginDetails.userRoleId == 3 ||
+                  {this.props.LoginDetails.isApprover==true &&(this.props.LoginDetails.userRoleId == 3 ||
                   this.props.LoginDetails.userRoleId == 4 ||
-                  this.props.LoginDetails.userRoleId == 1 ? (
+                  this.props.LoginDetails.userRoleId == 1) ? (
                     <View style={{alignItems: 'center', padding: 10}}>
                       {this.state.VisitorDetails?.status == 4 &&
                       this.state.VisitorDetails?.checkInTime != null &&
@@ -1548,15 +1547,14 @@ const result = this.state.remarks.replace(regex, '');
                                   this.state.VisitorDetails,
                                 );
                                 this.props.VizApprove(
-                                  this.state.VisitorDetails?.inOutId +
+                                  1 +
                                     '/' +
+                                    this.state.VisitorDetails?.inOutId +'/'+
                                     this.props.LoginDetails.userID +
                                     '/' +
                                     this.props.LoginDetails.empID +
                                     '/' +
-                                    this.state.VisitorDetails?.fullName +
-                                    '/' +
-                                    this.state.VisitorDetails?.inviteCode,
+                                    this.state.VisitorDetails?.fullName,
                                   this.vizApproveSuccess,
                                 );
                               }}
@@ -2245,7 +2243,7 @@ const result = this.state.remarks.replace(regex, '');
                       </View>
                     ))}
  
-                  {this.props.Blockedviz.blockedId!=1 && (this.props.LoginDetails.userRoleId == 3 ||
+                  {this.props.LoginDetails.isApprover==true && this.props.Blockedviz.blockedId!=1 && (this.props.LoginDetails.userRoleId == 3 ||
                   this.props.LoginDetails.userRoleId == 4 ||
                   this.props.LoginDetails.userRoleId == 1) ? (
                     <View style={{alignItems: 'center', padding: 10}}>
@@ -2263,15 +2261,14 @@ const result = this.state.remarks.replace(regex, '');
                                   this.state.VisitorDetails,
                                 );
                                 this.props.VizApprove(
-                                  this.state.VisitorDetails?.inOutId +
+                                  1 +
                                     '/' +
+                                    this.state.VisitorDetails?.inOutId +'/'+
                                     this.props.LoginDetails.userID +
                                     '/' +
                                     this.props.LoginDetails.empID +
                                     '/' +
-                                    this.state.VisitorDetails?.fullName +
-                                    '/' +
-                                    this.state.VisitorDetails?.inviteCode,
+                                    this.state.VisitorDetails?.fullName,
                                   this.vizApproveSuccess,
                                 );
                               }}

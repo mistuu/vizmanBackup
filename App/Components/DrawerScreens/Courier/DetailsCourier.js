@@ -320,7 +320,7 @@ class DetailsCourier extends Component {
                   <TouchableOpacity
                     onPress={() => {
                       this.props.courierId(this.state.data.courierId);
-                      this.props.navigation.navigate('UpdateCourier');
+                      this.props.navigation.replace('UpdateCourier');
                     }}>
                     <View
                       style={{

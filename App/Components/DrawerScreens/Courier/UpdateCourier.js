@@ -33,10 +33,10 @@ const { width, height } = Dimensions.get('window');
 const textField = Yup.object().shape({
   // company: Yup.string()
   //   .required("This Field is required."),
-  mob: Yup.string()
+  mob: Yup.string(),
     // .required("This Field is required.")
-    .length(10, 'Mobile number should not be less than 10 digits')
-    .matches(/^(0|91|\+91)?-?[6789]\d{9}$/, 'Please enter Valid Mobile Number'),
+    // .length(15, 'Mobile number should not be less than 10 digits')
+    // .matches(/^(0|91|\+91)?-?[6789]\d{9}$/, 'Please enter Valid Mobile Number'),
   // address: Yup.string()
   //   .required('This Field is required.'),
   dockerno: Yup.string()
@@ -417,7 +417,7 @@ class UpdateCourier extends React.Component {
         console.log("success", response);
         if (response === 0) {
           SimpleToast.show("Update Courier Successfully")
-          this.props.navigation.goBack('Courier');
+          this.props.navigation.replace('Courier');
         }
         else {
           SimpleToast.show("Unsuccessfull")
@@ -599,14 +599,14 @@ class UpdateCourier extends React.Component {
                     <TextInput
                       placeholder="Mobile No "
                       placeholderTextColor={Colors.primary}
-                      value={values.mob}
-                      onBlur={handleBlur("mob")}
+                      // value={values.mob}
+                      // onBlur={handleBlur("mob")}
                       onChangeText={(value) => {
                         let num = value.replace(/[- #*;,.+<>N()\{\}\[\]\\\/]/gi, '')
                         setFieldValue("mob", num)
                       }}
                       keyboardType='phone-pad'
-                      maxLength={10}
+                      maxLength={15}
                       style={{ flex: 1, fontSize: 18, color: Colors.primary, marginTop: 20 }}
                     />
                   </View>

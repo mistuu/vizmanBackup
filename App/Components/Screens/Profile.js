@@ -699,7 +699,7 @@ async  componentDidMount() {
                             />
                         </View> */}
             <Hoshi
-              style={[styles.textInputStyle]}
+              style={[styles.textInputStyle],{backgroundColor:'#EEEEEE'}}
               borderHeight={0}
               editable={false}
               value={this.value('mobile')}
@@ -716,7 +716,7 @@ async  componentDidMount() {
                             />
                         </View> */}
             <Hoshi
-              style={[styles.textInputStyle]}
+              style={[styles.textInputStyle],{backgroundColor:'#EEEEEE'}}
               borderHeight={0}
               editable={false}
               value={this.value('emailId')}
@@ -851,7 +851,7 @@ const styles = StyleSheet.create({
   textInputStyle: {
     color: COLORS.black,
     marginBottom: 1,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: COLORS.white,
     // borderBottomWidth: 1.2,
     // borderBottomColor: COLORS.black,
     height: Platform.OS === 'ios' ? 40 : null,

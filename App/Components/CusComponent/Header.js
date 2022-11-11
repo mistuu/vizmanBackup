@@ -3,6 +3,7 @@ import {
   Image,
   Linking,
   Platform,
+  SafeAreaView,
   StatusBar,
   Text,
   TouchableOpacity,
@@ -214,6 +215,7 @@ getFileExtention = fileUrl => {
   render() {
     const {navigation, title} = this.props;
     return (
+      <SafeAreaView style={{paddingTop:5}}>
       <LinearGradient
         style={{
           height: Platform.OS === 'android' ? 80 : 65,
@@ -484,6 +486,7 @@ getFileExtention = fileUrl => {
         {/* <View style={{width:'100%', borderBottomWidth:0.2, borderBottomColor:'white'}}/> */}
         {/* </SafeAreaView> */}
       </LinearGradient>
+      </SafeAreaView>
     );
   }
 }

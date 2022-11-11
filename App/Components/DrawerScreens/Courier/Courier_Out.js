@@ -8,6 +8,7 @@ import {
   RefreshControl,
   Image,
 } from 'react-native';
+import NetInfo from '@react-native-community/netinfo';
 import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, IMAGES} from '../../../Assets';
 import Colors from '../../../Assets/Colors';
@@ -221,7 +222,16 @@ class Courier_Out extends Component {
   };
   handleRefresh() {
     this.setState({setRefreshing: true});
-    this.getData();
+    NetInfo.fetch().then(state => {
+      if (state.isConnected) {
+        this.getData();
+      } else {
+        alert('Please check Network');
+      }
+    });
+    setTimeout(() => {
+      this.setState({setRefreshing: false});
+    }, 3000);
   }
   render() {
     const {modalVisible} = this.state;
@@ -233,18 +243,7 @@ class Courier_Out extends Component {
           alignItems: 'center',
           backgroundColor: COLORS.whitef4,
         }}>
-        <ScrollView
-          contentContainerStyle={{
-            flex: 1,
-            alignItems: 'center',
-            backgroundColor: COLORS.whitef4,
-          }}
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.setRefreshing}
-              onRefresh={() => this.handleRefresh()}
-            />
-          }>
+
           {
             // console.log("nsnosn", this.state.dummy),
             this.state.dummy.length > 0 ? (
@@ -252,8 +251,8 @@ class Courier_Out extends Component {
                 <FlatList
                   data={this.state.courierDetails}
                   style={{margin: 10}}
-                  // refreshing={this.state.setRefreshing}
-                  // onRefresh={() => this.handleRefresh()}
+                  refreshing={this.state.setRefreshing}
+                  onRefresh={() => this.handleRefresh()}
                   // inverted={true}
                   // contentContainerStyle={{ flexDirection: 'column-reverse' }}
 
@@ -371,7 +370,7 @@ class Courier_Out extends Component {
                                   <Text
                                     style={{
                                       fontWeight: 'bold',
-                                      width: width / 3,
+                                      width: width / 4.4,
                                     }}>
                                     {item.courierMobile}
                                   </Text>
@@ -395,7 +394,7 @@ class Courier_Out extends Component {
               </View>
             )
           }
-        </ScrollView>
+        
 
         <View
           style={{

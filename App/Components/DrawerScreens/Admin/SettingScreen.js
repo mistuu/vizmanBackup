@@ -95,19 +95,19 @@ export default class SettingScreen extends Component {
                 </TouchableOpacity>
 
           </LinearGradient>
-          {/* <LinearGradient
+          <LinearGradient
             style={{ width:"90%",borderRadius:8,marginTop:30  }}
             colors={[
               COLORS.primary,
               COLORS.third
             ]}>
-            <TouchableOpacity onPress={() =>{this.props.navigation.navigate('AddEmp')}} style={{padding:10,flexDirection: 'row', }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', color: COLORS.white,textAlign:'center',alignSelf:'center' }}>Add Employee</Text>
+            <TouchableOpacity onPress={() =>{this.props.navigation.navigate('ApprovalScreen')}} style={{padding:10,flexDirection: 'row', }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', color: COLORS.white,textAlign:'center',alignSelf:'center' }}>Approval Require For Invite</Text>
               <Image source={Images.right}
                 style={{ height: 25,padding:15, width: 22, tintColor: 'white', alignSelf:'flex-end',marginLeft:'auto' }} />
                 </TouchableOpacity>
-
-          </LinearGradient> */}
+       
+          </LinearGradient>
           </View>
       </View>
     );

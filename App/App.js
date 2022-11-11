@@ -36,7 +36,7 @@ import AdminDash from './Components/DrawerScreens/AdminDash';
 import AdminDashBoardMain from './Components/DrawerScreens/AdminDashBoardMain';
 import SettingScreen from './Components/DrawerScreens/Admin/SettingScreen';
 import OrgDetails from './Components/DrawerScreens/Admin/OrgDetails';
-import AddEmp from './Components/DrawerScreens/Admin/AddEmp';
+import ApprovalScreen from './Components/DrawerScreens/Admin/ApprovalScreen';
 import BadgeTemp from './Components/DrawerScreens/Admin/BadgeTemp';
 import EmailSMS from './Components/DrawerScreens/Admin/EmailSMS';
 import FieldSetting from './Components/DrawerScreens/Admin/FieldSetting';
@@ -654,8 +654,8 @@ class App extends Component {
             }}
           />
            <Stack.Screen
-            name="AddEmp"
-            component={AddEmp}
+            name="ApprovalScreen"
+            component={ApprovalScreen}
             options={{
               cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
               transitionSpec: {
