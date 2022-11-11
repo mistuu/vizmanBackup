@@ -205,7 +205,7 @@ export const mapDispatchToProps = dispatch => ({
   VizApprove: (param, onSuccess) =>
     dispatch(
       Fetch(
-        'Visitor/VizApprove/' + param,
+        'Visitor/InviteesApproval/' + param,
         'POST',
         undefined,
         undefined,
@@ -215,7 +215,7 @@ export const mapDispatchToProps = dispatch => ({
   VizRejected: (param, onSuccess) =>
     dispatch(
       Fetch(
-        'Visitor/VizRejected/' + param,
+        'Visitor/InviteesApproval/' + param,
         'POST',
         undefined,
         undefined,
