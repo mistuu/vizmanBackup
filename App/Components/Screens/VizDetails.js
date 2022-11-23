@@ -768,9 +768,9 @@ const result = this.state.remarks.replace(regex, '');
                     }>
                     <Image
                       source={Images.reInvite}
-                      style={{height: 25, width: 25, alignSelf: 'center'}}
+                      style={{height: 25, width: 25,marginTop:-4, alignSelf: 'center'}}
                     />
-                    <Text style={{marginTop:5}}>Re-Invite</Text>
+                    <Text style={{}}>Re-Invite</Text>
                   </TouchableOpacity>
                 )}
 
@@ -1529,16 +1529,19 @@ const result = this.state.remarks.replace(regex, '');
                       </View>
                     )}
 
-                  {this.props.LoginDetails.isApprover==true &&(this.props.LoginDetails.userRoleId == 3 ||
+                  {
+                  
+                  this.props.LoginDetails.isApprover==true &&(this.props.LoginDetails.userRoleId == 3 ||
                   this.props.LoginDetails.userRoleId == 4 ||
                   this.props.LoginDetails.userRoleId == 1) ? (
                     <View style={{alignItems: 'center', padding: 10}}>
-                      {this.state.VisitorDetails?.status == 4 &&
+                      {
+                      this.state.VisitorDetails?.status == 5 &&
                       this.state.VisitorDetails?.checkInTime != null &&
                       this.state.VisitorDetails?.checkOutTime != null ? null : (
                         <View style={{flexDirection: 'row'}}>
                           {this.state.VisitorDetails?.checkOutTime == null &&
-                          this.state.VisitorDetails?.status == 4 ? (
+                          this.state.VisitorDetails?.status == 5 ? (
                             <TouchableOpacity
                               onPress={() => {
                                 this.setState({modalVisible: false});
@@ -1546,9 +1549,7 @@ const result = this.state.remarks.replace(regex, '');
                                   'Parameter ++=,',
                                   this.state.VisitorDetails,
                                 );
-                                this.props.VizApprove(
-                                  1 +
-                                    '/' +
+                                this.props.VizApprove(                                    
                                     this.state.VisitorDetails?.inOutId +'/'+
                                     this.props.LoginDetails.userID +
                                     '/' +
@@ -1618,7 +1619,7 @@ const result = this.state.remarks.replace(regex, '');
                             this.props.LoginDetails.empID ==
                               this.state.VisitorDetails?.whomToMeet) &&
                           this.props.isReport != 1 &&
-                          this.state.VisitorDetails?.status == 1 &&
+                          this.state.VisitorDetails?.status == 6 &&
                           this.state.VisitorDetails?.meetOutTime == null ? (
                             <TouchableOpacity
                               onPress={() => {
@@ -1667,10 +1668,188 @@ const result = this.state.remarks.replace(regex, '');
                               </Text>
                             </TouchableOpacity>
                           ) : null}
+                          {
+                            this.state.VisitorDetails?.status==4 &&
+                            <TouchableOpacity
+                              onPress={() => {
+                                this.props.MeetingIn(this.state.VisitorDetails.inOutId,this.vizMeetingIn())
+                              }}
+                              style={{
+                                backgroundColor: COLORS.skyBlue,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 10,
+                                height: 30,
+                                width: '29%',
+                                margin: '0.5%',
+                              }}>
+                              <Text style={{color: 'white', fontSize: 12}}>
+                                Meeting In
+                              </Text>
+                            </TouchableOpacity>
+                          }
                         </View>
                       )}
                     </View>
-                  ) : null}
+                  ) :
+                  this.props.LoginDetails.isApprover==false && this.props.LoginDetails.userId == this.state.VisitorDetails?.whomToMeet &&
+                  <View style={{alignItems: 'center', padding: 10}}>
+                      {this.state.VisitorDetails?.status == 5 &&
+                      this.state.VisitorDetails?.checkInTime != null &&
+                      this.state.VisitorDetails?.checkOutTime != null ? null : (
+                        <View style={{flexDirection: 'row'}}>
+                          {this.state.VisitorDetails?.checkOutTime == null &&
+                          this.state.VisitorDetails?.status == 5 ? (
+                            <TouchableOpacity
+                              onPress={() => {
+                                this.setState({modalVisible: false});
+                                console.log(
+                                  'Parameter ++=,',
+                                  this.state.VisitorDetails,
+                                );
+                                this.props.VizApprove(
+                                    this.state.VisitorDetails?.inOutId +'/'+
+                                    this.props.LoginDetails.userID +
+                                    '/' +
+                                    this.props.LoginDetails.empID +
+                                    '/' +
+                                    this.state.VisitorDetails?.fullName,
+                                  this.vizApproveSuccess,
+                                );
+                              }}
+                              style={{
+                                backgroundColor: COLORS.tempGreen,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 10,
+                                height: 30,
+                                width: '30%',
+                                margin: '1%',
+                              }}>
+                              <Text style={{color: 'white', fontSize: 12}}>
+                                Approve
+                              </Text>
+                            </TouchableOpacity>
+                          ) : null}
+                          {this.state.VisitorDetails?.status == 4 ||
+                          this.state.VisitorDetails?.status == 5 ? (
+                            <TouchableOpacity
+                              onPress={() => {
+                                console.log("first"),
+                                this.setState({RejectMeeiting: true,});
+                              }}
+                              style={{
+                                backgroundColor: COLORS.tempRed,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 10,
+                                height: 30,
+                                width: '30%',
+                                margin: '1%',
+                              }}>
+                              <Text style={{color: 'white', fontSize: 12}}>
+                                Reject
+                              </Text>
+                            </TouchableOpacity>
+                          ) : null}
+
+                          {this.state.VisitorDetails?.status == 4 ||
+                          this.state.VisitorDetails?.status == 5 ? (
+                            <TouchableOpacity
+                              onPress={() => {
+                                this.rescheduledVisit();
+                              }}
+                              style={{
+                                backgroundColor: COLORS.tempYellow,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 10,
+                                height: 30,
+                                width: '28%',
+                                margin: '1%',
+                              }}>
+                              <Text style={{color: 'white', fontSize: 12}}>
+                                Reschedule
+                              </Text>
+                            </TouchableOpacity>
+                          ) : null}
+                          {!this.state.meetingoutSH &&
+                          this.props.LoginDetails.userRoleId == 4 &&
+                          this.props.isReport != 1 &&
+                          this.state.VisitorDetails?.status == 1 &&
+                          this.state.VisitorDetails?.meetOutTime == null ? (
+                            <TouchableOpacity
+                              onPress={() => {
+                                this.setState({
+                                  modalVisible: false,
+                                  remarks: '',
+                                  meetingoutSH: true,
+                                }),
+                                  Toast.show('Scroll Down');
+                              }}
+                              style={{
+                                backgroundColor: COLORS.skyBlue,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 10,
+                                height: 30,
+                                width: '29%',
+                                margin: '0.5%',
+                              }}>
+                              <Text style={{color: 'white', fontSize: 12}}>
+                                Meeting Out
+                              </Text>
+                            </TouchableOpacity>
+                          ) : this.props.LoginDetails.userRoleId == 1 &&
+                            this.props.isReport != 1 &&
+                            this.state.VisitorDetails?.status == 1 &&
+                            this.state.VisitorDetails?.meetOutTime == null ? (
+                            <TouchableOpacity
+                              onPress={() => {
+                                this.setState({
+                                  modalVisible: false,
+                                  remarks: '',
+                                  meetingoutSH: true,
+                                }),
+                                  Toast.show('Scroll Down');
+                              }}
+                              style={{
+                                backgroundColor: COLORS.skyBlue,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 10,
+                                height: 30,
+                                width: '29%',
+                                margin: '0.5%',
+                              }}>
+                              <Text style={{color: 'white', fontSize: 12}}>
+                                Meeting Out
+                              </Text>
+                            </TouchableOpacity>
+                          ) : null}
+                          {
+                            this.state.VisitorDetails?.status==4 &&
+                            <TouchableOpacity
+                              onPress={() => {
+                                this.props.MeetingIn(this.state.VisitorDetails.inOutId,this.vizMeetingIn())
+                              }}
+                              style={{
+                                backgroundColor: COLORS.skyBlue,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 10,
+                                height: 30,
+                                width: '29%',
+                                margin: '0.5%',
+                              }}>
+                              <Text style={{color: 'white', fontSize: 12}}>
+                                Meeting In
+                              </Text>
+                            </TouchableOpacity>
+                          }
+                        </View>
+                      )}
+                    </View>}
                 </View>
               </ScrollView>
             ) : (
@@ -2247,12 +2426,12 @@ const result = this.state.remarks.replace(regex, '');
                   this.props.LoginDetails.userRoleId == 4 ||
                   this.props.LoginDetails.userRoleId == 1) ? (
                     <View style={{alignItems: 'center', padding: 10}}>
-                      {this.state.VisitorDetails?.status == 4 &&
+                      {this.state.VisitorDetails?.status == 5 &&
                       this.state.VisitorDetails?.checkInTime != null &&
                       this.state.VisitorDetails?.checkOutTime != null ? null : (
                         <View style={{flexDirection: 'row'}}>
                           {this.state.VisitorDetails?.checkOutTime == null &&
-                          this.state.VisitorDetails?.status == 4 ? (
+                          this.state.VisitorDetails?.status == 5 ? (
                             <TouchableOpacity
                               onPress={() => {
                                 this.setState({modalVisible: false});
@@ -2261,8 +2440,6 @@ const result = this.state.remarks.replace(regex, '');
                                   this.state.VisitorDetails,
                                 );
                                 this.props.VizApprove(
-                                  1 +
-                                    '/' +
                                     this.state.VisitorDetails?.inOutId +'/'+
                                     this.props.LoginDetails.userID +
                                     '/' +
@@ -2382,10 +2559,188 @@ const result = this.state.remarks.replace(regex, '');
                               </Text>
                             </TouchableOpacity>
                           ) : null}
+                          {
+                            this.state.VisitorDetails?.status==4 &&
+                            <TouchableOpacity
+                              onPress={() => {
+                                this.props.MeetingIn(this.state.VisitorDetails.inOutId,this.vizMeetingIn())
+                              }}
+                              style={{
+                                backgroundColor: COLORS.skyBlue,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 10,
+                                height: 30,
+                                width: '29%',
+                                margin: '0.5%',
+                              }}>
+                              <Text style={{color: 'white', fontSize: 12}}>
+                                Meeting In
+                              </Text>
+                            </TouchableOpacity>
+                          }
                         </View>
                       )}
                     </View>
-                  ) : null}
+                  ) : this.props.LoginDetails.isApprover==false && this.props.LoginDetails.userId == this.state.VisitorDetails?.whomToMeet &&
+                  <View style={{alignItems: 'center', padding: 10}}>
+                      {this.state.VisitorDetails?.status == 5 &&
+                      this.state.VisitorDetails?.checkInTime != null &&
+                      this.state.VisitorDetails?.checkOutTime != null ? null : (
+                        <View style={{flexDirection: 'row'}}>
+                          {this.state.VisitorDetails?.checkOutTime == null &&
+                          this.state.VisitorDetails?.status == 5 ? (
+                            <TouchableOpacity
+                              onPress={() => {
+                                this.setState({modalVisible: false});
+                                console.log(
+                                  'Parameter ++=,',
+                                  this.state.VisitorDetails,
+                                );
+                                this.props.VizApprove(
+                                    this.state.VisitorDetails?.inOutId +'/'+
+                                    this.props.LoginDetails.userID +
+                                    '/' +
+                                    this.props.LoginDetails.empID +
+                                    '/' +
+                                    this.state.VisitorDetails?.fullName,
+                                  this.vizApproveSuccess,
+                                );
+                              }}
+                              style={{
+                                backgroundColor: COLORS.tempGreen,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 10,
+                                height: 30,
+                                width: '30%',
+                                margin: '1%',
+                              }}>
+                              <Text style={{color: 'white', fontSize: 12}}>
+                                Approve
+                              </Text>
+                            </TouchableOpacity>
+                          ) : null}
+                          {this.state.VisitorDetails?.status == 4 ||
+                          this.state.VisitorDetails?.status == 5 ? (
+                            <TouchableOpacity
+                              onPress={() => {
+                                console.log("first"),
+                                this.setState({RejectMeeiting: true,});
+                              }}
+                              style={{
+                                backgroundColor: COLORS.tempRed,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 10,
+                                height: 30,
+                                width: '30%',
+                                margin: '1%',
+                              }}>
+                              <Text style={{color: 'white', fontSize: 12}}>
+                                Reject
+                              </Text>
+                            </TouchableOpacity>
+                          ) : null}
+
+                          {this.state.VisitorDetails?.status == 4 ||
+                          this.state.VisitorDetails?.status == 5 ? (
+                            <TouchableOpacity
+                              onPress={() => {
+                                this.rescheduledVisit();
+                              }}
+                              style={{
+                                backgroundColor: COLORS.tempYellow,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 10,
+                                height: 30,
+                                width: '28%',
+                                margin: '1%',
+                              }}>
+                              <Text style={{color: 'white', fontSize: 12}}>
+                                Reschedule
+                              </Text>
+                            </TouchableOpacity>
+                          ) : null}
+                          {!this.state.meetingoutSH &&
+                          this.props.LoginDetails.userRoleId == 4 &&
+                          this.props.isReport != 1 &&
+                          this.state.VisitorDetails?.status == 1 &&
+                          this.state.VisitorDetails?.meetOutTime == null ? (
+                            <TouchableOpacity
+                              onPress={() => {
+                                this.setState({
+                                  modalVisible: false,
+                                  remarks: '',
+                                  meetingoutSH: true,
+                                }),
+                                  Toast.show('Scroll Down');
+                              }}
+                              style={{
+                                backgroundColor: COLORS.skyBlue,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 10,
+                                height: 30,
+                                width: '29%',
+                                margin: '0.5%',
+                              }}>
+                              <Text style={{color: 'white', fontSize: 12}}>
+                                Meeting Out
+                              </Text>
+                            </TouchableOpacity>
+                          ) : this.props.LoginDetails.userRoleId == 1 &&
+                            this.props.isReport != 1 &&
+                            this.state.VisitorDetails?.status == 1 &&
+                            this.state.VisitorDetails?.meetOutTime == null ? (
+                            <TouchableOpacity
+                              onPress={() => {
+                                this.setState({
+                                  modalVisible: false,
+                                  remarks: '',
+                                  meetingoutSH: true,
+                                }),
+                                  Toast.show('Scroll Down');
+                              }}
+                              style={{
+                                backgroundColor: COLORS.skyBlue,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 10,
+                                height: 30,
+                                width: '29%',
+                                margin: '0.5%',
+                              }}>
+                              <Text style={{color: 'white', fontSize: 12}}>
+                                Meeting Out
+                              </Text>
+                            </TouchableOpacity>
+                          ) : null}
+                          {
+                            this.state.VisitorDetails?.status==4 &&
+                            <TouchableOpacity
+                              onPress={() => {
+                                this.props.MeetingIn(this.state.VisitorDetails.inOutId,this.vizMeetingIn())
+                              }}
+                              style={{
+                                backgroundColor: COLORS.skyBlue,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 10,
+                                height: 30,
+                                width: '29%',
+                                margin: '0.5%',
+                              }}>
+                              <Text style={{color: 'white', fontSize: 12}}>
+                                Meeting In
+                              </Text>
+                            </TouchableOpacity>
+                          }
+                        </View>
+                      )}
+                    </View>
+                  }
                 </View>
               </ScrollView>
             )}
@@ -3444,6 +3799,13 @@ const result = this.state.remarks.replace(regex, '');
     } else {
       alert(this.state.VisitorDetails?.fullName + ' Approve Unsuccessfull');
     }
+  }
+  vizMeetingIn=()=>{
+    this.props.navigation.goBack();
+    Alert.alert(
+      'Success',
+      this.state.VisitorDetails?.fullName + ' Meeting Started',
+    );
   }
   vizRejectedSuccess = res => this.afterVizRejectedSuccess(res);
   afterVizRejectedSuccess(respp) {
