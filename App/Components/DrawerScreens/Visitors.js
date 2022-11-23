@@ -1,7 +1,7 @@
-import NetInfo from '@react-native-community/netinfo';
-import {Picker} from '@react-native-community/picker';
-import Moment from 'moment';
-import React from 'react';
+import NetInfo from "@react-native-community/netinfo";
+import { Picker } from "@react-native-community/picker";
+import Moment from "moment";
+import React from "react";
 import {
   Alert,
   Animated,
@@ -17,41 +17,47 @@ import {
   View,
   FlatList,
   Linking,
-} from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
-import {Switch} from 'react-native-gesture-handler';
-import LinearGradient from 'react-native-linear-gradient';
-import Pagination from 'react-native-pagination';
+} from "react-native";
+import TextAvatar from "react-native-text-avatar";
+import DropDownPicker from "react-native-dropdown-picker";
+import { Switch } from "react-native-gesture-handler";
+import LinearGradient from "react-native-linear-gradient";
+import Pagination from "react-native-pagination";
 // import ModalPicker from 'react-native-modal-picker'
-import {RFPercentage} from 'react-native-responsive-fontsize';
-import Toast from 'react-native-simple-toast';
-import {connect} from 'react-redux';
-import {COLORS, IMAGES} from '../../Assets/index.js';
-import {mapDispatchToProps, mapStateToProps} from '../../Reducers/ApiClass.js';
-import {visitorDetailEmpty} from '../../utility/emptyClass.js';
-import {Header} from '../CusComponent';
-import {EmployListRenderItem} from '../CusComponent/EmployListRenderItem.js';
-import CheckIn from '../Screens/CheckIn.js';
-import VisitorDetails from '../Screens/VisitorDetails.js';
-import {axiosAuthGet} from '../../utility/apiConnection';
-import Colors from '../../Assets/Colors/index.js';
-import moment from 'moment';
-import Images from '../../Assets/Images/index.js';
+import { RFPercentage } from "react-native-responsive-fontsize";
+import Toast from "react-native-simple-toast";
+import { connect } from "react-redux";
+import { COLORS, IMAGES } from "../../Assets/index.js";
+import { IMAGEURL } from "../../utility/util.js";
+
+import {
+  mapDispatchToProps,
+  mapStateToProps,
+} from "../../Reducers/ApiClass.js";
+import { visitorDetailEmpty } from "../../utility/emptyClass.js";
+import { Header } from "../CusComponent";
+import { EmployListRenderItem } from "../CusComponent/EmployListRenderItem.js";
+import CheckIn from "../Screens/CheckIn.js";
+import VisitorDetails from "../Screens/VisitorDetails.js";
+import { axiosAuthGet } from "../../utility/apiConnection";
+import Colors from "../../Assets/Colors/index.js";
+import moment from "moment";
+import Images from "../../Assets/Images/index.js";
 const placeholderTextColor = COLORS.placeholderColor;
-const {width, height} = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
 class ReceptionDashboard extends React.Component {
   constructor(props) {
     super(props);
     this.drRef = null;
     this.state = {
-      search: '',
-      status: '',
+      search: "",
+      status: "",
       VisitorList: [],
       EmployeeList: [],
       VisitorListforSearch: [],
       sortingArray: [],
-      inOutId: '',
+      inOutId: "",
       isRefreshing: false,
       modalVisible: false,
       DescOpen: false,
@@ -59,21 +65,21 @@ class ReceptionDashboard extends React.Component {
       AllOpen: false,
       show: false,
       statusList: [
-        {text: 'All Visitors', value: 0},
-        {text: 'Upcoming Visitors', value: 1},
-        {text: 'Completed Visitors', value: 2},
-        {text: 'Waiting Visitors', value: 3},
+        { text: "All Visitors", value: 0 },
+        { text: "Upcoming Visitors", value: 1 },
+        { text: "Completed Visitors", value: 2 },
+        { text: "Waiting Visitors", value: 3 },
         // {text: 'Today Visitors', value: 4},
       ],
       statusListIOS: [
-        {label: 'All Visitors', value: 0},
-        {label: 'Upcoming Visitors', value: 1},
-        {label: 'Completed Visitors', value: 2},
-        {label: 'Waiting Visitors', value: 3},
-        {label: 'Today Visitors', value: 4},
+        { label: "All Visitors", value: 0 },
+        { label: "Upcoming Visitors", value: 1 },
+        { label: "Completed Visitors", value: 2 },
+        { label: "Waiting Visitors", value: 3 },
+        { label: "Today Visitors", value: 4 },
       ],
-      imageBase64StringPhotoProof: {fileName: null, data: null},
-      imageBase64StringIdProof: {fileName: null, data: null},
+      imageBase64StringPhotoProof: { fileName: null, data: null },
+      imageBase64StringIdProof: { fileName: null, data: null },
       VisitorDetails: visitorDetailEmpty,
       selectedList: 4,
       visitors: true,
@@ -86,12 +92,12 @@ class ReceptionDashboard extends React.Component {
       curY: new Animated.Value(0),
       height: 0,
       SubscriptionLimit: 0,
-      placeholdText: 'Mobile / Name / Invite Code / Status / Date',
+      placeholdText: "Mobile / Name / Invite Code / Status / Date",
     };
   }
 
   toggleModal(visible) {
-    this.setState({modalVisible: visible});
+    this.setState({ modalVisible: visible });
   }
   componentWillUnmount() {
     // Unsubscribe
@@ -106,10 +112,11 @@ class ReceptionDashboard extends React.Component {
     //     return this.props.navigation.navigate("Gatekeepar");
     // }
   }
-  call = res => alert(res);
+  
+  call = (res) => alert(res);
   componentDidMount() {
     console.log(
-      this.props.LoginDetails.userID + '/' + this.props.LoginDetails.empID,
+      this.props.LoginDetails.userID + "/" + this.props.LoginDetails.empID
     );
     // BackHandler.removeEventListener('hardwareBackPress', this.backButtonClick);
     this.getData();
@@ -121,9 +128,9 @@ class ReceptionDashboard extends React.Component {
     this.props.ChkSubscriptionLimit(this.props.LoginDetails.userID);
     this.props.GetAllSettings(this.props.LoginDetails.userID);
     this.props.GetReceptionList(this.props.LoginDetails.userID);
-    this.focusListener = this.props.navigation.addListener('focus', () => {
+    this.focusListener = this.props.navigation.addListener("focus", () => {
       // global.this.getNotification()
-      this.setState({search: '', show: false, visitors: true});
+      this.setState({ search: "", show: false, visitors: true });
       if (this.props.Update) {
         this.props.Update(false);
         this.callApi(this.state.selectedList);
@@ -132,89 +139,97 @@ class ReceptionDashboard extends React.Component {
     });
     this.callApi(this.state.selectedList);
   }
-  getVisitors = res => null;
+  getVisitors = (res) => null;
   getVizList(selectedList) {
     // const {LoginDetails} = this.props;
     // let this.props.LoginDetails.userRoleId = LoginDetails.userRoleId;
     if (this.props.LoginDetails.userRoleId === 2) {
       this.props.GetVisitorForGateKeeper(
-        this.props.LoginDetails.userID + '/' + this.props.LoginDetails.empID,
-        this.visitorListSuccess,
+        this.props.LoginDetails.userID + "/" + this.props.LoginDetails.empID,
+        this.visitorListSuccess
       );
     } else if (this.props.LoginDetails.userRoleId === 3) {
       if (selectedList === 0) {
-        console.log('Parent Id====', this.props.LoginDetails);
+        console.log("Parent Id====", this.props.LoginDetails);
         this.props.GetVisitorForReception(
-          this.props.LoginDetails.userID + '/' + this.props.LoginDetails.empID,
-          this.visitorListSuccess,
+          this.props.LoginDetails.userID + "/" + this.props.LoginDetails.empID,
+          this.visitorListSuccess
         );
       } else if (selectedList === 1) {
         this.props.GetVisitorForReceptionUPcomming(
-          this.props.LoginDetails.userID + '/' + this.props.LoginDetails.empID,
-          this.visitorListSuccess,
+          this.props.LoginDetails.userID + "/" + this.props.LoginDetails.empID,
+          this.visitorListSuccess
         );
       } else if (selectedList === 2) {
         this.props.GetVisitorForReceptionCompleted(
-          this.props.LoginDetails.userID + '/' + this.props.LoginDetails.empID,
-          this.visitorListSuccess,
+          this.props.LoginDetails.userID + "/" + this.props.LoginDetails.empID,
+          this.visitorListSuccess
         );
       } else if (selectedList === 3) {
         this.props.GetVisitorForReceptionWaiting(
-          this.props.LoginDetails.userID + '/' + this.props.LoginDetails.empID,
-          this.visitorListSuccess,
+          this.props.LoginDetails.userID + "/" + this.props.LoginDetails.empID,
+          this.visitorListSuccess
         );
       } else if (selectedList === 4) {
         this.props.GetVisitorForReception(
-          this.props.LoginDetails.userID + '/' + this.props.LoginDetails.empID,
-          this.visitorListSuccess,
+          this.props.LoginDetails.userID + "/" + this.props.LoginDetails.empID,
+          this.visitorListSuccess
         );
       }
     } else if (
       this.props.LoginDetails.userRoleId === 4 ||
       this.props.LoginDetails.userRoleId === 1
     ) {
-      console.log('In Employee');
+      console.log("In Employee");
       this.props.EmpVisitorList(
         this.props.LoginDetails.userID,
         this.props.LoginDetails.empID,
-        this.visitorListSuccess,
+        this.visitorListSuccess
       );
     }
   }
-  visitorListSuccess = res => this.afterVisitorListSuccess(res);
+  visitorListSuccess = (res) => this.afterVisitorListSuccess(res);
   afterVisitorListSuccess(VisitorList) {
-    
     if (this.state.selectedList === 2) {
       VisitorList = VisitorList.sort(function (a, b) {
         return new Date(b.date) - new Date(a.date);
       });
     }
-    console.log('this.state.selectedList', VisitorList);
+    console.log("this.state.selectedList", VisitorList);
 
     var statusName = [];
-    VisitorList.forEach(item => {
+    VisitorList.forEach((item) => {
       var temp;
-      if (item.status === 0) temp = Object.assign({}, item, {statusNName: ''});
+      if (item.status === 0)
+        temp = Object.assign({}, item, { statusNName: "" });
       else if (item.status === 1)
-        temp = Object.assign({}, item, {statusNName: 'Approve'});
+        temp = Object.assign({}, item, { statusNName: "Approve" });
       else if (item.status === 2)
-        temp = Object.assign({}, item, {statusNName: 'Rejected'});
+        temp = Object.assign({}, item, { statusNName: "Rejected" });
       else if (item.status === 3)
-        temp = Object.assign({}, item, {statusNName: 'Rescheduled'});
+        temp = Object.assign({}, item, { statusNName: "Rescheduled" });
       else if (item.status === 4) {
         if (item.checkInTime !== null && item.checkOutTime !== null) {
-          temp = Object.assign({}, item, {statusNName: 'AlreadyCheckOut'});
+          temp = Object.assign({}, item, { statusNName: "AlreadyCheckOut" });
         } else {
-          temp = Object.assign({}, item, {statusNName: 'Waiting'});
+          temp = Object.assign({}, item, { statusNName: "Check In" });
         }
       } else if (item.status === 5)
-        temp = Object.assign({}, item, {statusNName: 'Invite'});
+        temp = Object.assign({}, item, { statusNName: "Invite" });
+      else if (item.status === 6)
+        temp = Object.assign({}, item, { statusNName: "Meeting In" });
+      else if (item.status === 7)
+        temp = Object.assign({}, item, { statusNName: "Meeting Out" });
+      else if (item.status === 8)
+        temp = Object.assign({}, item, { statusNName: "Check Out" });
       statusName.push(temp);
     });
     var details = [];
     // this gives an object with dates as keys
     var groups = statusName.reduce((groups, game) => {
-      const date = game.date.split('T')[0];
+      const date = game.date.split("T")[0];
+      console.log("===", date);
+
       if (!groups[date]) {
         groups[date] = [];
       }
@@ -222,7 +237,7 @@ class ReceptionDashboard extends React.Component {
       return groups;
     }, {});
 
-    var groupArrays = Object.keys(groups).map(date => {
+    var groupArrays = Object.keys(groups).map((date) => {
       return {
         date,
         allData: groups[date],
@@ -245,11 +260,11 @@ class ReceptionDashboard extends React.Component {
       this.props.LoginDetails.userRoleId != 1 &&
       this.state.selectedList === 4
     ) {
-      console.log('Hello');
+      console.log("Hello");
 
-      var d = Moment(moment.utc()).format('YYYY-MM-DD');
+      var d = Moment(moment.utc()).format("YYYY-MM-DD");
       // "date": "2022-04-21"console.log(groupArrays[0]);
-      groupArrays = groupArrays.filter(date => {
+      groupArrays = groupArrays.filter((date) => {
         return d == date.date;
       });
       this.setState({
@@ -260,7 +275,7 @@ class ReceptionDashboard extends React.Component {
       });
 
       // this.setState({ VisitorList, VisitorListforSearch: VisitorList })
-      if (this.state.visitors && this.state.search !== '') {
+      if (this.state.visitors && this.state.search !== "") {
         this.SearchFilterFunction(this.state.search);
       }
     } else {
@@ -272,7 +287,7 @@ class ReceptionDashboard extends React.Component {
       });
 
       // this.setState({ VisitorList, VisitorListforSearch: VisitorList })
-      if (this.state.visitors && this.state.search !== '') {
+      if (this.state.visitors && this.state.search !== "") {
         this.SearchFilterFunction(this.state.search);
       }
     }
@@ -281,7 +296,7 @@ class ReceptionDashboard extends React.Component {
     // const {LoginDetails} = this.props;
     // let this.props.LoginDetails.userRoleId = LoginDetails.userRoleId;
     this.setState({
-      placeholdText: 'Mobile / Name / Invite Code / Status / Date',
+      placeholdText: "Mobile / Name / Invite Code / Status / Date",
     });
     if (this.props.LoginDetails.userRoleId === 3) {
       // console.log(
@@ -294,26 +309,26 @@ class ReceptionDashboard extends React.Component {
       // );
       this.props.GetRecpDashboard(
         this.props.LoginDetails.userID +
-          '/' +
+          "/" +
           this.props.LoginDetails.userRoleId +
-          '/' +
-          this.props.LoginDetails.empID,
+          "/" +
+          this.props.LoginDetails.empID
       );
     }
-    console.log(':::::: call api ::::::');
+    console.log(":::::: call api ::::::");
     this.getVizList(selectedList);
   }
 
   getParsedDate(date) {
-    date = String(date).split('-');
+    date = String(date).split("-");
     return [
-      parseInt(date[2]) + '-' + parseInt(date[1]) + '-' + parseInt(date[0]),
+      parseInt(date[2]) + "-" + parseInt(date[1]) + "-" + parseInt(date[0]),
     ];
   }
 
   addZero(no) {
     if (no.toString().length === 1) {
-      return '0' + no;
+      return "0" + no;
     } else {
       return no;
     }
@@ -324,8 +339,8 @@ class ReceptionDashboard extends React.Component {
   //     return [this.addZero(parseInt(fDate[0])) + ":" + this.addZero(parseInt(fDate[1]))];
   // }
   onRefresh = () => {
-    this.setState({isRefreshing: true, search: ''});
-    NetInfo.fetch().then(state => {
+    this.setState({ isRefreshing: true, search: "" });
+    NetInfo.fetch().then((state) => {
       if (state.isConnected) {
         if (this.state.visitors) {
           this.props.GetAllSettings(this.props.LoginDetails.userID);
@@ -333,22 +348,22 @@ class ReceptionDashboard extends React.Component {
         } else {
           this.props.GetEmpCheckInList(
             this.props.LoginDetails.userID,
-            this.getEmpCheckInListSuccess,
+            this.getEmpCheckInListSuccess
           );
         }
       } else {
-        alert('Please check Network');
+        alert("Please check Network");
       }
     });
     setTimeout(() => {
-      this.setState({isRefreshing: false});
+      this.setState({ isRefreshing: false });
     }, 3000);
   };
-  getEmpCheckInListSuccess = res => this.afterGetEmpCheckInListSuccess(res);
+  getEmpCheckInListSuccess = (res) => this.afterGetEmpCheckInListSuccess(res);
   afterGetEmpCheckInListSuccess(EmployeeList) {
-    this.setState({EmployeeList});
-    this.setState({placeholdText: 'Name'});
-    if (!this.state.visitors && this.state.search !== '')
+    this.setState({ EmployeeList });
+    this.setState({ placeholdText: "Name" });
+    if (!this.state.visitors && this.state.search !== "")
       this.SearchFilterFunction(this.state.search);
   }
   employeeCheckInOrOutModal() {
@@ -356,7 +371,7 @@ class ReceptionDashboard extends React.Component {
       <Modal
         // backgroundColor={"black"}
         // backdropColor={"black"}
-        animationType={'fade'}
+        animationType={"fade"}
         transparent={true}
         visible={this.state.employeeCheckInOrOutModal}
         onRequestClose={() => {
@@ -365,7 +380,8 @@ class ReceptionDashboard extends React.Component {
             Temperature: null,
             employeeCheckInOrOutModal: false,
           });
-        }}>
+        }}
+      >
         <TouchableWithoutFeedback
           style={styles.container}
           activeOpacity={1}
@@ -375,33 +391,37 @@ class ReceptionDashboard extends React.Component {
               Temperature: null,
               employeeCheckInOrOutModal: false,
             });
-          }}>
+          }}
+        >
           <View
             style={{
               flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: 'rgba(52, 52, 52, 0.8)',
-            }}>
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(52, 52, 52, 0.8)",
+            }}
+          >
             <View
               style={{
-                width: '80%',
+                width: "80%",
                 height: null,
                 backgroundColor: COLORS.white,
                 borderRadius: 13,
                 padding: 10,
-                alignItems: 'center',
-              }}>
+                alignItems: "center",
+              }}
+            >
               <Text
                 style={{
-                  width: '100%',
-                  textAlign: 'center',
+                  width: "100%",
+                  textAlign: "center",
                   fontSize: 23,
-                  fontWeight: 'bold',
-                }}>
+                  fontWeight: "bold",
+                }}
+              >
                 {!this.state.selectedEmployee?.isCheckIN
-                  ? 'Employee Check In'
-                  : 'Employee Check Out'}
+                  ? "Employee Check In"
+                  : "Employee Check Out"}
               </Text>
               <View
                 style={{
@@ -410,72 +430,82 @@ class ReceptionDashboard extends React.Component {
                   elevation: 3,
                   backgroundColor: COLORS.white,
                   marginVertical: 10,
-                  width: '100%',
+                  width: "100%",
                   padding: 10,
-                  alignItems: 'center',
-                }}>
+                  alignItems: "center",
+                }}
+              >
                 <Text
                   style={{
                     padding: 7,
                     color: COLORS.black,
-                    fontWeight: 'bold',
-                    textAlign: 'left',
+                    fontWeight: "bold",
+                    textAlign: "left",
                     fontSize: 15,
-                    width: '100%',
-                  }}>
+                    width: "100%",
+                  }}
+                >
                   {this.state.selectedEmployee?.fullName}
                 </Text>
                 <View
                   style={{
-                    width: '100%',
-                    flexDirection: 'row',
+                    width: "100%",
+                    flexDirection: "row",
                     padding: 10,
-                    alignItems: 'center',
-                  }}>
+                    alignItems: "center",
+                  }}
+                >
                   <Text
                     style={{
                       fontSize: 18,
                       color: COLORS.graye00,
-                      textAlign: 'left',
+                      textAlign: "left",
                       flexGrow: 1,
-                    }}>
-                    {'is vaccinated'}
+                    }}
+                  >
+                    {"is vaccinated"}
                   </Text>
                   <Switch
-                    style={{alignSelf: 'flex-end'}}
-                    trackColor={{false: COLORS.graye00, true: COLORS.blue81}}
+                    style={{ alignSelf: "flex-end" }}
+                    trackColor={{ false: COLORS.graye00, true: COLORS.blue81 }}
                     thumbColor={
                       this.state.isArogyaSetu ? COLORS.yellowf5 : COLORS.grayf4
                     }
                     ios_backgroundColor={COLORS.transparent3e}
                     onValueChange={() => {
-                      this.setState({isArogyaSetu: !this.state.isArogyaSetu});
+                      this.setState({ isArogyaSetu: !this.state.isArogyaSetu });
                     }}
                     value={this.state.isArogyaSetu}
                   />
                 </View>
                 <View
                   style={{
-                    width: '100%',
+                    width: "100%",
                     padding: 10,
-                    justifyContent: 'center',
-                  }}>
+                    justifyContent: "center",
+                  }}
+                >
                   <Text
                     style={{
                       fontSize: 10,
                       color: COLORS.graye00,
-                      textAlign: 'left',
+                      textAlign: "left",
                       flexGrow: 1,
-                    }}>
-                    {'Temperature'}
+                    }}
+                  >
+                    {"Temperature"}
                   </Text>
                   <TextInput
-                    style={{borderBottomWidth: 0.5, width: '100%', height: 45}}
-                    placeholder={'Ex.:- 93' + '\u00b0'}
+                    style={{
+                      borderBottomWidth: 0.5,
+                      width: "100%",
+                      height: 45,
+                    }}
+                    placeholder={"Ex.:- 93" + "\u00b0"}
                     placeholderTextColor={COLORS.placeholderColor}
                     maxLength={6}
-                    keyboardType={'phone-pad'}
-                    onChangeText={Temperature =>
+                    keyboardType={"phone-pad"}
+                    onChangeText={(Temperature) =>
                       this.handleInputChange(Temperature)
                     }
                     value={this.state.Temperature}
@@ -483,14 +513,15 @@ class ReceptionDashboard extends React.Component {
                 </View>
                 <View
                   style={{
-                    width: '100%',
+                    width: "100%",
                     padding: 10,
-                    justifyContent: 'center',
-                  }}>
+                    justifyContent: "center",
+                  }}
+                >
                   <TouchableOpacity
                     style={{
                       backgroundColor: COLORS.secondary,
-                      alignItems: 'center',
+                      alignItems: "center",
                       borderRadius: 5,
                     }}
                     onPress={() => {
@@ -505,19 +536,21 @@ class ReceptionDashboard extends React.Component {
                       // } else {
                       //     Toast.show('Please enable Arogya Setu')
                       // }
-                    }}>
+                    }}
+                  >
                     <Text
                       style={{
-                        width: '100%',
+                        width: "100%",
                         fontSize: 18,
                         color: COLORS.white,
-                        textAlign: 'center',
+                        textAlign: "center",
                         padding: 10,
-                        fontWeight: 'bold',
-                      }}>
+                        fontWeight: "bold",
+                      }}
+                    >
                       {!this.state.selectedEmployee?.isCheckIN
-                        ? 'Check In'
-                        : 'Check Out'}
+                        ? "Check In"
+                        : "Check Out"}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -532,28 +565,28 @@ class ReceptionDashboard extends React.Component {
     // console.log(details);
     if (
       this.props.LoginDetails.empID == details.whomToMeet &&
-      status == 'INVITED'
+      status == "INVITED"
     ) {
       Linking.openURL(
         `whatsapp://send?phone=+91` +
           details.mobile +
-          '&text=' +
+          "&text=" +
           details.fullName +
-          '\n\n' +
-          'You have a meeting with ' +
+          "\n\n" +
+          "You have a meeting with " +
           details.whomToMeetName +
-          ', ' +
+          ", " +
           details.company +
-          ' on ' +
-          Moment(moment.utc(details.inTime)).format('DD/MM/YYYY') +
-          ' at ' +
-          Moment(moment.utc(details.inTime)).format('h:mm a') +
-          '. Your Invite code is ' +
+          " on " +
+          Moment(moment.utc(details.inTime)).format("DD/MM/YYYY") +
+          " at " +
+          Moment(moment.utc(details.inTime)).format("h:mm a") +
+          ". Your Invite code is " +
           details.inviteCode.trim() +
-          ' .' +
-          '\n\n' +
-          'Thanks ' +
-          encodeURI('vizman.app'),
+          " ." +
+          "\n\n" +
+          "Thanks " +
+          encodeURI("vizman.app")
       );
     }
     // else{
@@ -561,15 +594,15 @@ class ReceptionDashboard extends React.Component {
     // }
   };
   handleInputChange = (Temperature, tag) => {
-    var Temp = Temperature.replace(/[- #*;,+<>N()\{\}\[\]\\\/]/gi, '');
+    var Temp = Temperature.replace(/[- #*;,+<>N()\{\}\[\]\\\/]/gi, "");
     if (this.validateTemp(Temp)) {
       if (tag === 2) {
         var VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
           vizTemp: Temp,
         });
-        this.setState({VisitorDetails});
+        this.setState({ VisitorDetails });
       } else {
-        this.setState({Temperature: Temp});
+        this.setState({ Temperature: Temp });
       }
     }
   };
@@ -583,12 +616,12 @@ class ReceptionDashboard extends React.Component {
       ? this.state.VisitorListforSearch
       : this.props.EmployeeList;
     var x;
-    await masterSearchList.filter(item => {
+    await masterSearchList.filter((item) => {
       x = item.allData;
     });
     // console.log('Search==', x);
     // masterSearchList = x
-    if (search !== '') {
+    if (search !== "") {
       // const newData = masterSearchList.filter(function (item) {
       //     console.log("Item==", item);
       //     var itemm = item.inviteCode + item.mobile + item.fullName
@@ -598,9 +631,9 @@ class ReceptionDashboard extends React.Component {
       // });
 
       var newData = [];
-      await masterSearchList.filter(async e => {
+      await masterSearchList.filter(async (e) => {
         // var d = Moment(moment.utc()e.date).format("DD-MM-YYYY").includes(search)
-        var n = await e.allData.filter(item => {
+        var n = await e.allData.filter((item) => {
           const name = item.fullName.toUpperCase();
           const status = item.statusNName.toUpperCase();
 
@@ -611,11 +644,11 @@ class ReceptionDashboard extends React.Component {
             status.includes(s) ||
             name.includes(s) ||
             item.inviteCode.includes(search) ||
-            Moment(moment.utc(item.date)).format('DD-MM-YYYY').includes(search)
+            Moment(moment.utc(item.date)).format("DD-MM-YYYY").includes(search)
           );
         });
         if (n.length !== 0) {
-          newData.push({date: e.date, allData: n});
+          newData.push({ date: e.date, allData: n });
         }
       });
       // masterSearchList.filter(e =>
@@ -625,26 +658,26 @@ class ReceptionDashboard extends React.Component {
       //     )
       // console.log('New Data:==', newData);
 
-      console.log('login 1');
+      console.log("login 1");
       this.state.visitors
         ? this.setState({
             VisitorList: newData,
             search: search,
           })
-        : (newData = this.props.EmployeeList.filter(item => {
+        : (newData = this.props.EmployeeList.filter((item) => {
             const name = item.fullName.toUpperCase();
 
             const s = search.toUpperCase();
 
             return name.includes(s);
           }));
-      console.log('login 2');
+      console.log("login 2");
       this.setState({
         EmployeeList: newData,
         search: search,
       });
     } else {
-      console.log('login 3');
+      console.log("login 3");
 
       this.state.visitors
         ? this.setState({
@@ -656,7 +689,7 @@ class ReceptionDashboard extends React.Component {
             search: search,
           });
     }
-    console.log('----- last process ---');
+    console.log("----- last process ---");
   }
   ListofData() {
     // const {LoginDetails} = this.props;
@@ -687,19 +720,19 @@ class ReceptionDashboard extends React.Component {
     const headerDistance = Animated.diffClamp(
       this.state.curY,
       0,
-      this.state.height + 70,
+      this.state.height + 70
     ).interpolate({
       inputRange: [0, 1],
       outputRange: [0, -1],
-      extrapolate: 'clamp',
+      extrapolate: "clamp",
     });
 
     return (
-      <View style={{flex: 1, paddingBottom: 10}}>
+      <View style={{ flex: 1, paddingBottom: 10 }}>
         {this.props.LoginDetails.userRoleId === 3 ? (
           <Animated.View
-            onLayout={({nativeEvent}) =>
-              this.setState({height: nativeEvent.layout.height})
+            onLayout={({ nativeEvent }) =>
+              this.setState({ height: nativeEvent.layout.height })
             }
             style={{
               transform: [
@@ -707,26 +740,29 @@ class ReceptionDashboard extends React.Component {
                   translateY: headerDistance,
                 },
               ],
-              width: '99.8%',
+              width: "99.8%",
               marginVertical: 2,
-            }}>
+            }}
+          >
             <View
               style={{
-                marginTop: Platform.OS === 'ios' ? 5 : 2,
+                marginTop: Platform.OS === "ios" ? 5 : 2,
                 backgroundColor: COLORS.whitef4,
-                alignItems: 'center',
-                width: '100%',
+                alignItems: "center",
+                width: "100%",
                 height: 70,
-                flexDirection: 'row',
-              }}>
+                flexDirection: "row",
+              }}
+            >
               <LinearGradient
-                style={[styles.box, {marginLeft: 5}]}
-                colors={[COLORS.primary, COLORS.third]}>
+                style={[styles.box, { marginLeft: 5 }]}
+                colors={[COLORS.primary, COLORS.third]}
+              >
                 {/* {
         Platform.OS === 'ios' ? */}
                 <View style={styles.headerWrapper}>
                   <Text numberOfLines={2} style={styles.boxText}>
-                    {'Waiting Visitors'}
+                    {"Waiting Visitors"}
                   </Text>
                 </View>
                 {/* :
@@ -737,15 +773,17 @@ class ReceptionDashboard extends React.Component {
                   style={{
                     color: COLORS.white,
                     fontSize: 25,
-                    alignSelf: 'center',
-                    marginTop: Platform.OS === 'ios' ? 5 : null,
-                  }}>
+                    alignSelf: "center",
+                    marginTop: Platform.OS === "ios" ? 5 : null,
+                  }}
+                >
                   {this.props.ReceptionData?.waitingViz}
                 </Text>
               </LinearGradient>
               <LinearGradient
                 style={styles.box}
-                colors={[COLORS.primary, COLORS.third]}>
+                colors={[COLORS.primary, COLORS.third]}
+              >
                 {/* {
         Platform.OS === 'ios' ? */}
                 <View style={styles.headerWrapper}>
@@ -759,22 +797,24 @@ class ReceptionDashboard extends React.Component {
 
                 <Text
                   style={{
-                    color: 'white',
+                    color: "white",
                     fontSize: 25,
-                    alignSelf: 'center',
-                    marginTop: Platform.OS === 'ios' ? 5 : null,
-                  }}>
+                    alignSelf: "center",
+                    marginTop: Platform.OS === "ios" ? 5 : null,
+                  }}
+                >
                   {this.props.ReceptionData?.todayViz}
                 </Text>
               </LinearGradient>
               <LinearGradient
                 style={styles.box}
-                colors={[COLORS.primary, COLORS.third]}>
+                colors={[COLORS.primary, COLORS.third]}
+              >
                 {/* {
         Platform.OS === 'ios' ? */}
                 <View style={styles.headerWrapper}>
                   <Text numberOfLines={2} style={styles.boxText}>
-                    {'Upcoming Visitors'}
+                    {"Upcoming Visitors"}
                   </Text>
                 </View>
                 {/* :
@@ -785,27 +825,29 @@ class ReceptionDashboard extends React.Component {
                   style={{
                     color: COLORS.white,
                     fontSize: 25,
-                    alignSelf: 'center',
-                    marginTop: Platform.OS === 'ios' ? 5 : null,
-                  }}>
+                    alignSelf: "center",
+                    marginTop: Platform.OS === "ios" ? 5 : null,
+                  }}
+                >
                   {this.props.ReceptionData?.upComingViz}
                 </Text>
               </LinearGradient>
               <LinearGradient
                 style={styles.box}
-                colors={[COLORS.primary, COLORS.third]}>
+                colors={[COLORS.primary, COLORS.third]}
+              >
                 {/* {
         Platform.OS === 'ios' ? */}
                 <View style={styles.headerWrapper}>
                   <Text numberOfLines={2} style={styles.boxText}>
-                    {'Current Visitors'}
+                    {"Current Visitors"}
                   </Text>
                 </View>
                 {/* :
             <Text numberOfLines={1} style={{ color: COLORS.white, borderBottomColor: COLORS.white, borderBottomWidth: 1, fontSize: 10, textAlign: 'center' }}>{"Current Visitors"}</Text>
     } */}
 
-                <Text style={{color: COLORS.white, fontSize: 25}}>
+                <Text style={{ color: COLORS.white, fontSize: 25 }}>
                   {this.props.ReceptionData?.currentViz}
                 </Text>
               </LinearGradient>
@@ -813,16 +855,16 @@ class ReceptionDashboard extends React.Component {
           </Animated.View>
         ) : null}
         <Animated.FlatList
-          style={{flex: 1}}
+          style={{ flex: 1 }}
           scrollEventThrottle={16}
           onScroll={Animated.event(
-            [{nativeEvent: {contentOffset: {y: this.state.curY}}}],
-            {useNativeDriver: true},
+            [{ nativeEvent: { contentOffset: { y: this.state.curY } } }],
+            { useNativeDriver: true }
           )}
           stickyHeaderIndices={[0]}
           contentContainerStyle={{
             flexGrow: 1,
-            width: '100%',
+            width: "100%",
             paddingTop: 5,
           }}
           data={
@@ -830,82 +872,88 @@ class ReceptionDashboard extends React.Component {
               ? this.state.VisitorList
               : this.state.EmployeeList
           }
-          ref={r => (this.refs = r)}
+          ref={(r) => (this.refs = r)}
           refreshing={this.state.isRefreshing}
           onRefresh={() => this.onRefresh()}
           ListHeaderComponent={
             <View
               style={{
                 zIndex: 9,
-                alignSelf: 'center',
+                alignSelf: "center",
                 backgroundColor: COLORS.whitef4,
-                justifyContent: 'center',
-              }}>
+                justifyContent: "center",
+              }}
+            >
               {this.props.LoginDetails.userRoleId === 4 ||
               this.props.LoginDetails.userRoleId === 1 ? null : (
                 <View
                   style={{
                     backgroundColor: COLORS.whitef4,
-                    flexDirection: 'row',
+                    flexDirection: "row",
                     height: 40,
-                    marginLeft: '1%',
-                    marginRight: '1%',
-                    width: '98%',
-                    alignSelf: 'center',
-                  }}>
+                    marginLeft: "1%",
+                    marginRight: "1%",
+                    width: "98%",
+                    alignSelf: "center",
+                  }}
+                >
                   <TouchableOpacity
                     onPress={() => {
-                      this.setState({visitors: true});
+                      this.setState({ visitors: true });
                       this.callApi(this.state.selectedList);
                     }}
                     disabled={this.state.visitors}
                     style={{
                       flex: 1,
                       marginRight: 5,
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      alignItems: "center",
+                      justifyContent: "center",
                       borderWidth: 1.5,
                       borderRadius: 5,
                       elevation: !this.props.isLoading ? 1 : 0,
                       backgroundColor: backgroundColor1,
                       borderColor: borderColor1,
-                    }}>
+                    }}
+                  >
                     <Text
                       style={{
                         width: 150,
-                        textAlign: 'center',
+                        textAlign: "center",
                         color: textColor1,
-                        fontWeight: 'bold',
-                      }}>
+                        fontWeight: "bold",
+                      }}
+                    >
                       Visitors
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => {
-                      this.setState({visitors: false});
+                      this.setState({ visitors: false });
                       this.props.GetEmpCheckInList(
                         this.props.LoginDetails.userID,
-                        this.getEmpCheckInListSuccess,
+                        this.getEmpCheckInListSuccess
                       );
                     }}
                     disabled={!this.state.visitors}
                     style={{
                       flex: 1,
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      alignItems: "center",
+                      justifyContent: "center",
                       borderWidth: 1.5,
                       borderRadius: 5,
                       elevation: !this.props.isLoading ? 1 : 0,
                       backgroundColor: backgroundColor,
                       borderColor: borderColor,
-                    }}>
+                    }}
+                  >
                     <Text
                       style={{
                         width: 150,
-                        textAlign: 'center',
+                        textAlign: "center",
                         color: textColor,
-                        fontWeight: 'bold',
-                      }}>
+                        fontWeight: "bold",
+                      }}
+                    >
                       Employee
                     </Text>
                   </TouchableOpacity>
@@ -913,35 +961,36 @@ class ReceptionDashboard extends React.Component {
               )}
               <View
                 style={{
-                  alignSelf: 'center',
+                  alignSelf: "center",
                   backgroundColor: COLORS.white,
-                  flexDirection: 'row',
+                  flexDirection: "row",
                   borderRadius: 10,
                   height: 35,
-                  width: '98%',
+                  width: "98%",
                   padding: 5,
                   marginVertical: 3,
-                }}>
+                }}
+              >
                 <Image
                   style={{
                     height: 20,
                     width: 25,
-                    resizeMode: 'contain',
-                    alignSelf: 'flex-start',
+                    resizeMode: "contain",
+                    alignSelf: "flex-start",
                   }}
                   source={IMAGES.search_a}
                 />
-                <View style={{height: 25, flexGrow: 1, marginLeft: 5}}>
+                <View style={{ height: 25, flexGrow: 1, marginLeft: 5 }}>
                   <TextInput
                     placeholderTextColor={COLORS.placeholderColor}
                     maxLength={
                       this.props.LoginDetails.userRoleId !== 2 ? 70 : 6
                     }
-                    style={{color: COLORS.black, padding: 0}}
-                    ref={el => {
+                    style={{ color: COLORS.black, padding: 0 }}
+                    ref={(el) => {
                       this.search = el;
                     }}
-                    onChangeText={search => this.SearchFilterFunction(search)}
+                    onChangeText={(search) => this.SearchFilterFunction(search)}
                     value={this.state.search}
                     placeholder={this.state.placeholdText}
                   />
@@ -951,56 +1000,58 @@ class ReceptionDashboard extends React.Component {
                 <View
                   style={{
                     zIndex: 99,
-                    height: Platform.OS == 'ios' ? 35 : 35,
-                    marginLeft: '1%',
-                    marginRight: '1%',
-                    width: '98%',
-                    backgroundColor: Platform.OS == 'ios' ? '' : 'white',
+                    height: Platform.OS == "ios" ? 35 : 35,
+                    marginLeft: "1%",
+                    marginRight: "1%",
+                    width: "98%",
+                    backgroundColor: Platform.OS == "ios" ? "" : "white",
                     borderRadius: 10,
                     margin: 5,
-                    flexDirection: 'row',
-                    alignItems: 'center',
+                    flexDirection: "row",
+                    alignItems: "center",
                     paddingLeft: 10,
                     paddingRight: 10,
-                  }}>
+                  }}
+                >
                   {this.state.visitors ? (
-                    <View style={{flex: 1}}>
-                      {Platform.OS === 'ios' ? (
+                    <View style={{ flex: 1 }}>
+                      {Platform.OS === "ios" ? (
                         <DropDownPicker
-                          ref={r => (this.drRef = r)}
+                          ref={(r) => (this.drRef = r)}
                           items={this.state.statusListIOS}
                           defaultValue={this.state.statusListIOS[4].value}
-                          containerStyle={{height: 45}}
-                          style={{backgroundColor: '#FFF'}}
+                          containerStyle={{ height: 45 }}
+                          style={{ backgroundColor: "#FFF" }}
                           itemStyle={{
-                            justifyContent: 'flex-start',
+                            justifyContent: "flex-start",
                           }}
-                          onChangeItem={item => {
+                          onChangeItem={(item) => {
                             // console.log('item: ', item);
 
                             if (item === undefined) {
-                              this.setState({selectedList: 4});
+                              this.setState({ selectedList: 4 });
                             } else {
-                              this.setState({selectedList: item.value});
+                              this.setState({ selectedList: item.value });
                             }
                             this.callApi(item.value);
                           }}
                         />
                       ) : (
                         <Picker
-                          style={{width: '100%', color: COLORS.black}}
+                          style={{ width: "100%", color: COLORS.black }}
                           indeterminate={true}
                           selectedValue={this.state.selectedList}
                           onValueChange={(itemValue, itemIndex) => {
                             // console.log('ASASAS', itemValue);
                             if (itemValue === undefined) {
-                              this.setState({selectedList: 4});
+                              this.setState({ selectedList: 4 });
                             } else {
-                              this.setState({selectedList: itemValue});
+                              this.setState({ selectedList: itemValue });
                             }
                             this.callApi(itemValue);
-                          }}>
-                          <Picker.Item label={'Today Visitors'} value={4} />
+                          }}
+                        >
+                          <Picker.Item label={"Today Visitors"} value={4} />
                           {this.state.statusList.map((item, key) => {
                             return (
                               <Picker.Item
@@ -1014,8 +1065,8 @@ class ReceptionDashboard extends React.Component {
                       )}
                     </View>
                   ) : (
-                    <View style={{flex: 1}}>
-                      <Text style={{width: '100%', color: COLORS.black}}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ width: "100%", color: COLORS.black }}>
                         Employee List
                       </Text>
                     </View>
@@ -1025,7 +1076,7 @@ class ReceptionDashboard extends React.Component {
             </View>
           }
           onRefresh={() => this.onRefresh()}
-          renderItem={({item, key}) => {
+          renderItem={({ item, key }) => {
             // console.log(item?.date);
             // const {LoginDetails} = this.props;
             // let this.props.LoginDetails.userRoleId = LoginDetails.userRoleId;
@@ -1033,58 +1084,70 @@ class ReceptionDashboard extends React.Component {
               return (
                 <View
                   style={{
-                    width: '100%',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
+                    width: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
                   <LinearGradient
                     style={{
                       padding: 7,
-                      alignItems: 'center',
-                      width: '32%',
+                      alignItems: "center",
+                      width: "32%",
                       borderRadius: 8,
                       marginTop: 7,
                       marginBottom: 10,
                     }}
-                    colors={[COLORS.primary, COLORS.third]}>
-                    <Text style={{color: COLORS.white, alignItems: 'center'}}>
-                      {Moment(moment.utc(item?.date)).format('DD-MM-YYYY')}
+                    colors={[COLORS.primary, COLORS.third]}
+                  >
+                    <Text style={{ color: COLORS.white, alignItems: "center" }}>
+                      {Moment(moment.utc(item?.date)).format("DD-MM-YYYY")}
                     </Text>
                   </LinearGradient>
                   <FlatList
                     data={item.allData}
-                    style={{margin: 5}}
+                    style={{ margin: 5,width:"90%" }}
                     //   refreshing={this.state.setRefreshing}
                     //   onRefresh={() => this.handleRefresh()}
                     // inverted={true}
-                    renderItem={({item}) =>
+                    renderItem={({ item }) =>
                       // <View />
                       {
                         // var cuTime=moment().format('h:mma')
                         // var otime=moment(item.outTime).format('h:mma')
-                     
+
                         // console.log("Out Time==",item.outTime);
                         // if(item.outTime==null){
-                        //   item.outTime=moment().endOf('day').format("yyyy-MM-DDThh:mm:ss")+"Z" 
+                        //   item.outTime=moment().endOf('day').format("yyyy-MM-DDThh:mm:ss")+"Z"
                         //   console.log("after===",item.outTime+"====="+moment().endOf('day').format("yyyy-MM-DDThh:mm:ssz"));
                         // }
                         if (item.inTime != null) {
                           var b = item.inTime.split("T");
                           var a = b[1].split("Z");
                           var itime = b[0] + " " + a[0];
-                      }
-                      
-                      if (item.outTime != null) {
+                        }
+
+                        if (item.outTime != null) {
                           var x = item.outTime.split("T");
                           var y = x[1].split("Z");
                           var otime = x[0] + " " + y[0];
-                      }
-                      //var dtf = new Date(frmdt);
-                      //var outf = new Date(outdt);
-                          var today = new Date();
-                          var date = today.getFullYear() + '-' + ("0" + (today.getMonth() + 1)).slice(-2) + '-' + ("0" + today.getDate()).slice(-2);
-                      var time = today.getHours() + ":" + ("0" + (today.getMinutes() + 1)).slice(-2) + ":" + today.getSeconds();
-                      var dateTime = date + ' ' + time;
+                        }
+                        //var dtf = new Date(frmdt);
+                        //var outf = new Date(outdt);
+                        var today = new Date();
+                        var date =
+                          today.getFullYear() +
+                          "-" +
+                          ("0" + (today.getMonth() + 1)).slice(-2) +
+                          "-" +
+                          ("0" + today.getDate()).slice(-2);
+                        var time =
+                          today.getHours() +
+                          ":" +
+                          ("0" + (today.getMinutes() + 1)).slice(-2) +
+                          ":" +
+                          today.getSeconds();
+                        var dateTime = date + " " + time;
 
                         {
                           this.props.LoginDetails.userRoleId === 2
@@ -1094,14 +1157,14 @@ class ReceptionDashboard extends React.Component {
                                 item.status === 1 ||
                                 item.status === 2
                                   ? item.checkInTime === null
-                                    ? ''
+                                    ? ""
                                     : Moment(
-                                        moment.utc(item.checkInTime),
-                                      ).format('hh:mm A')
+                                        moment.utc(item.checkInTime)
+                                      ).format("hh:mm A")
                                   : item.inTime === null
                                   ? null
                                   : Moment(moment.utc(item.inTime)).format(
-                                      'hh:mm A',
+                                      "hh:mm A"
                                     ))
                             : this.props.LoginDetails.userRoleId === 4 ||
                               this.props.LoginDetails.userRoleId === 1
@@ -1111,14 +1174,14 @@ class ReceptionDashboard extends React.Component {
                                 item.status === 1 ||
                                 item.status === 2
                                   ? item.checkInTime === null
-                                    ? ''
+                                    ? ""
                                     : Moment(
-                                        moment.utc(item.checkInTime),
-                                      ).format('hh:mm A')
+                                        moment.utc(item.checkInTime)
+                                      ).format("hh:mm A")
                                   : item.inTime === null
                                   ? null
                                   : Moment(moment.utc(item.inTime)).format(
-                                      'hh:mm A',
+                                      "hh:mm A"
                                     ))
                             : this.props.LoginDetails.userRoleId === 3
                             ? (inTime =
@@ -1127,24 +1190,23 @@ class ReceptionDashboard extends React.Component {
                                 item.status === 1 ||
                                 item.status === 2
                                   ? item.checkInTime === null
-                                    ? ''
+                                    ? ""
                                     : Moment(
-                                        moment.utc(item.checkInTime),
-                                      ).format('hh:mm A')
+                                        moment.utc(item.checkInTime)
+                                      ).format("hh:mm A")
                                   : item.inTime === null
                                   ? null
                                   : Moment(moment.utc(item.inTime)).format(
-                                      'hh:mm A',
+                                      "hh:mm A"
                                     ))
                             : (inTime =
                                 item.inTime === null
                                   ? null
                                   : Moment(moment.utc(item.inTime)).format(
-                                      'hh:mm A',
-                                    ))
-                                    
-                                  }
-                                  
+                                      "hh:mm A"
+                                    ));
+                        }
+
                         {
                           this.props.LoginDetails.userRoleId === 2
                             ? (outTime =
@@ -1153,14 +1215,14 @@ class ReceptionDashboard extends React.Component {
                                 item.status === 1 ||
                                 item.status === 2
                                   ? item.checkOutTime === null
-                                    ? ''
+                                    ? ""
                                     : Moment(
-                                        moment.utc(item.checkOutTime),
-                                      ).format('hh:mm A')
+                                        moment.utc(item.checkOutTime)
+                                      ).format("hh:mm A")
                                   : item.outTime === null
                                   ? null
                                   : Moment(moment.utc(item.outTime)).format(
-                                      'hh:mm A',
+                                      "hh:mm A"
                                     ))
                             : this.props.LoginDetails.userRoleId === 4 ||
                               this.props.LoginDetails.userRoleId === 1 ||
@@ -1171,73 +1233,85 @@ class ReceptionDashboard extends React.Component {
                                 item.status === 1 ||
                                 item.status === 2
                                   ? item.checkOutTime === null
-                                    ? ''
+                                    ? ""
                                     : Moment(
-                                        moment.utc(item.checkOutTime),
-                                      ).format('hh:mm A')
+                                        moment.utc(item.checkOutTime)
+                                      ).format("hh:mm A")
                                   : item.outTime === null
                                   ? null
                                   : Moment(moment.utc(item.outTime)).format(
-                                      'hh:mm A',
+                                      "hh:mm A"
                                     ))
                             : (outTime =
                                 item.outTime === null
                                   ? null
                                   : Moment(moment.utc(item.outTime)).format(
-                                      'hh:mm A',
+                                      "hh:mm A"
                                     ));
                         }
                         var backgroundColor = COLORS.white;
-                        var status = '';
+                        var status = "";
                         if (
                           this.props.LoginDetails.userRoleId !== 2 ||
                           this.props.LoginDetails.userRoleId !== 3
                         ) {
                           if (item.status === 3) {
                             backgroundColor = COLORS.tempYellow;
-                            status = 'RESCHEDULED';
+                            status = "RESCHEDULED";
                           } else if (item.status === 4) {
                             if (
                               item.checkInTime !== null &&
                               item.checkOutTime !== null
                             ) {
-                              backgroundColor = '#961448';
-                              status = 'ALREADY CHECKOUT';
+                              backgroundColor = "#961448";
+                              status = "ALREADY CHECKOUT";
                             } else {
                               backgroundColor = COLORS.skyBlue;
-                              status = 'WAITING';
+                              status = "Check In";
                             }
                           } else if (item.status === 5) {
-                            backgroundColor = '#4667cc';
-                            status = 'INVITED';
+                            backgroundColor = "#4667cc";
+                            status = "INVITED";
                           } else if (item.status === 2) {
                             backgroundColor = COLORS.tempRed;
-                            status = 'REJECTED';
+                            status = "REJECTED";
                           } else if (item.status === 1) {
                             backgroundColor = COLORS.tempGreen;
-                            status = 'APPROVED';
+                            status = "APPROVED";
+                          } else if (item.status === 6) {
+                            backgroundColor = COLORS.tempGreen;
+                            status = "Meeting In";
+                          } else if (item.status === 7) {
+                            backgroundColor = COLORS.tempGreen;
+                            status = "Meeting Out";
+                          } else if (item.status === 8) {
+                            backgroundColor = COLORS.tempGreen;
+                            status = "Check Out";
                           } else if (item.status === 0) {
                             backgroundColor = COLORS.white;
-                            status = '';
+                            status = "";
                           }
                         }
                         return (
                           <View
                             style={{
-                              width: '100%',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                            }}>
+                              width: "100%",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              
+                            }}
+                          >
                             <TouchableOpacity
                               style={{
                                 height: null,
-                                marginLeft: '1%',
-                                marginRight: '1%',
-                                width: '98%',
-                                borderRadius: 10,
+                                marginLeft: "1%",
+                                marginRight: "1%",
+                                width: "100%",
+                                borderRadius: 13,
                                 marginTop: 5,
                                 backgroundColor: COLORS.white,
                                 elevation: 0.5,
+                                borderWidth:0.5
                               }}
                               // onLongPress={()=>this.whatsappSharing(item,status)}
                               onPress={() => {
@@ -1246,127 +1320,91 @@ class ReceptionDashboard extends React.Component {
                                     VisitorDetails: item,
                                     // modalVisible: true,
                                   }),
-                                  this.props.navigation.navigate('VizDetails');
+                                  this.props.navigation.navigate("VizDetails");
                               }}
                               style={{
                                 marginTop: 5,
                                 marginBottom: 5,
-                                width: '100%',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                              }}>
+                                width: "100%",
+                                borderWidth:0.5,
+                                borderRadius:13,
+                                backgroundColor: Colors.white,
+                              }}
+                            >
                               <View
                                 style={{
-                                  width: '90%',
-                                  borderRadius: 8,
+                                  width: "100%",
+                                  borderRadius: 13,
                                   backgroundColor: Colors.white,
                                   padding: 10,
-                                }}>
-                                <View style={{flexDirection: 'row'}}>
-                                  <Text
-                                    style={{
-                                      color: COLORS.graye00,
-                                      width: width / 3,
-                                    }}>
-                                    Name
-                                  </Text>
-                                  <Text
-                                    style={{
-                                      color: COLORS.graye00,
-                                      width: width / 3,
-                                    }}>
-                                    Mobile
-                                  </Text>
-                                  {/* {console.log(item)} */}
-                                  <Text
-                                    style={{
-                                      color: COLORS.graye00,
-                                      width: width / 3,
-                                    }}>
-                                    Invite Code
-                                  </Text>
-                                </View>
-
-                                <View style={{flexDirection: 'row'}}>
-                                  <Text
-                                    style={{
-                                      fontWeight: 'bold',
-                                      width: width / 3,
-                                    }}>
-                                    {/* {console.log( this.props.LoginDetails.empID+"==="+item.whomToMeet)} */}
-                                    {this.props.LoginDetails.userRoleId != 4 &&
-                                    this.props.LoginDetails.userRoleId != 1 &&
-                                    this.props.LoginDetails.empID !=
-                                      item.whomToMeet &&
-                                    item.isVip == true
-                                      ? item.fullName?.replace(
-                                          /.(?=.{2,}$)/g,
-                                          '*',
-                                        )
-                                      : item.fullName}
-                                  </Text>
-                                  <Text
-                                    style={{
-                                      fontWeight: 'bold',
-                                      width: width / 3,
-                                    }}>
-                                    {' '}
-                                    {(this.props.LoginDetails.userRoleId ===
-                                      3 ||
-                                      this.props.LoginDetails.userRoleId ===
-                                        2) &&
-                                    this.props.LoginDetails.empID !=
-                                      item.whomToMeet
-                                      ? item.mobile?.replace(
-                                          /.(?=.{2,}$)/g,
-                                          '*',
-                                        )
-                                      : item.mobile}
-                                  </Text>
-                                  <Text
-                                    style={{
-                                      fontWeight: 'bold',
-                                      width: width / 3,
-                                    }}>
-                                    {item.inviteCode}
+                                  flexDirection: "row",
+                                }}
+                              >
+                                <View style={{ alignItems: "center" }}>
+                                  {item.photoProof != null ? (
+                                    <Image
+                                      source={{
+                                        uri: IMAGEURL + item.photoProof,
+                                      }}
+                                      style={{
+                                        resizeMode: "cover",
+                                        borderRadius: 80 / 2,
+                                        height: 80,
+                                        width: 80,
+                                        margin: 5,
+                                        alignSelf: "center",
+                                      }}
+                                    />
+                                  ) : (
+                                    <TextAvatar
+                                      backgroundColor={Colors.primary}
+                                      textColor={Colors.white}
+                                      size={80}
+                                      type={"circle"} // optional
+                                    >
+                                      {item.fullName}
+                                    </TextAvatar>
+                                  )}
+                                  <Text style={{ fontWeight: "bold" }}>
+                                    {item.designation}
                                   </Text>
                                 </View>
-                                <View
-                                  style={{flexDirection: 'row', marginTop: 10}}>
+                                <View style={{marginLeft:10 }}>
                                   <Text
-                                    style={{
-                                      color: COLORS.graye00,
-                                      width: width / 3,
-                                    }}>
-                                    In Time
+                                    style={{ fontWeight: "bold", fontSize: 16 }}
+                                  >
+                                    {item.fullName}
                                   </Text>
-                                  <Text
-                                    style={{
-                                      color: COLORS.graye00,
-                                      width: width / 3,
-                                    }}>
-                                    Out Time
-                                  </Text>
-                                  <Text
-                                    style={{
-                                      color: COLORS.graye00,
-                                      width: width / 3,
-                                    }}>
-                                    Status
-                                  </Text>
+                                  {item.department !=null &&<Text>{item.department}</Text>}
+                                  <Text style={{marginTop:5}}>{item.mobile}</Text>
+                                  <Text style={{marginTop:5}}>{item.email}</Text>
                                 </View>
+                                <View style={{left:-6}}>
+                                
+                                <Text style={{fontSize:15,color:Colors.primary, fontWeight:'bold'}}>{item.inviteCode}</Text>
+                                
+                                </View>
+                              </View>
 
-                                <View style={{flexDirection: 'row'}}>
-                                  {/* <View style={{ alignItems: "center",  }}> */}
-
+                              <View style={{margin:10, height: 1, backgroundColor: Colors.graye8,}} />
+                              <View style={{margin:10,flexDirection:'row',width:width,justifyContent:'center', alignItems:'center'}}> 
+                                            
+                                  <Text style={{width:width/3.3, fontWeight:'bold'}}>Check In</Text>
+                                  <Text style={{width:width/3.3, fontWeight:'bold'}}>Check Out</Text>
+                                  
+                                  <Text style={{width:width/3.3, fontWeight:'bold'}}>Status</Text>  
+                              </View>
+                              <View style={{width:width ,paddingBottom:10, flexDirection:'row',width:"100%",justifyContent:'center', alignItems:'center'}}>
+                                  <View style={{width: "32%", alignItems:'center'}}>
+                                    {/* Check In Button */}
                                   {
                                   (
                                    console.log("chec in==",inTime),
                                     dateTime <= otime && date >= b[0] && date <= x[0]
-                                  //  cuTime>=otime
+                                
                                       ?
                                        (
-                                        item.checkInTime === null && item.status !== 2 && item.status !== 3 ? (
+                                        item.checkInTime === null && item.status == 1? (
                                           
                                         <TouchableOpacity
                                           onPress={() => {
@@ -1390,10 +1428,7 @@ class ReceptionDashboard extends React.Component {
                                             this.props.VisitorDetails(item);
                                           }}
                                           style={{
-                                            width: width / 5.7,
-                                            // marginLeft: 'auto',
                                             backgroundColor: COLORS.skyBlue,
-                                            fontSize: 9,
                                             padding: 2,
                                             borderRadius: 5,
                                           }}>
@@ -1409,10 +1444,11 @@ class ReceptionDashboard extends React.Component {
                                       ):item.checkInTime!=null &&
                                       <Text
                                       style={{
-                                        width: width / 6,
-                                        textAlign: 'center',
+                                        // width: width / 6,
+                                        textAlign:'center',
                                         fontWeight: 'bold',
-                                        fontSize: RFPercentage(1.7),
+                                        fontSize:16,
+                                        
                                       }}>
                                       {' '}
                                       {inTime}{' '}
@@ -1421,7 +1457,7 @@ class ReceptionDashboard extends React.Component {
                                     )  
                                     :
                                     item.outTime==null  && 
-                                    item.checkInTime === null && item.status !== 2 && item.status !== 3 ? (
+                                    item.checkInTime === null && item.status == 1 ? (
                                       <TouchableOpacity
                                         onPress={() => {
                                           var imgTemp = {
@@ -1444,10 +1480,7 @@ class ReceptionDashboard extends React.Component {
                                           this.props.VisitorDetails(item);
                                         }}
                                         style={{
-                                          width: width / 5.7,
-                                          // marginLeft: 'auto',
                                           backgroundColor: COLORS.skyBlue,
-                                          fontSize: 9,
                                           padding: 2,
                                           borderRadius: 5,
                                         }}>
@@ -1467,10 +1500,10 @@ class ReceptionDashboard extends React.Component {
                                     
                                       <Text
                                         style={{
-                                          width: width / 6,
                                           textAlign: 'center',
                                           fontWeight: 'bold',
-                                          fontSize: RFPercentage(1.7),
+                                          fontSize:16,
+                                          
                                         }}>
                                         {' '}
                                         {inTime}{' '}
@@ -1478,10 +1511,11 @@ class ReceptionDashboard extends React.Component {
                                     )
                                     )
                                   }
-                                  
-                                  {/* </View> */}
-                                  {/* <View style={{ alignItems: "center", width: width / 3 }}> */}
-                                  {item.checkOutTime === null &&
+                                  </View>
+                              
+                                 {/* Checkout Buttom  */}
+                                 <View style={{marginLeft:"8%"}}>
+                                 {item.checkOutTime === null &&
                                   item.checkInTime !== null &&
                                   Moment(moment.utc(item.date)).format(
                                     'DD-MMM-yyyy',
@@ -1498,8 +1532,6 @@ class ReceptionDashboard extends React.Component {
                                           );
                                       }}
                                       style={{
-                                        width: width / 5.7,
-                                        marginLeft: 'auto',
                                         backgroundColor: COLORS.tempYellow,
                                         fontSize: 9,
                                         paddingRight: 2,
@@ -1515,29 +1547,34 @@ class ReceptionDashboard extends React.Component {
                                       </Text>
                                     </TouchableOpacity>
                                   ) : outTime === null ? (
-                                    <Text numberOfLines={1}> </Text>
+                                    <Text style={{ 
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    fontSize: RFPercentage(1.7),}}> </Text>
                                   ) : (
                                     <Text
-                                      numberOfLines={1}
+                                      // numberOfLines={1}
                                       style={{
-                                        width: width / 5.5,
-                                        marginLeft: 'auto',
-                                        textAlign: 'left',
+                                        // textAlign: 'center',
                                         fontWeight: 'bold',
-                                        fontSize: RFPercentage(1.7),
+                                        fontSize:16
                                       }}>
                                       {' '}
                                       {outTime}{' '}
                                     </Text>
                                   )}
-                                  {/* </View> */}
-                                  {/* <View style={{ alignItems: "center", width: width / 3 }}> */}
+
+                                 </View>
+                                 
+                                  {/* Status */}
+                                  
                                   {item?.checkInTime !== null ||
                                   item?.checkOutTime !== null ? (
                                     <Text
                                       style={{
                                         width: width / 4.3,
-                                        marginLeft: 'auto',
+                                        marginLeft:'auto',
+                                        marginRight:10,
                                         fontSize: RFPercentage(1.5),
                                         paddingTop: 2,
                                         height:
@@ -1546,10 +1583,10 @@ class ReceptionDashboard extends React.Component {
                                             : 20,
                                         alignSelf: 'center',
                                         textAlign: 'center',
-                                        color: 'white',
+                                        color: backgroundColor,
                                         borderRadius: 10,
                                         paddingHorizontal: 5,
-                                        backgroundColor: backgroundColor,
+                                        // backgroundColor: backgroundColor,
                                         overflow: 'hidden',
                                       }}>
                                       {status}
@@ -1561,6 +1598,7 @@ class ReceptionDashboard extends React.Component {
                                         paddingTop: 2,
                                         justifyContent: 'center',
                                         alignSelf: 'center',
+                                        marginRight:10,
                                         marginLeft: 'auto',
                                         height: 20,
                                         borderRadius: 10,
@@ -1599,46 +1637,31 @@ class ReceptionDashboard extends React.Component {
                                       style={{
                                         width: width / 4.5,
                                         marginLeft: 'auto',
+                                        marginRight:10,
                                         fontSize: RFPercentage(1.5),
                                         paddingTop: 2,
                                         height: 20,
                                         alignSelf: 'flex-end',
                                         textAlign: 'center',
-                                        color: 'white',
+                                        color: backgroundColor,
                                         borderRadius: 10,
                                         paddingHorizontal: 5,
-                                        backgroundColor: backgroundColor,
+                                        // backgroundColor: backgroundColor,
                                         overflow: 'hidden',
                                       }}>
                                       {status}
                                     </Text>
                                   )}
-                                  {/* </View> */}
-                                </View>
-                                {/* {
-                                 this.props.LoginDetails.empID ==
-                                 item.whomToMeet && status=="INVITED" &&
-                                <TouchableOpacity onPress={()=>this.whatsappSharing(item)}>
-                                  <Image
-                                    source={Images.whatsapp}
-                                    style={{
-                                      marginTop: 5,
-                                      marginLeft: 5,
-                                      height: 25,
-                                      width: 25,
-                                      padding: 10,
-                                    }}
-                                  />
-                                </TouchableOpacity>
-                                } */}
-                              </View>
+                                  </View>
+                              
                             </TouchableOpacity>
+
                           </View>
                         );
                       }
                     }
                     numColumns={1}
-                    keyExtractor={item => item.courierId}
+                    keyExtractor={(item) => item.courierId}
                   />
                 </View>
               );
@@ -1649,7 +1672,7 @@ class ReceptionDashboard extends React.Component {
                   <EmployListRenderItem
                     item={item}
                     onPress={() => {
-                      this.setState({selectedEmployee: item}),
+                      this.setState({ selectedEmployee: item }),
                         item.isCheckIN
                           ? this.empCheckOut(item.inOutId, item.empId)
                           : this.empCheckIn(item.empId);
@@ -1826,15 +1849,20 @@ class ReceptionDashboard extends React.Component {
           // onEndReachedThreshold={0.5}
           ListEmptyComponent={
             <View
-              style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-              <Text style={{color: COLORS.placeholderColor, fontSize: 20}}>
-                No {this.state.visitors ? 'Visitor' : 'Employee'} List Record
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text style={{ color: COLORS.placeholderColor, fontSize: 20 }}>
+                No {this.state.visitors ? "Visitor" : "Employee"} List Record
               </Text>
             </View>
           }
           // onMomentumScrollBegin={() => { this.onEndReachedCalledDuringMomentum = false; }}
         />
-        {Platform.OS === 'android' && this.state.resVislist?.length > 0 ? (
+        {Platform.OS === "android" && this.state.resVislist?.length > 0 ? (
           <Pagination
             dotThemeLight //<--use with backgroundColor:"grey"
             listRef={this.refs} //to allow React Native Pagination to scroll to item when clicked  (so add "ref={r=>this.refs=r}" to your list)
@@ -1849,7 +1877,7 @@ class ReceptionDashboard extends React.Component {
     );
   }
 
-  checkoutSuccess = res => this.afterCheckOutSuccess(res);
+  checkoutSuccess = (res) => this.afterCheckOutSuccess(res);
   afterCheckOutSuccess(respp) {
     if (respp) {
       console.log(respp);
@@ -1857,11 +1885,11 @@ class ReceptionDashboard extends React.Component {
       this.sendNotification(this.state.VisitorDetails, 21);
       this.getAllReceptionst(this.state.VisitorDetails, 9);
       Alert.alert(
-        'Success',
-        this.state.VisitorDetails.fullName + ' Check Out successfully',
+        "Success",
+        this.state.VisitorDetails.fullName + " Check Out successfully"
       );
     } else {
-      alert(this.state.VisitorDetails.fullName + ' Check Out Unsuccessfull');
+      alert(this.state.VisitorDetails.fullName + " Check Out Unsuccessfull");
     }
   }
 
@@ -1904,9 +1932,9 @@ class ReceptionDashboard extends React.Component {
       // if (item.inviteCode !== null) {
       notifText1 =
         item.fullName +
-        ' ( ' +
+        " ( " +
         item.inviteCode.toString().trim() +
-        ' ) Checked In by ' +
+        " ) Checked In by " +
         by;
       // } else {
       //     notifText1 = item.fullName + " Checked In "
@@ -1915,9 +1943,9 @@ class ReceptionDashboard extends React.Component {
       // if (item.inviteCode !== null) {
       notifText1 =
         item.fullName +
-        ' ( ' +
+        " ( " +
         item.inviteCode.toString().trim() +
-        ' ) Checked Out by ' +
+        " ) Checked Out by " +
         by;
       // } else {
       //     notifText1 = item.fullName + " Checked Out "
@@ -1925,34 +1953,34 @@ class ReceptionDashboard extends React.Component {
     } else if (tag === 2) {
       notifText1 =
         item.fullName +
-        ' ( ' +
+        " ( " +
         item.inviteCode.toString().trim() +
-        ' ) Approved by ' +
+        " ) Approved by " +
         by;
     } else if (tag === 3) {
       notifText1 =
         item.fullName +
-        ' ( ' +
+        " ( " +
         item.inviteCode.toString().trim() +
-        ' ) Rejected by ' +
+        " ) Rejected by " +
         by;
     } else if (tag === 4) {
       notifText1 =
         item.fullName +
-        ' ( ' +
+        " ( " +
         item.inviteCode.toString().trim() +
-        ' ) Rescheduled by ' +
+        " ) Rescheduled by " +
         by;
     }
     var param = {
       notifText: notifText1,
-      notifDate: Moment(moment.utc()).format('YYYY-MM-DDTHH:mm:ss'),
+      notifDate: Moment(moment.utc()).format("YYYY-MM-DDTHH:mm:ss"),
       userId: item.whomToMeet,
     };
     this.props.SaveNotification(param);
   }
   getAllReceptionst(params1, tag) {
-    this.props.ReceptionList.forEach(element => {
+    this.props.ReceptionList.forEach((element) => {
       // console.log('Element => ', element);
       this.sendNotificationRec(params1, element, tag); // 5 = Approve
     });
@@ -1979,76 +2007,76 @@ class ReceptionDashboard extends React.Component {
     if (tag === 5) {
       notifText1 =
         params1.fullName +
-        ' ( ' +
+        " ( " +
         params1.inviteCode.toString().trim() +
-        ' ) Approved by ' +
+        " ) Approved by " +
         by; //by Employee "
       // notifText1 = item.fullName  + " Approved"// by Employee "
     } else if (tag === 6) {
       notifText1 =
         params1.fullName +
-        ' ( ' +
+        " ( " +
         params1.inviteCode.toString().trim() +
-        ' )  Rejected by ' +
+        " )  Rejected by " +
         by; // by Employee "
     } else if (tag === 7) {
       notifText1 =
         params1.fullName +
-        ' ( ' +
+        " ( " +
         params1.inviteCode.toString().trim() +
-        ' ) Rescheduled by ' +
+        " ) Rescheduled by " +
         by; // by Employee "
     } else if (tag === 8) {
-      if (params1 !== '') {
+      if (params1 !== "") {
         notifText1 =
           params1.fullName +
-          ' ( ' +
+          " ( " +
           params1.inviteCode.toString().trim() +
-          ' ) Checked In by ' +
+          " ) Checked In by " +
           by; // by Employee "
       } else {
         notifText1 =
           params1.fullName +
-          ' ( ' +
+          " ( " +
           params1.inviteCode.toString().trim() +
-          ' ) Checked In by ' +
+          " ) Checked In by " +
           by; // by Employee "
       }
     } else if (tag === 9) {
       notifText1 =
         params1.fullName +
-        ' ( ' +
+        " ( " +
         params1.inviteCode.toString().trim() +
-        ' ) Checked Out by ' +
+        " ) Checked Out by " +
         by; // by Employee "
     }
     var param = {
       notifText: notifText1,
-      notifDate: Moment(moment.utc()).format('YYYY-MM-DDTHH:mm:ss'),
+      notifDate: Moment(moment.utc()).format("YYYY-MM-DDTHH:mm:ss"),
       userId: item.usrId,
     };
     this.props.SaveNotification(param);
   }
   async empCheckIn(empId) {
-    console.log('Emp Id:=', empId);
+    console.log("Emp Id:=", empId);
     const param = {
       EmpID: empId,
       UserId: this.props.LoginDetails.userID,
       IsArogyaSetu: this.state.isArogyaSetu,
       EmpTemp: this.state.Temperature,
     };
-    console.log('Check In params=', param);
+    console.log("Check In params=", param);
     this.props.EmpCheckIn(param, this.empCheckInSuccess);
   }
-  empCheckInSuccess = Response => {
+  empCheckInSuccess = (Response) => {
     console.log(Response);
     if (Response) {
       Toast.show(
-        this.state.selectedEmployee.fullName + ' is Check In successfully',
+        this.state.selectedEmployee.fullName + " is Check In successfully"
       );
       this.props.GetEmpCheckInList(
         this.props.LoginDetails.userID,
-        this.getEmpCheckInListSuccess,
+        this.getEmpCheckInListSuccess
       );
       this.setState({
         isArogyaSetu: false,
@@ -2057,7 +2085,7 @@ class ReceptionDashboard extends React.Component {
       });
     } else {
       Toast.show(
-        this.state.selectedEmployee.fullName + ' is Check In Unsuccessfull !!!',
+        this.state.selectedEmployee.fullName + " is Check In Unsuccessfull !!!"
       );
     }
   };
@@ -2071,14 +2099,14 @@ class ReceptionDashboard extends React.Component {
     };
     this.props.EmpCheckOut(param, this.empCheckOutSuccess);
   }
-  empCheckOutSuccess = Response => {
+  empCheckOutSuccess = (Response) => {
     if (Response) {
       Toast.show(
-        this.state.selectedEmployee.fullName + ' is Check Out successfully',
+        this.state.selectedEmployee.fullName + " is Check Out successfully"
       );
       this.props.GetEmpCheckInList(
         this.props.LoginDetails.userID,
-        this.getEmpCheckInListSuccess,
+        this.getEmpCheckInListSuccess
       );
       this.setState({
         isArogyaSetu: false,
@@ -2087,8 +2115,7 @@ class ReceptionDashboard extends React.Component {
       });
     } else {
       Toast.show(
-        this.state.selectedEmployee.fullName +
-          ' is Check Out Unsuccessfull !!!',
+        this.state.selectedEmployee.fullName + " is Check Out Unsuccessfull !!!"
       );
     }
   };
@@ -2114,29 +2141,29 @@ class ReceptionDashboard extends React.Component {
       // console.log('Log:=', this.props.LoginDetails.empID);
 
       let response = await axiosAuthGet(
-        'Users/GetWhoomToMEet/' + this.props.LoginDetails.userID,
+        "Users/GetWhoomToMEet/" + this.props.LoginDetails.userID
       );
       // console.log('=====Response=====', response);
       if (
         this.props.LoginDetails.userRoleId === 2 ||
         this.props.LoginDetails.userRoleId === 3
       ) {
-        this.props.mobileNo({mobStatus: 0});
-        this.props.navigation.navigate('VisitorForm', {tag: 0});
+        this.props.mobileNo({ mobStatus: 0 });
+        this.props.navigation.navigate("VisitorForm", { tag: 0 });
       } else {
-        response = await response.filter(element => {
+        response = await response.filter((element) => {
           if (this.props.LoginDetails.empID === element.whomToMeet) {
             return element;
           }
         });
         // console.log('Meet:=', response);
-        await response.filter(e => {
+        await response.filter((e) => {
           if (e.isVisitorAllow === true) {
-            console.log('Allowed...');
-            this.props.mobileNo({mobStatus: 0});
-            this.props.navigation.navigate('VisitorForm', {tag: 0});
+            console.log("Allowed...");
+            this.props.mobileNo({ mobStatus: 0 });
+            this.props.navigation.navigate("VisitorForm", { tag: 0 });
           } else {
-            Toast.show('You are Not Allowed to Invite Visitor.');
+            Toast.show("You are Not Allowed to Invite Visitor.");
           }
         });
       }
@@ -2146,41 +2173,44 @@ class ReceptionDashboard extends React.Component {
     const headerDistance = Animated.diffClamp(
       this.state.curY,
       0,
-      this.state.height + 70,
+      this.state.height + 70
     ).interpolate({
       inputRange: [0, 1],
       outputRange: [0, -1],
-      extrapolate: 'clamp',
+      extrapolate: "clamp",
     });
     // const {LoginDetails} = this.props;
     // let this.props.LoginDetails.userRoleId = LoginDetails.userRoleId;
     return (
       <TouchableWithoutFeedback onPress={() => this.drRef?.close()}>
-        <View style={{flex: 1, backgroundColor: COLORS.whitef4}}>
-          <View style={{width: '100%', zIndex: 99}}>
+        <View style={{ flex: 1, backgroundColor: COLORS.whitef4 }}>
+          <View style={{ width: "100%", zIndex: 99 }}>
             <Header
               title={
                 this.props.LoginDetails.userRoleId === 3
-                  ? 'Dashboard'
-                  : 'Visitor List'
+                  ? "Dashboard"
+                  : "Visitor List"
               }
               navigation={this.props.navigation}
             />
           </View>
-          <View style={{flex: 1, width: '100%'}}>
+          <View style={{ flex: 1, width: "100%" }}>
             {/* <ScrollView ref={(c) => { this.scroll = c }} contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }} > */}
             <View
               style={{
                 flex: 1,
-                width: '100%',
+                width: "100%",
                 marginTop: 5,
-                justifyContent: 'center',
+                justifyContent: "center",
                 zIndex: 99,
-              }}>
+              }}
+            >
               {/* {this.state.visitors ? this.ListofData() : this.employeList()} */}
               {this.ListofData()}
               {this.state.visitors ? (
-                <View style={{position: 'absolute', bottom: '0%', right: '4%'}}>
+                <View
+                  style={{ position: "absolute", bottom: "0%", right: "4%" }}
+                >
                   {/* <LinearGradient
                                     style={{ marginBottom: 13, justifyContent: "center", backgroundColor: COLORS.primary, borderRadius: 55 / 2, height: 55, width: 55, }}
                                     colors={[
@@ -2196,29 +2226,31 @@ class ReceptionDashboard extends React.Component {
                   <LinearGradient
                     style={{
                       marginBottom: 13,
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      alignItems: "center",
+                      justifyContent: "center",
                       borderRadius: 55 / 2,
                       height: 55,
                       width: 55,
                     }}
-                    colors={[COLORS.primary, COLORS.third]}>
+                    colors={[COLORS.primary, COLORS.third]}
+                  >
                     <TouchableOpacity
                       style={{
                         borderRadius: 55 / 2,
-                        marginBottom: Platform.OS === 'ios' ? 0 : 0,
+                        marginBottom: Platform.OS === "ios" ? 0 : 0,
                         height: 55,
                         width: 55,
-                        justifyContent: 'center',
-                        alignItems: 'center',
+                        justifyContent: "center",
+                        alignItems: "center",
                       }}
                       onPress={() => {
                         this.navigateFormScreen();
                         // this.props.navigation.navigate("VisitorForm", { tag: 0 })
-                      }}>
+                      }}
+                    >
                       <Image
                         source={Images.plus}
-                        style={{height: 45, width: 45}}
+                        style={{ height: 45, width: 45 }}
                       />
                       {/* <Text style={{ alignSelf: 'center', marginBottom: (Platform.OS === 'ios') ? 6 : 0, color: COLORS.white, fontSize: (Platform.OS === 'ios') ? 42 : 50, }}>+</Text> */}
                     </TouchableOpacity>
@@ -2231,7 +2263,7 @@ class ReceptionDashboard extends React.Component {
             {/* {this.props.LoginDetails.userRoleId === 4 ? this.meetOutModal() : null} */}
             {/* {this.skipCheckIn()} */}
             {this.state.skipModalCheckIn &&
-              (console.log('Visitor Details is ==', this.state.VisitorDetails),
+              (console.log("Visitor Details is ==", this.state.VisitorDetails),
               (
                 <CheckIn
                   skipModalCheckIn={this.state.skipModalCheckIn}
@@ -2244,8 +2276,11 @@ class ReceptionDashboard extends React.Component {
                     this.setState({
                       VisitorDetails: visitorDetailEmpty,
                       skipModalCheckIn: false,
-                      imageBase64StringPhotoProof: {fileName: null, data: null},
-                      imageBase64StringIdProof: {fileName: null, data: null},
+                      imageBase64StringPhotoProof: {
+                        fileName: null,
+                        data: null,
+                      },
+                      imageBase64StringIdProof: { fileName: null, data: null },
                     });
                   }}
                   onUpdate={() => this.callApi(this.state.selectedList)}
@@ -2273,12 +2308,13 @@ class ReceptionDashboard extends React.Component {
           {this.state.show === true ? (
             <View
               style={{
-                height: '100%',
-                width: '100%',
-                position: 'absolute',
+                height: "100%",
+                width: "100%",
+                position: "absolute",
                 zIndex: 99,
                 paddingTop: 28,
-              }}>
+              }}
+            >
               {this.filterData()}
             </View>
           ) : null}
@@ -2287,29 +2323,36 @@ class ReceptionDashboard extends React.Component {
     );
   }
   filterOpen() {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       show: !prevState.show,
     }));
   }
   filterData() {
     return (
-      <View style={{width: '100%', height: '100%', flexDirection: 'row'}}>
+      <View style={{ width: "100%", height: "100%", flexDirection: "row" }}>
         <View
           style={{
             padding: 10,
             backgroundColor: COLORS.white,
-            width: '55%',
+            width: "55%",
             height: null,
             paddingTop: 35,
-          }}>
+          }}
+        >
           <Text
-            style={{fontSize: 18.5, fontWeight: 'bold', color: COLORS.primary}}>
+            style={{
+              fontSize: 18.5,
+              fontWeight: "bold",
+              color: COLORS.primary,
+            }}
+          >
             Sort By Visitor List
           </Text>
-          <View style={{padding: 4}}>
+          <View style={{ padding: 4 }}>
             <TouchableOpacity
               onPress={() => this.onChangeValue(0)}
-              style={{alignItems: 'center', flexDirection: 'row'}}>
+              style={{ alignItems: "center", flexDirection: "row" }}
+            >
               <Image
                 source={IMAGES.circle}
                 style={{
@@ -2318,7 +2361,7 @@ class ReceptionDashboard extends React.Component {
                     : COLORS.placeholderColor,
                   width: 13,
                   height: 13,
-                  resizeMode: 'contain',
+                  resizeMode: "contain",
                 }}
               />
               <Text
@@ -2327,26 +2370,28 @@ class ReceptionDashboard extends React.Component {
                   padding: 7,
                   marginLeft: 7,
                   fontSize: 16,
-                  fontWeight: 'bold',
+                  fontWeight: "bold",
                   width: 150,
-                }}>
+                }}
+              >
                 All
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
                 if (this.state.AscOpen) {
-                  this.setState({AscOpen: false});
+                  this.setState({ AscOpen: false });
                 } else {
-                  this.setState({AscOpen: true});
+                  this.setState({ AscOpen: true });
                 }
                 this.setState({
                   AllOpen: false,
-                  findColor: '',
+                  findColor: "",
                   DescOpen: false,
                 });
               }}
-              style={{alignItems: 'center', flexDirection: 'row'}}>
+              style={{ alignItems: "center", flexDirection: "row" }}
+            >
               <Image
                 source={IMAGES.circle}
                 style={{
@@ -2355,7 +2400,7 @@ class ReceptionDashboard extends React.Component {
                     : COLORS.placeholderColor,
                   width: 13,
                   height: 13,
-                  resizeMode: 'contain',
+                  resizeMode: "contain",
                 }}
               />
               <Text
@@ -2364,9 +2409,10 @@ class ReceptionDashboard extends React.Component {
                   padding: 7,
                   marginLeft: 7,
                   fontSize: 16,
-                  fontWeight: 'bold',
+                  fontWeight: "bold",
                   width: 150,
-                }}>
+                }}
+              >
                 Ascending
               </Text>
             </TouchableOpacity>
@@ -2374,25 +2420,27 @@ class ReceptionDashboard extends React.Component {
               <View
                 style={{
                   marginLeft: 15,
-                  width: '100%',
+                  width: "100%",
                   borderWidth: 1,
-                  borderColor: 'transparent',
+                  borderColor: "transparent",
                   height: null,
-                }}>
+                }}
+              >
                 <TouchableOpacity
                   onPress={() => this.onChangeValue(1)}
-                  style={{alignItems: 'center', flexDirection: 'row'}}>
+                  style={{ alignItems: "center", flexDirection: "row" }}
+                >
                   <Image
                     source={IMAGES.next}
                     style={{
-                      transform: [{rotate: '270deg'}],
+                      transform: [{ rotate: "270deg" }],
                       tintColor:
                         this.state.findColor === 1
                           ? COLORS.fourth
                           : COLORS.placeholderColor,
                       width: 13,
                       height: 13,
-                      resizeMode: 'contain',
+                      resizeMode: "contain",
                     }}
                   />
                   <Text
@@ -2404,26 +2452,28 @@ class ReceptionDashboard extends React.Component {
                       padding: 7,
                       marginLeft: 7,
                       fontSize: 16,
-                      fontWeight: 'bold',
+                      fontWeight: "bold",
                       width: 100,
-                    }}>
+                    }}
+                  >
                     Name
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => this.onChangeValue(3)}
-                  style={{alignItems: 'center', flexDirection: 'row'}}>
+                  style={{ alignItems: "center", flexDirection: "row" }}
+                >
                   <Image
                     source={IMAGES.next}
                     style={{
-                      transform: [{rotate: '270deg'}],
+                      transform: [{ rotate: "270deg" }],
                       tintColor:
                         this.state.findColor === 3
                           ? COLORS.fourth
                           : COLORS.placeholderColor,
                       width: 13,
                       height: 13,
-                      resizeMode: 'contain',
+                      resizeMode: "contain",
                     }}
                   />
                   <Text
@@ -2435,9 +2485,10 @@ class ReceptionDashboard extends React.Component {
                       padding: 7,
                       marginLeft: 7,
                       fontSize: 16,
-                      fontWeight: 'bold',
+                      fontWeight: "bold",
                       width: 100,
-                    }}>
+                    }}
+                  >
                     Date
                   </Text>
                 </TouchableOpacity>
@@ -2445,18 +2496,19 @@ class ReceptionDashboard extends React.Component {
                 this.props.LoginDetails.userRoleId !== 1 ? (
                   <TouchableOpacity
                     onPress={() => this.onChangeValue(5)}
-                    style={{alignItems: 'center', flexDirection: 'row'}}>
+                    style={{ alignItems: "center", flexDirection: "row" }}
+                  >
                     <Image
                       source={IMAGES.next}
                       style={{
-                        transform: [{rotate: '270deg'}],
+                        transform: [{ rotate: "270deg" }],
                         tintColor:
                           this.state.findColor === 5
                             ? COLORS.fourth
                             : COLORS.placeholderColor,
                         width: 13,
                         height: 13,
-                        resizeMode: 'contain',
+                        resizeMode: "contain",
                       }}
                     />
                     <Text
@@ -2468,9 +2520,10 @@ class ReceptionDashboard extends React.Component {
                         padding: 7,
                         marginLeft: 7,
                         fontSize: 16,
-                        fontWeight: 'bold',
+                        fontWeight: "bold",
                         width: 150,
-                      }}>
+                      }}
+                    >
                       Whom To Meet
                     </Text>
                   </TouchableOpacity>
@@ -2478,18 +2531,19 @@ class ReceptionDashboard extends React.Component {
                 {this.props.LoginDetails.userRoleId !== 2 ? (
                   <TouchableOpacity
                     onPress={() => this.onChangeValue(7)}
-                    style={{alignItems: 'center', flexDirection: 'row'}}>
+                    style={{ alignItems: "center", flexDirection: "row" }}
+                  >
                     <Image
                       source={IMAGES.next}
                       style={{
-                        transform: [{rotate: '270deg'}],
+                        transform: [{ rotate: "270deg" }],
                         tintColor:
                           this.state.findColor === 7
                             ? COLORS.fourth
                             : COLORS.placeholderColor,
                         width: 13,
                         height: 13,
-                        resizeMode: 'contain',
+                        resizeMode: "contain",
                       }}
                     />
                     <Text
@@ -2501,9 +2555,10 @@ class ReceptionDashboard extends React.Component {
                         padding: 7,
                         marginLeft: 7,
                         fontSize: 16,
-                        fontWeight: 'bold',
+                        fontWeight: "bold",
                         width: 100,
-                      }}>
+                      }}
+                    >
                       Status
                     </Text>
                   </TouchableOpacity>
@@ -2513,17 +2568,18 @@ class ReceptionDashboard extends React.Component {
             <TouchableOpacity
               onPress={() => {
                 if (this.state.DescOpen) {
-                  this.setState({DescOpen: false});
+                  this.setState({ DescOpen: false });
                 } else {
-                  this.setState({DescOpen: true});
+                  this.setState({ DescOpen: true });
                 }
                 this.setState({
-                  findColor: '',
+                  findColor: "",
                   AllOpen: false,
                   AscOpen: false,
                 });
               }}
-              style={{alignItems: 'center', flexDirection: 'row'}}>
+              style={{ alignItems: "center", flexDirection: "row" }}
+            >
               <Image
                 source={IMAGES.circle}
                 style={{
@@ -2532,7 +2588,7 @@ class ReceptionDashboard extends React.Component {
                     : COLORS.placeholderColor,
                   width: 13,
                   height: 13,
-                  resizeMode: 'contain',
+                  resizeMode: "contain",
                 }}
               />
               <Text
@@ -2541,9 +2597,10 @@ class ReceptionDashboard extends React.Component {
                   padding: 7,
                   marginLeft: 7,
                   fontSize: 16,
-                  fontWeight: 'bold',
+                  fontWeight: "bold",
                   width: 150,
-                }}>
+                }}
+              >
                 Descending
               </Text>
             </TouchableOpacity>
@@ -2552,24 +2609,26 @@ class ReceptionDashboard extends React.Component {
                 style={{
                   marginLeft: 15,
                   borderWidth: 1,
-                  borderColor: 'transparent',
-                  width: '100%',
+                  borderColor: "transparent",
+                  width: "100%",
                   height: null,
-                }}>
+                }}
+              >
                 <TouchableOpacity
                   onPress={() => this.onChangeValue(2)}
-                  style={{alignItems: 'center', flexDirection: 'row'}}>
+                  style={{ alignItems: "center", flexDirection: "row" }}
+                >
                   <Image
                     source={IMAGES.next}
                     style={{
-                      transform: [{rotate: '270deg'}],
+                      transform: [{ rotate: "270deg" }],
                       tintColor:
                         this.state.findColor === 2
                           ? COLORS.fourth
                           : COLORS.placeholderColor,
                       width: 13,
                       height: 13,
-                      resizeMode: 'contain',
+                      resizeMode: "contain",
                     }}
                   />
                   <Text
@@ -2581,26 +2640,28 @@ class ReceptionDashboard extends React.Component {
                       padding: 7,
                       marginLeft: 7,
                       fontSize: 16,
-                      fontWeight: 'bold',
+                      fontWeight: "bold",
                       width: 100,
-                    }}>
+                    }}
+                  >
                     Name
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => this.onChangeValue(4)}
-                  style={{alignItems: 'center', flexDirection: 'row'}}>
+                  style={{ alignItems: "center", flexDirection: "row" }}
+                >
                   <Image
                     source={IMAGES.next}
                     style={{
-                      transform: [{rotate: '270deg'}],
+                      transform: [{ rotate: "270deg" }],
                       tintColor:
                         this.state.findColor === 4
                           ? COLORS.fourth
                           : COLORS.placeholderColor,
                       width: 13,
                       height: 13,
-                      resizeMode: 'contain',
+                      resizeMode: "contain",
                     }}
                   />
                   <Text
@@ -2612,9 +2673,10 @@ class ReceptionDashboard extends React.Component {
                       padding: 7,
                       marginLeft: 7,
                       fontSize: 16,
-                      fontWeight: 'bold',
+                      fontWeight: "bold",
                       width: 100,
-                    }}>
+                    }}
+                  >
                     Date
                   </Text>
                 </TouchableOpacity>
@@ -2622,18 +2684,19 @@ class ReceptionDashboard extends React.Component {
                 this.props.LoginDetails.userRoleId !== 1 ? (
                   <TouchableOpacity
                     onPress={() => this.onChangeValue(6)}
-                    style={{alignItems: 'center', flexDirection: 'row'}}>
+                    style={{ alignItems: "center", flexDirection: "row" }}
+                  >
                     <Image
                       source={IMAGES.next}
                       style={{
-                        transform: [{rotate: '270deg'}],
+                        transform: [{ rotate: "270deg" }],
                         tintColor:
                           this.state.findColor === 6
                             ? COLORS.fourth
                             : COLORS.placeholderColor,
                         width: 13,
                         height: 13,
-                        resizeMode: 'contain',
+                        resizeMode: "contain",
                       }}
                     />
                     <Text
@@ -2645,9 +2708,10 @@ class ReceptionDashboard extends React.Component {
                         padding: 7,
                         marginLeft: 7,
                         fontSize: 16,
-                        fontWeight: 'bold',
+                        fontWeight: "bold",
                         width: 150,
-                      }}>
+                      }}
+                    >
                       Whom To Meet
                     </Text>
                   </TouchableOpacity>
@@ -2655,18 +2719,19 @@ class ReceptionDashboard extends React.Component {
                 {this.props.LoginDetails.userRoleId !== 2 ? (
                   <TouchableOpacity
                     onPress={() => this.onChangeValue(8)}
-                    style={{alignItems: 'center', flexDirection: 'row'}}>
+                    style={{ alignItems: "center", flexDirection: "row" }}
+                  >
                     <Image
                       source={IMAGES.next}
                       style={{
-                        transform: [{rotate: '270deg'}],
+                        transform: [{ rotate: "270deg" }],
                         tintColor:
                           this.state.findColor === 8
                             ? COLORS.fourth
                             : COLORS.placeholderColor,
                         width: 13,
                         height: 13,
-                        resizeMode: 'contain',
+                        resizeMode: "contain",
                       }}
                     />
                     <Text
@@ -2678,9 +2743,10 @@ class ReceptionDashboard extends React.Component {
                         padding: 7,
                         marginLeft: 7,
                         fontSize: 16,
-                        fontWeight: 'bold',
+                        fontWeight: "bold",
                         width: 100,
-                      }}>
+                      }}
+                    >
                       Status
                     </Text>
                   </TouchableOpacity>
@@ -2690,14 +2756,16 @@ class ReceptionDashboard extends React.Component {
           </View>
         </View>
         <TouchableWithoutFeedback
-          style={{height: '100%', width: '100%'}}
-          onPress={() => this.setState({show: false})}>
+          style={{ height: "100%", width: "100%" }}
+          onPress={() => this.setState({ show: false })}
+        >
           <View
             style={{
-              width: '100%',
-              height: '100%',
-              backgroundColor: 'rgba(52, 52, 52, 0.8)',
-            }}></View>
+              width: "100%",
+              height: "100%",
+              backgroundColor: "rgba(52, 52, 52, 0.8)",
+            }}
+          ></View>
         </TouchableWithoutFeedback>
       </View>
     );
@@ -2709,51 +2777,51 @@ class ReceptionDashboard extends React.Component {
     // console.log(fdate);
     var temp;
     if (itemPosition === 0) {
-      this.setState(prevState => ({
+      this.setState((prevState) => ({
         AllOpen: !prevState.AllOpen,
         DescOpen: false,
-        findColor: '',
+        findColor: "",
         AscOpen: false,
       }));
-      this.setState({show: false});
+      this.setState({ show: false });
       this.callApi(this.state.selectedList);
     } else if (itemPosition === 1) {
-      this.setState({findColor: 1, show: false});
+      this.setState({ findColor: 1, show: false });
       temp = this.state.VisitorList.sort(function (a, b) {
         return a.fullName.localeCompare(b.fullName);
       });
     } else if (itemPosition === 2) {
-      this.setState({findColor: 2, show: false});
+      this.setState({ findColor: 2, show: false });
       temp = this.state.VisitorList.sort(function (a, b) {
         return b.fullName.localeCompare(a.fullName);
       });
     } else if (itemPosition === 3) {
-      this.setState({findColor: 3, show: false});
+      this.setState({ findColor: 3, show: false });
       temp = this.state.VisitorList.sort(function (a, b) {
         return new Date(a.date) - new Date(b.date);
       });
     } else if (itemPosition === 4) {
-      this.setState({findColor: 4, show: false});
+      this.setState({ findColor: 4, show: false });
       temp = this.state.VisitorList.sort(function (a, b) {
         return new Date(b.date) - new Date(a.date);
       });
     } else if (itemPosition === 5) {
-      this.setState({findColor: 5, show: false});
+      this.setState({ findColor: 5, show: false });
       temp = this.state.VisitorList.sort(function (a, b) {
         return a.whomToMeetName.localeCompare(b.whomToMeetName);
       });
     } else if (itemPosition === 6) {
-      this.setState({findColor: 6, show: false});
+      this.setState({ findColor: 6, show: false });
       temp = this.state.VisitorList.sort(function (a, b) {
         return b.whomToMeetName.localeCompare(a.whomToMeetName);
       });
     } else if (itemPosition === 7) {
-      this.setState({findColor: 7, show: false});
+      this.setState({ findColor: 7, show: false });
       temp = this.state.VisitorList.sort(function (a, b) {
         return a.statusNName.localeCompare(b.statusNName);
       });
     } else if (itemPosition === 8) {
-      this.setState({findColor: 8, show: false});
+      this.setState({ findColor: 8, show: false });
       temp = this.state.VisitorList.sort(function (a, b) {
         return b.statusNName.localeCompare(a.statusNName);
       });
@@ -2776,8 +2844,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   box: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 10,
     padding: 5,
     flex: 1,
@@ -2787,13 +2855,13 @@ const styles = StyleSheet.create({
     borderBottomColor: COLORS.white,
     height: 32,
     borderBottomWidth: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
   boxText: {
     color: COLORS.white,
     fontSize: 12,
-    textAlign: 'center',
-    alignSelf: 'center',
+    textAlign: "center",
+    alignSelf: "center",
   },
 });
 

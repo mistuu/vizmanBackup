@@ -63,6 +63,11 @@ class DetailsCourier extends Component {
     };
   }
   componentDidMount() {
+    if (
+      this.props.LoginDetails.userRoleId == 4
+    ) {
+      this.setState({hideButton: false});
+    }
     BackHandler.addEventListener(
       'hardwareBackPress',
       this.handleBackButtonClick,

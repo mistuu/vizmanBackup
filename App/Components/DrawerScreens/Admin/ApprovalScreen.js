@@ -57,14 +57,20 @@ class ApprovalScreen extends Component {
       "hardwareBackPress",
       this.handleBackButtonClick
     );
+   
+   
     let respo = await axiosAuthGet(
       "Settings/GetAllSettings/" + this.props.LoginDetails.userID
     );
-    console.log("response data==", this.props.LoginDetails);
-    if(respo.settingsVM.approverIds!=undefined || respo.settingsVM.approverIds.length>0){
+    console.log("response data==", respo.settingsVM.settingsID);
+
+    this.setState({settingsID: respo.settingsVM.settingsID,})
+    if(respo.settingsVM.approverIds!=undefined || respo.settingsVM.approverIds.length>0 ||respo.settingsVM.approverIds!=null){
       this.setState({urgentToggle:true})
+      this.setState({ selectedEmpItems:respo.settingsVM.approverIds});
+
     }
-    this.setState({ settingsID: respo.settingsVM.settingsID,selectedEmpItems:respo.settingsVM.approverIds});
+    console.log("Heelo World");
     this.props.GetUsersList(
       this.props.LoginDetails.userID,
       this.visitorListSuccess
@@ -93,6 +99,7 @@ class ApprovalScreen extends Component {
   }
   visitorListSuccess = (res) => this.afterVisitorListSuccess(res);
   async afterVisitorListSuccess(VisitorListArray) {
+    console.log(VisitorListArray);
     await VisitorListArray.filter((item) => {
       item.id = item.usrId;
       item.name = item.fullName;
@@ -157,25 +164,51 @@ class ApprovalScreen extends Component {
     console.log("Selcted Item:-", value);
   };
   onApproveSubmit = async () => {
-    var params = {
-      settingsID: this.state.settingsID,
-      userId: this.props.LoginDetails.userID,
-      orgId: this.props.LoginDetails.orgID,
-      inviteesApproval: true,
-      approverIds: this.state.approvalid,
-    };
-    console.log("Submit Data===", params);
-    if (this.state.settingsID != 0) {
-      let response = await axiosPost("Settings/UpdateApprovalMatrix", params);
-      console.log("Response==", response);
-      this.props.navigation.goBack()
-      Toast.show("Setting update successfully")
-    } else {
-      let response = await axiosPost("Settings/SaveApprovalMatrix", params);
-      this.props.navigation.goBack()
-      Toast.show("Setting save successfully")
-      console.log("Response==", response);
+    
+    if(this.state.urgentToggle){
+      var params = {
+        settingsID: this.state.settingsID,
+        userId: this.props.LoginDetails.userID,
+        orgId: this.props.LoginDetails.orgID,
+        inviteesApproval: true,
+        approverIds: this.state.approvalid,
+      };
+      if (this.state.settingsID != 0) {
+        let response = await axiosPost("Settings/UpdateApprovalMatrix", params);
+        console.log("Response==", response);
+        this.props.navigation.goBack()
+        Toast.show("Setting update successfully")
+      } else {
+        let response = await axiosPost("Settings/SaveApprovalMatrix", params);
+        this.props.navigation.goBack()
+        Toast.show("Setting save successfully")
+        console.log("Response==", response);
+      }
     }
+    
+    else{
+      var paramss = {
+        settingsID: this.state.settingsID,
+        userId: this.props.LoginDetails.userID,
+        orgId: this.props.LoginDetails.orgID,
+        inviteesApproval: false,
+        approverIds: [],
+      };
+      
+      if (this.state.settingsID != 0) {
+        console.log("Second",paramss);
+        let response = await axiosPost("Settings/UpdateApprovalMatrix", paramss);
+        console.log("Response==", response);
+        this.props.navigation.goBack()
+        Toast.show("Setting update successfully")
+      } else {
+        let response = await axiosPost("Settings/SaveApprovalMatrix", paramss);
+        this.props.navigation.goBack()
+        Toast.show("Setting save successfully")
+        console.log("Response==", response);
+      }
+    }
+
   };
   render() {
     return (
@@ -333,7 +366,7 @@ class ApprovalScreen extends Component {
                     }
                     selectedItems={this.state.selectedEmpItems}
                     confirmText={"Select"}
-                    onConfirm={() => this.onApproveSubmit()}
+                    // onConfirm={() => this.onApproveSubmit()}
                     // hideConfirm={true}
                   />
                   <View
@@ -517,8 +550,31 @@ class ApprovalScreen extends Component {
                 </View>
               }
             />
+          
           </View>
         )}
+          <View
+                  style={{backgroundColor:Colors.primary,borderRadius:8, position: "absolute", bottom: "8%",alignItems:'center',alignSelf:'center'}}
+                >
+                    <TouchableOpacity
+                      style={{
+                        marginBottom: Platform.OS === "ios" ? 0 : 0,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        paddingHorizontal:20,
+                        paddingVertical:5,
+                        
+                      }}
+                      onPress={() => {
+                        this.onApproveSubmit()
+                        // this.props.navigation.navigate("VisitorForm", { tag: 0 })
+                      }}
+                    >
+                      <Text style={{color: COLORS.white}}>Submit</Text>
+                      {/* <Text style={{ alignSelf: 'center', marginBottom: (Platform.OS === 'ios') ? 6 : 0, color: COLORS.white, fontSize: (Platform.OS === 'ios') ? 42 : 50, }}>+</Text> */}
+                    </TouchableOpacity>
+                  
+                </View>
       </View>
     );
   }
