@@ -122,7 +122,7 @@ class AppChangePassword extends React.Component {
         return (
             <View style={{ flex: 1, backgroundColor: COLORS.whitef4 }}>
                 <StatusBar backgroundColor={COLORS.primary} />
-                <View style={{ width: "100%" }}>
+                <View style={{ width: "100%",marginTop:Platform.OS=="ios"?-20:0 }}>
                     <Header title={"Change Password"} navigation={this.props.navigation} /></View>
                 <View style={{ flex: 1 }}>
 

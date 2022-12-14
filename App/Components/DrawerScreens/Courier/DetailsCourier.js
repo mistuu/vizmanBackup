@@ -269,7 +269,7 @@ class DetailsCourier extends Component {
               </View>
               <View style={{width: '90%', flexDirection: 'row'}}>
                 <Text style={{fontWeight: 'bold', width: width, fontSize: 16}}>
-                  {moment(this.state.data.courierDate).format('LLL')}
+                  {moment(this.state.data.courierDate).format('MMMM Do YYYY')}
                 </Text>
               </View>
               {
@@ -314,7 +314,6 @@ class DetailsCourier extends Component {
                 source={{uri:IMAGEURL+this.state.data.image}}
               />
               </TouchableOpacity>
-              {this.state.hideButton && (
                 <View
                   style={{
                     alignItems: 'center',
@@ -322,6 +321,7 @@ class DetailsCourier extends Component {
                     flexDirection: 'row',
                     marginTop: 20,
                   }}>
+                    {this.state.hideButton && !this.props.AdminSwitch &&(
                   <TouchableOpacity
                     onPress={() => {
                       this.props.courierId(this.state.data.courierId);
@@ -341,6 +341,9 @@ class DetailsCourier extends Component {
                       <Text style={{color: Colors.white}}>Edit</Text>
                     </View>
                   </TouchableOpacity>
+                  )}
+                  {
+                    this.props.LoginDetails.userRoleId==1 && !this.props.AdminSwitch &&
                   <TouchableOpacity
                     onPress={() =>
                       this.deleteRecord(
@@ -363,8 +366,8 @@ class DetailsCourier extends Component {
                       <Text style={{color: Colors.white}}>Delete</Text>
                     </View>
                   </TouchableOpacity>
+                  }
                 </View>
-              )}
             </View>
         </View>
           </ScrollView>

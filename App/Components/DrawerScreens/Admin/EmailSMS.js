@@ -139,9 +139,9 @@ import { axiosAuthGet, axiosPost } from '../../../utility/apiConnection';
             <TextInput
               placeholder="Short Name for SMS"
               // placeholderTextColor={COLORS.black}
-              maxLength={50}
+              maxLength={15}
               value={this.state.orgShortName}
-              editable={false}
+              editable={true}
               onChangeText={txt => this.setState({orgShortName: txt})}
               style={styles.txtView}
             />

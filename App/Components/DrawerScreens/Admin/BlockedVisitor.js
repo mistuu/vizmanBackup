@@ -41,14 +41,14 @@ class BlockedVisitors extends React.Component {
   }
   componentDidMount() {
     this.props.GetBlockedVisitorAll(
-      this.props.LoginDetails.userID,
+      this.props.LoginDetails.userID+"/"+this.props.LoginDetails.orgID,
       this.visitorListSuccess,
     );
     this.focusListener = this.props.navigation.addListener('focus', () => {
       if (this.props.Update) {
         this.props.Update(false);
         this.props.GetBlockedVisitorAll(
-          this.props.LoginDetails.userID,
+          this.props.LoginDetails.userID+"/"+this.props.LoginDetails.orgID,
           this.visitorListSuccess,
         );
       }
@@ -81,7 +81,7 @@ class BlockedVisitors extends React.Component {
   };
   blockUser=async()=>{
     console.log(this.state.selectedItem.visitorId);
-    let response=await axPost("AdminDealer/VisitorBlock/"+this.state.selectedItem.visitorId+"/"+false)
+    let response=await axPost("AdminDealer/VisitorBlock/"+this.state.selectedItem.visitorId+"/"+false+"/"+this.props.LoginDetails.orgID)
     if(response==true){
       Toast.show("Visitor Unblocked Successful")
       this.setState({modalVisible:false})
@@ -192,7 +192,7 @@ class BlockedVisitors extends React.Component {
        
         <View style={{flex: 1, paddingBottom: 10, alignSelf: 'center'}}>
           <Animated.FlatList
-            style={{flex: 1}}
+            style={{flex: 1,marginBottom:"18%"}}
             scrollEventThrottle={16}
             onScroll={Animated.event(
               [{nativeEvent: {contentOffset: {y: this.state.curY}}}],
@@ -375,7 +375,7 @@ class BlockedVisitors extends React.Component {
                   justifyContent: 'center',
                 }}>
                 <Text style={{color: COLORS.placeholderColor, fontSize: 20}}>
-                  No {this.state.visitors ? 'Visitor' : 'Employee'} List Record
+                  No {this.state.visitors ? 'Visitor' : 'Visitor'} List Record
                 </Text>
               </View>
             }

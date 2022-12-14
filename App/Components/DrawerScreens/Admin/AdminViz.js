@@ -17,7 +17,7 @@ export default class AdminViz extends Component {
 flex:1,
           backgroundColor: COLORS.whitef4,
         }}>
-        <View style={{width: '100%'}}>
+        <View style={{width: '100%',marginTop:Platform.OS=="ios"?-20:0}}>
           <Header title={'Visitors'} navigation={this.props.navigation} />
         </View>
         <AdminVizScreen/>

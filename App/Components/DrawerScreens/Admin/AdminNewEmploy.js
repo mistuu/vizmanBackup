@@ -33,6 +33,7 @@ import Toast from 'react-native-simple-toast';
 import {Buffer} from 'buffer';
 import encoding from 'text-encoding';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
+import { axiosAuthGet } from '../../../utility/apiConnection';
 
 class AdminNewEmploy extends React.Component {
   constructor(props) {
@@ -40,7 +41,7 @@ class AdminNewEmploy extends React.Component {
 
     this.state = {
       userProfile:
-        this.props.route.params?.tag == 'Employee Details'
+        this.props.route.params?.tag == 'User Details'
           ? this.props.route.params?.EmplDtls
           : userProfileEmpty,
       OhidePassword: false,
@@ -113,12 +114,17 @@ class AdminNewEmploy extends React.Component {
     };
   }
 
-  componentDidMount() {
-    if (this.props.route.params?.tag == 'Update Employee' ||this.props.route.params?.tag=='Employee Details') {
-      this.props.GetUsersDetails1(
-        this.props.route.params.EmplDtls?.usrId,
-        this.responseUpdate,
-      );
+ async componentDidMount() {
+    if (this.props.route.params?.tag == 'Update User' ||this.props.route.params?.tag=='User Details') {
+      if(Platform.OS=="android"){
+        this.props.GetUsersDetails1(
+          this.props.route.params.EmplDtls?.usrId,
+          this.responseUpdate,
+        );
+      }else{
+        let respo=await axiosAuthGet("Users/GetUsersDetails/"+this.props.route.params.EmplDtls?.usrId)
+        this.setState({userProfile:respo})
+      }
     }
     console.log('User Profile ==', this.state.userProfile);
   }
@@ -189,7 +195,7 @@ class AdminNewEmploy extends React.Component {
                 console.log('SUCCESS CAMERA ', image);
                 let ImageResponse = res.name + ',' + image;
                 this.setState({imageR: ImageResponse});
-                if (this.props.route.params.tag == 'Add New Employee') {
+                if (this.props.route.params.tag == 'Add New User') {
                   var img = 'data:' + image.mime + ';base64,' + base64Url;
                   this.setState({userPic: img});
                 } else {
@@ -261,7 +267,7 @@ class AdminNewEmploy extends React.Component {
               console.log('SUCCESS CAMERA ', image);
               let ImageResponse = res.name + ',' + image;
               this.setState({imageR: ImageResponse});
-              if (this.props.route.params.tag == 'Add New Employee') {
+              if (this.props.route.params.tag == 'Add New User') {
                 var img = 'data:' + image.mime + ';base64,' + base64Url;
                 this.setState({userPic: img});
               } else {
@@ -323,7 +329,7 @@ class AdminNewEmploy extends React.Component {
 
         let ImageResponse = fileName + ',' + image;
         this.setState({imageR: ImageResponse});
-        if (this.props.route.params.tag == 'Add New Employee') {
+        if (this.props.route.params.tag == 'Add New User') {
           var img = 'data:' + image.mime + ';base64,' + base64Url;
           console.log(img);
           this.setState({userPic: img});
@@ -529,7 +535,7 @@ class AdminNewEmploy extends React.Component {
             {tag == 1 ? (
               <TouchableOpacity
                 onPress={() =>
-                  this.props.route.params?.tag != 'Employee Details' &&
+                  this.props.route.params?.tag != 'User Details' &&
                   this.setState({visibleModal: true})
                 }
                 style={{
@@ -544,7 +550,7 @@ class AdminNewEmploy extends React.Component {
                 <Image
                   source={{
                     uri:
-                      this.props.route.params.tag == 'Add New Employee'
+                      this.props.route.params.tag == 'Add New User'
                         ? this.state.userPic
                         : Img,
                   }}
@@ -554,7 +560,7 @@ class AdminNewEmploy extends React.Component {
             ) : (
               <TouchableOpacity
                 onPress={() =>
-                  this.props.route.params?.tag != 'Employee Details' &&
+                  this.props.route.params?.tag != 'User Details' &&
                   this.setState({visibleModal: true})
                 }
                 style={{
@@ -569,7 +575,7 @@ class AdminNewEmploy extends React.Component {
                 <Image
                   source={{
                     uri:
-                      this.props.route.params.tag == 'Add New Employee'
+                      this.props.route.params.tag == 'Add New User'
                         ? this.state.userPic
                         : Img,
                   }}
@@ -578,8 +584,8 @@ class AdminNewEmploy extends React.Component {
               </TouchableOpacity>
             )}
 
-            {this.props.route.params.tag != 'Employee Details' &&
-            this.props.route.params.tag != 'Add New Employee' ? (
+            {this.props.route.params.tag != 'User Details' &&
+            this.props.route.params.tag != 'Add New User' ? (
               <View
                 style={{
                   marginTop: 15,
@@ -612,13 +618,13 @@ class AdminNewEmploy extends React.Component {
                 styles.textInputStyle,
                 {
                   backgroundColor:
-                    this.props.route.params.tag != 'Employee Details'
+                    this.props.route.params.tag != 'User Details'
                       ? '#fff'
                       : '#EEEEEE',
                 },
               ]}
               editable={
-                this.props.route.params.tag == 'Employee Details' ? false : true
+                this.props.route.params.tag == 'User Details' ? false : true
               }
               borderHeight={0}
               onChangeText={fullName => {
@@ -635,13 +641,13 @@ class AdminNewEmploy extends React.Component {
                 styles.textInputStyle,
                 {
                   backgroundColor:
-                    this.props.route.params.tag != 'Employee Details'
+                    this.props.route.params.tag != 'User Details'
                       ? '#fff'
                       : '#EEEEEE',
                 },
               ]}
               editable={
-                this.props.route.params.tag == 'Employee Details' ? false : true
+                this.props.route.params.tag == 'User Details' ? false : true
               }
               borderHeight={0}
               maxLength={15}
@@ -661,13 +667,13 @@ class AdminNewEmploy extends React.Component {
                 styles.textInputStyle,
                 {
                   backgroundColor:
-                    this.props.route.params.tag != 'Employee Details'
+                    this.props.route.params.tag != 'User Details'
                       ? '#fff'
                       : '#EEEEEE',
                 },
               ]}
               editable={
-                this.props.route.params.tag == 'Employee Details' ? false : true
+                this.props.route.params.tag == 'User Details' ? false : true
               }
               borderHeight={0}
               onChangeText={emailId => {
@@ -677,18 +683,18 @@ class AdminNewEmploy extends React.Component {
                 this.setState({userProfile});
               }}
               value={this.state.userProfile?.emailId}
-              label="Email*"
+              label="Email"
             />
 
-            {(this.props.route.params.tag == 'Employee Details' ||
-              this.props.route.params.tag !== 'Update Employee') &&
-            this.props.route.params.tag !== 'Add New Employee' ? (
+            {(this.props.route.params.tag == 'User Details' ||
+              this.props.route.params.tag !== 'Update User') &&
+            this.props.route.params.tag !== 'Add New User' ? (
               <Hoshi
                 style={[
                   styles.textInputStyle,
                   {
                     backgroundColor:
-                      this.props.route.params.tag == 'Add New Employee'
+                      this.props.route.params.tag == 'Add New User'
                         ? '#fff'
                         : '#EEEEEE',
                   },
@@ -710,7 +716,7 @@ class AdminNewEmploy extends React.Component {
                 <DropDownPicker
                   items={this.state.userRole}
                   placeholder={
-                    this.props.route.params.tag == 'Add New Employee'
+                    this.props.route.params.tag == 'Add New User'
                       ? 'User Role*'
                       : this.state.userProfile?.userRole
                   }
@@ -737,7 +743,7 @@ class AdminNewEmploy extends React.Component {
               </View>
             )}
 
-            {this.props.route.params.tag == 'Add New Employee' ? (
+            {this.props.route.params.tag == 'Add New User' ? (
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Hoshi
                   style={[
@@ -745,13 +751,13 @@ class AdminNewEmploy extends React.Component {
                     {
                       flex: 1,
                       backgroundColor:
-                        this.props.route.params.tag != 'Employee Details'
+                        this.props.route.params.tag != 'User Details'
                           ? '#fff'
                           : '#EEEEEE',
                     },
                   ]}
                   editable={
-                    this.props.route.params.tag == 'Employee Details'
+                    this.props.route.params.tag == 'User Details'
                       ? false
                       : true
                   }
@@ -799,13 +805,13 @@ class AdminNewEmploy extends React.Component {
                 styles.textInputStyle,
                 {
                   backgroundColor:
-                    this.props.route.params.tag != 'Employee Details'
+                    this.props.route.params.tag != 'User Details'
                       ? '#fff'
                       : '#EEEEEE',
                 },
               ]}
               editable={
-                this.props.route.params.tag == 'Employee Details' ? false : true
+                this.props.route.params.tag == 'User Details' ? false : true
               }
               borderHeight={0}
               secureTextEntry={this.state.OhidePassword}
@@ -823,13 +829,13 @@ class AdminNewEmploy extends React.Component {
                 styles.textInputStyle,
                 {
                   backgroundColor:
-                    this.props.route.params.tag != 'Employee Details'
+                    this.props.route.params.tag != 'User Details'
                       ? '#fff'
                       : '#EEEEEE',
                 },
               ]}
               editable={
-                this.props.route.params.tag == 'Employee Details' ? false : true
+                this.props.route.params.tag == 'User Details' ? false : true
               }
               borderHeight={0}
               onChangeText={designation => {
@@ -842,15 +848,15 @@ class AdminNewEmploy extends React.Component {
               label="Designation"
             />
 
-            {(this.props.route.params.tag == 'Employee Details' ||
-              this.props.route.params.tag !== 'Update Employee') &&
-            this.props.route.params.tag !== 'Add New Employee' ? (
+            {(this.props.route.params.tag == 'User Details' ||
+              this.props.route.params.tag !== 'Update User') &&
+            this.props.route.params.tag !== 'Add New User' ? (
               <Hoshi
                 style={[
                   styles.textInputStyle,
                   {
                     backgroundColor:
-                      this.props.route.params.tag == 'Add New Employee'
+                      this.props.route.params.tag == 'Add New User'
                         ? '#fff'
                         : '#EEEEEE',
                   },
@@ -872,9 +878,9 @@ class AdminNewEmploy extends React.Component {
                 <DropDownPicker
                   items={this.state.timeZone}
                   placeholder={
-                    this.props.route.params.tag == 'Add New Employee'
-                      ? 'Selecte TimeZone*'
-                      : this.state.userProfile?.timeZone
+                    this.props.route.params.tag == 'Add New User'
+                      ? 'Selecte TimeZone'
+                      : this.state.userProfile?.timeZone ==null ? "Selecte TimeZone":this.state.userProfile?.timeZone
                   }
                   // defaultValue="Employee"
                   placeholderStyle={{color: '#6a7989', fontSize: 15}}
@@ -909,7 +915,7 @@ class AdminNewEmploy extends React.Component {
                 borderBottomWidth: 1,
                 borderBottomColor: COLORS.graye00,
                 backgroundColor:
-                  this.props.route.params.tag != 'Employee Details'
+                  this.props.route.params.tag != 'User Details'
                     ? '#fff'
                     : '#EEEEEE',
               }}>
@@ -917,7 +923,7 @@ class AdminNewEmploy extends React.Component {
                 isOn={this.state.userProfile?.visitorAllows}
                 onColor="green"
                 disabled={
-                  this.props.route.params.tag == 'Employee Details'
+                  this.props.route.params.tag == 'User Details'
                     ? true
                     : false
                 }
@@ -928,19 +934,19 @@ class AdminNewEmploy extends React.Component {
                 onToggle={isOn => this.switchToggle(isOn)}
               />
             </View>
-            {/* {this.props.route.params.tag == 'Employee Details' ? (
+            {/* {this.props.route.params.tag == 'User Details' ? (
               <Hoshi
                 style={[
                   styles.textInputStyle,
                   {
                     backgroundColor:
-                      this.props.route.params.tag != 'Employee Details'
+                      this.props.route.params.tag != 'User Details'
                         ? '#fff'
                         : '#EEEEEE',
                   },
                 ]}
                 editable={
-                  this.props.route.params.tag == 'Employee Details'
+                  this.props.route.params.tag == 'User Details'
                     ? false
                     : true
                 }
@@ -954,7 +960,7 @@ class AdminNewEmploy extends React.Component {
                 label="Login Status"
               />
             ) : null} */}
-            {this.props.route.params.tag == 'Add New Employee' ? (
+            {this.props.route.params.tag == 'Add New User' ? (
               <View
                 style={{
                   flexDirection: 'row',
@@ -987,7 +993,7 @@ class AdminNewEmploy extends React.Component {
                             </TouchableOpacity> */}
               </View>
             ) : null}
-            {this.props.route.params.tag == 'Update Employee' ? (
+            {this.props.route.params.tag == 'Update User' ? (
               <View
                 style={{
                   flexDirection: 'row',
@@ -1024,14 +1030,13 @@ class AdminNewEmploy extends React.Component {
     );
   }
   updateUserDetails() {
-    if (this.state.userProfile.fullName != '') {
+    if (this.state.userProfile?.fullName != '') {
       if (
-        this.state.userProfile.mobile != '' &&
-        this.state.userProfile.mobile.length <= 15
+        this.state.userProfile?.mobile != '' &&
+        this.state.userProfile?.mobile.length <= 15
       ) {
         if (
-          this.validate(this.state.userProfile.emailId) &&
-          this.state.userProfile.emailId != ''
+          this.state.userProfile?.emailId==null ||this.state.userProfile?.emailId==""||this.validate(this.state.userProfile?.emailId)
         ) {
           this.props.UpdateUser(
             this.state.userProfile,
@@ -1071,7 +1076,7 @@ class AdminNewEmploy extends React.Component {
     for (var i = 0; i < text.length; i++) {
       if (numbers.indexOf(text[i]) > -1) {
         mobile = mobile + text[i];
-        if (mobile[0] > 5) {
+        if (mobile[0] >= 1) {
         } else {
           mobile = '';
           alert('Please Enter Valid Mobile Number');
@@ -1080,6 +1085,7 @@ class AdminNewEmploy extends React.Component {
         alert('Please Enter Numbers Only');
       }
     }
+  
     const userProfile = Object.assign({}, this.state.userProfile, {
       mobile: mobile,
     });
@@ -1087,7 +1093,7 @@ class AdminNewEmploy extends React.Component {
   }
   validate = text => {
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    if (text != '' && reg.test(text) === false) {
+    if (reg.test(text) === false) {
       return false;
     } else {
       return true;
@@ -1147,37 +1153,56 @@ class AdminNewEmploy extends React.Component {
       Toast.show('User not saved succeesfully', Toast.LONG);
     }
   };
-
-  insertNewEmpl() {
-    if (this.state.userProfile.fullName != null) {
-      if (
-        this.state.userProfile.mobile != null &&
-        this.state.userProfile.mobile.length <= 15
-      ) {
-        if (this.validate(this.state.userProfile.emailId)) {
-          if (this.state.userProfile.userRole != null) {
-            if (this.chekTextinputforconform()) {
-              var enc = this.encriptPass(this.state.userProfile.password);
-              const userProfile = Object.assign({}, this.state.userProfile, {
-                password: enc,
-                parentID: this.props.LoginDetails.empID,
-                photoUrl: this.state.imagePath,
-              });
-              console.log(userProfile);
-              this.props.SaveUser(userProfile, this.newAddEmpRes);
+ 
+ async insertNewEmpl() {
+    try {
+      let response=await axiosAuthGet("Account/CheckDuplicate/"+this.state.userProfile?.mobile)
+      console.log(response);
+      if(response==true){
+        alert("Mobile Number Already Exists")
+      }else{
+        if (this.state.userProfile?.fullName != null) {
+          if (
+            this.state.userProfile?.emailId==null || this.state.userProfile?.emailId=="" || this.validate(this.state.userProfile?.emailId)
+          ){
+            if (
+              this.state.userProfile?.mobile != null 
+            ) {
+              if( this.state.userProfile?.mobile.length >= 8 &&
+                this.state.userProfile?.mobile.length <= 15){
+                  if (this.state.userProfile?.userRole != null) {
+                    if (this.chekTextinputforconform()) {
+                      var enc = this.encriptPass(this.state.userProfile?.password);
+                      const userProfile = Object.assign({}, this.state?.userProfile, {
+                        password: enc,
+                        parentID: this.props.LoginDetails.empID,
+                        photoUrl: this.state.imagePath,
+                      });
+                      console.log(userProfile);
+                      this.props.SaveUser(userProfile, this.newAddEmpRes);
+                    }
+                  } else {
+                    alert('Please Select User Role');
+                  }
+              }
+              else {
+                alert('Please Enter Valid Mobile Number');
+              }
+      
+            } else {
+              alert('Please Enter Mobile Number');
             }
-          } else {
-            alert('Please Select User Role');
+          }else{
+            alert('Invalid Email Id')
           }
         } else {
-          alert('Please Enter Valid E-mail');
+          alert('Please Enter Full Name');
         }
-      } else {
-        alert('Please Enter Mobile Number');
       }
-    } else {
-      alert('Please Enter Full Name');
+      } catch (error) {
+      
     }
+  
   }
 }
 const styles = StyleSheet.create({

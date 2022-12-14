@@ -103,7 +103,7 @@ class AdminEmployeDetails extends React.Component {
         //                             style={{ height: 22, width: 22, left: 10 }} />
         //                     </TouchableOpacity>
         //                     <View style={{ width: '100%', flexDirection: "row", paddingLeft: 20 }}>
-        //                         <Text style={{ color: "white", textAlign: "center", padding: 5, fontSize: 22 }}>Employee Details</Text>
+        //                         <Text style={{ color: "white", textAlign: "center", padding: 5, fontSize: 22 }}>User Details</Text>
         //                     </View>
         //                 </View>
         //             </LinearGradient>

@@ -91,6 +91,8 @@ class FieldSetting extends Component {
     this.getData();
   }
   getData = async () => {
+    let Orgresponse=await axiosAuthGet("VizOrganization/GetCompanyById/"+this.props.LoginDetails.userID)
+    console.log(Orgresponse); 
     let respo = await axiosAuthGet(
       'Settings/GetAllSettings/' + this.props.LoginDetails.userID,
     );
@@ -111,8 +113,8 @@ class FieldSetting extends Component {
       purpose: sett.vPurpose,
       temprature: sett.vtemprature,
       settingsID: sett.settingsID,
-      userId: sett.userId,
-      orgId: sett.orgId,
+      userId: this.props.LoginDetails.userID,
+      orgId: Orgresponse.orgID,
       col1: sett.vAddlCol1,
       col2: sett.vAddlCol2,
       col3: sett.vAddlCol3,
@@ -268,14 +270,65 @@ class FieldSetting extends Component {
       },
     };
     console.log(params);
-    let response = await axiosPost('Settings/UpdateSetting', params);
-    console.log(response);
-    let re = await axiosPost('Settings/UpdateColomMapping', params);
-    console.log(re);
-    if (response == true) {
-      Toast.show('Update Successfully ');
-      this.props.navigation.navigate('SettingScreen');
+    if(params.settingsVM.SettingsID>0){
+      let response = await axiosPost('Settings/UpdateSetting', params);
+      console.log(response);
+      let re = await axiosPost('Settings/UpdateColomMapping', params);
+      console.log(re);
+      if (response == true) {
+        Toast.show('Update Successfully ');
+        this.props.navigation.goBack('SettingScreen');
+      }
+    }else{
+      var paramss = {
+        mappingVM: {
+          MappID: 0,
+          Col1: val.column1,
+          Col2: val.column2,
+          Col3: val.column3,
+          Col4: val.column4,
+          Col5: val.column5,
+          ValCol1: val.cal1Value[0],
+          ValCol2: val.cal2Value[0],
+          ValCol3: val.cal3Value[0],
+          ValCol4: val.cal4Value[0],
+          ValCol5: val.cal5Value[0],
+          UserId: val.userId,
+          OrgId: val.orgId,
+        },
+        settingsVM: {
+          SettingsID: 0,
+          UserId: val.userId,
+          OrgId: val.orgId,
+          templateId: 4,
+          vAddlCol1: val.coltrue,
+          vAddlCol2: val.col2true,
+          vAddlCol3: val.col3true,
+          vAddlCol4: val.col4true,
+          vAddlCol5: val.col5true,
+          VAddress: val.address,
+          VCompany: val.Company,
+          VDesignation: val.Designation,
+          VEmail: val.Email,
+          VIdProof: val.idProof,
+          VPhotoProof: val.photo,
+          VDepartment: val.Department,
+          VPurpose: val.purpose,
+          Vtemprature: val.temprature,
+          VArogya: val.vaccination,
+        },
+      };
+      
+      console.log(paramss);
+      let response = await axiosPost('Settings/SaveSetting', paramss);
+      console.log(response);
+      let re = await axiosPost('Settings/SaveColMap', paramss);
+      console.log(re);
+        Toast.show('Save Successfully ');
+        this.props.navigation.navigate('BadgeTemp');
+      
     }
+   
   };
   setenablefield = async col => {
     const val = this.state;
@@ -1063,7 +1116,6 @@ class FieldSetting extends Component {
                 marginTop: 30,
                 marginLeft: 'auto',
                 marginRight: 10,
-                width: '30%',
                 alignItems: 'center',
                 padding: 10,
               }}>

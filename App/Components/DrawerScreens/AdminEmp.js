@@ -588,7 +588,7 @@ class AdminEmp extends Component {
     })
     return (
       <View style={{ flex: 1, backgroundColor: COLORS.whitef4 }}>
-        <View style={{ width: "100%" }}>
+        <View style={{ width: "100%",marginTop:Platform.OS=="ios"?-20:0 }}>
           <Header title={"Dashboard"} navigation={this.props.navigation} /></View>
         <View style={{ flex: 1, flexDirection: this.state.orientation === 'landscape' ? 'row' : 'column' }}>
           {this.state.orientation === 'landscape' ? <View style={{ flex: 1 }}>

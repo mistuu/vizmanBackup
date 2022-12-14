@@ -86,7 +86,7 @@ class Courier_In extends Component {
     ) {
       this.setState({hideButton: false});
     }
-    console.log('LoginDetails=====', this.props.LoginDetails.userRoleId);
+    console.log('LoginDetails=====', this.props.LoginDetails);
     let response = await axiosAuthGet(
       'Courier/GetCourierList/' + this.props.LoginDetails.userID,
     );
@@ -94,7 +94,9 @@ class Courier_In extends Component {
     var details = [];
     // this gives an object with dates as keys
     var groups = response.reduce((groups, game) => {
-      const date = game.courierDate.split('T')[0];
+    console.log("List=",game.courierDate);
+
+      const date = game.courierDate?.split('T')[0];
       if (!groups[date]) {
         groups[date] = [];
       }
@@ -121,12 +123,13 @@ class Courier_In extends Component {
     let array = groupArrays.filter(a => a.CourierDetails.length > 0);
     if (
       this.props.LoginDetails.userRoleId == 2 ||
-      this.props.LoginDetails.userRoleId == 3 
+      this.props.LoginDetails.userRoleId == 3 ||(this.props.LoginDetails.userRoleId == 1 && !this.props.AdminSwitch )
     ) {
       this.setState({courierDetails: array, dummy: array});
 
       console.log('All Data===', array);
-    } else {
+    } 
+    else {
       response.forEach(element => {
         // if (this.props.LoginDetails.empID === element.employeeId) {
         //   details.push({
@@ -407,7 +410,7 @@ class Courier_In extends Component {
             alignContent: 'center',
             justifyContent: 'center',
           }}>
-          {this.state.hideButton && (
+          {this.props.LoginDetails.userRoleId!=4 && !this.props.AdminSwitch &&(
             <LinearGradient
               style={{
                 borderRadius: 55 / 2,

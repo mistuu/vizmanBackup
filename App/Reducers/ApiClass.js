@@ -96,6 +96,16 @@ export const mapDispatchToProps = dispatch => ({
         onSuccess,
       ),
     ),
+    GetPendingInvitesVisitor: (userID, onSuccess) =>
+    dispatch(
+      Fetch(
+        'Visitor/Approvervisitorlist',
+        'GET',
+        userID,
+        serviceActionVisitors,
+        onSuccess,
+      ),
+    ),
   GetVisitorForReceptionUPcomming: (userID, onSuccess) =>
     dispatch(
       Fetch(
@@ -205,7 +215,7 @@ export const mapDispatchToProps = dispatch => ({
   VizApprove: (param, onSuccess) =>
     dispatch(
       Fetch(
-        'Visitor/InviteesApproval/' + param,
+        'Visitor/VizApprove/' + param,
         'POST',
         undefined,
         undefined,
@@ -215,13 +225,15 @@ export const mapDispatchToProps = dispatch => ({
   VizRejected: (param, onSuccess) =>
     dispatch(
       Fetch(
-        'Visitor/InviteesApproval/' + param,
+        'Visitor/VizRejected/' + param,
         'POST',
         undefined,
         undefined,
         onSuccess,
       ),
     ),
+    MeetingIn: (param, onSuccess) =>
+    dispatch(Fetch('Visitor/MeetingIn/'+param, 'POST', undefined, undefined, onSuccess)),
   MeetingOut: (param, onSuccess) =>
     dispatch(Fetch('Visitor/MeetingOut', 'POST', param, undefined, onSuccess)),
   //Login

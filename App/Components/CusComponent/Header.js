@@ -182,7 +182,7 @@ getFileExtention = fileUrl => {
     a = this.props.NotificationList.filter(element => {
       return element.isRead == false;
     });
-    console.log('===Notification Length+++++===========', a);
+    // console.log('===Notification Length+++++===========', a);
     this.setState({NotificationList: a});
   }
   // componentDidMount() {
@@ -215,11 +215,12 @@ getFileExtention = fileUrl => {
   render() {
     const {navigation, title} = this.props;
     return (
-      <SafeAreaView style={{paddingTop:5}}>
+      <SafeAreaView>
       <LinearGradient
         style={{
           height: Platform.OS === 'android' ? 80 : 65,
           paddingTop: Platform.OS === 'android' ? 25 : 18,
+         
           width: '100%',
           justifyContent: 'center',
           // borderBottomLeftRadius: this.props.LoginDetails.userRoleId == 4 ? 0 : 15,
@@ -231,14 +232,14 @@ getFileExtention = fileUrl => {
             <StatusBar backgroundColor={COLORS.primary} />
             : null
         } */}
-
+<SafeAreaView>
         <StatusBar
           barStyle={'dark-content'}
           backgroundColor="transparent"
           translucent={true}
         />
-        <View style={{height: '100%', width: '100%', justifyContent: 'center'}}>
-          <View style={{height: '100%', flexDirection: 'row'}}>
+        <View style={{height: '100%',backgroundColor:Colors.primary, width: '98%', justifyContent: 'center'}}>
+          <View style={{height: '100%',backgroundColor:Colors.primary,width:"98%", flexDirection: 'row'}}>
             <TouchableOpacity
               style={{
                 padding: 10,
@@ -281,7 +282,9 @@ getFileExtention = fileUrl => {
                 {title}
               </Text>
             </View>
-
+                <View>
+                  
+                </View>
             {this.props.LoginDetails.userRoleId !== 4 && (
               <TouchableOpacity
                 style={{
@@ -316,7 +319,7 @@ getFileExtention = fileUrl => {
             title != 'Change Password' &&
             (this.props.LoginDetails.userRoleId == 4 ||
               this.props.LoginDetails.userRoleId == 1) ? (
-                title == "Employee List"?
+                title == "User List"?
               <TouchableOpacity
                 style={{
                   padding: 10,
@@ -326,7 +329,7 @@ getFileExtention = fileUrl => {
                   // justifyContent: 'center',
                 }}
                 onPress={() => {
-                  this.props.navigation.navigate("AdminNewEmploy", {tag: "Add New Employee" })
+                  this.props.navigation.navigate("AdminNewEmploy", {tag: "Add New User" })
                  
                 }}>
                 <Image
@@ -363,10 +366,11 @@ getFileExtention = fileUrl => {
             </TouchableOpacity>
             ) : null}
 
-            {this.props.LoginDetails.userRoleId == 3 ||
+            {this.props.LoginDetails.userRoleId == 2 ||
+            this.props.LoginDetails.userRoleId == 3 ||
             this.props.LoginDetails.userRoleId == 4 ||
             this.props.LoginDetails.userRoleId == 1 ? (
-              <View style={{justifyContent: 'center', marginHorizontal: 10}}>
+              <View style={{justifyContent: 'center',}}>
                 {this.state.NotificationList?.length > 0 ? (
                   Platform.OS === 'ios' ? (
                     <View
@@ -483,6 +487,8 @@ getFileExtention = fileUrl => {
             </View>
           </Modal>
         </View>
+</SafeAreaView>
+
         {/* <View style={{width:'100%', borderBottomWidth:0.2, borderBottomColor:'white'}}/> */}
         {/* </SafeAreaView> */}
       </LinearGradient>

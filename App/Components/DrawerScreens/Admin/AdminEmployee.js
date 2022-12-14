@@ -124,11 +124,11 @@ class AdminEmployee extends React.Component {
                         <View style={{ flexDirection: 'row', padding: 10, alignItems: 'center', backgroundColor:"#df8109", height: null, width: '90%', borderRadius: 10 }}>
                          
                             <View style={{ padding: 15,flex:1, }}>
-                                {this.state.selectedItem.userRoleId != 1 ? <TouchableOpacity style={{flex:1, padding:6,}} onPress={() =>{this.setState({modalVisible:false,search:""}), this.props.navigation.navigate("AdminNewEmploy", { EmplDtls: this.state.selectedItem, tag: "Update Employee" })}}>
-                                    <Text style={{ fontSize: 18,color:COLORS.white, fontWeight: "bold" }}>Edit</Text></TouchableOpacity> : null}
+                                 <TouchableOpacity style={{flex:1, padding:6,}} onPress={() =>{this.setState({modalVisible:false,search:""}), this.props.navigation.navigate("AdminNewEmploy", { EmplDtls: this.state.selectedItem, tag: "Update User" })}}>
+                                    <Text style={{ fontSize: 18,color:COLORS.white, fontWeight: "bold" }}>Edit</Text></TouchableOpacity> 
                                 {this.state.selectedItem.userRoleId != 1 ? <TouchableOpacity style={{flex:1,padding:6,}} onPress={() => {this.setState({modalVisible:false,search:""}),this.deleteEmploy(this.state.selectedItem)}}>
                                     <Text style={{ marginTop: 10,color:COLORS.white, fontSize: 18, fontWeight: "bold" }}>Delete</Text></TouchableOpacity> : null}
-                                <TouchableOpacity style={{padding:6,flex:1,}} onPress={() => {this.setState({modalVisible:false,search:""}),this.props.navigation.navigate("AdminNewEmploy", { EmplDtls: this.state.selectedItem, tag: "Employee Details" })}}>
+                                <TouchableOpacity style={{padding:6,flex:1,}} onPress={() => {this.setState({modalVisible:false,search:""}),this.props.navigation.navigate("AdminNewEmploy", { EmplDtls: this.state.selectedItem, tag: "User Details" })}}>
                                     <Text style={{ marginTop: 10,color:COLORS.white, fontSize: 18, fontWeight: "bold" }}>View</Text></TouchableOpacity>
                                 <TouchableOpacity style={{padding:6,flex:1,}} onPress={() => {this.setState({modalVisible:false,search:""}),this.props.navigation.navigate("AdminEmployeDetails", { UserId: this.state.selectedItem.usrId })}}>
                                     <Text style={{ marginTop: 10, fontSize: 18,color:COLORS.white, fontWeight: "bold" }}>InOut History</Text></TouchableOpacity>
@@ -148,8 +148,8 @@ class AdminEmployee extends React.Component {
     render() {
         return (
             <View style={{ width: '100%', height: '100%', backgroundColor: COLORS.whitef4 }}>
-                <View style={{ width: "100%", }}>
-                    <Header title={"Employee List"} navigation={this.props.navigation} />
+                <View style={{ width: "100%", marginTop:Platform.OS=="ios"?-20:0}}>
+                    <Header title={"User List"} navigation={this.props.navigation} />
                 </View>
                 <View style={{ flex: 1, paddingBottom: 10, alignSelf: 'center' }} >
                     <Animated.FlatList
@@ -230,13 +230,13 @@ class AdminEmployee extends React.Component {
                                             </Text>
                                         </View>
                                         {/* <View style={{ width: '34%', justifyContent: 'space-evenly', alignSelf: 'flex-end', flexDirection: 'row' }} >
-                                            {item.userRoleId != 1 ? <TouchableOpacity onPress={() => this.props.navigation.navigate("AdminNewEmploy", { EmplDtls: item, tag: "Update Employee" })} style={{ marginLeft: 12, padding: 3 }}>
+                                            {item.userRoleId != 1 ? <TouchableOpacity onPress={() => this.props.navigation.navigate("AdminNewEmploy", { EmplDtls: item, tag: "Update User" })} style={{ marginLeft: 12, padding: 3 }}>
                                                 <Image style={{ height: 23, width: 23, tintColor: COLORS.black, resizeMode: "contain", }} source={IMAGES.edit} />
                                             </TouchableOpacity> : null}
                                             {item.userRoleId != 1 ? <TouchableOpacity onPress={() => this.deleteEmploy(item)} style={{ marginLeft: 8, padding: 3 }}>
                                                 <Image style={{ height: 20, width: 20, tintColor: COLORS.black, resizeMode: "contain", }} source={IMAGES.delete} />
                                             </TouchableOpacity> : null}
-                                            <TouchableOpacity onPress={() => this.props.navigation.navigate("AdminNewEmploy", { EmplDtls: item, tag: "Employee Details" })} style={{ marginLeft: 8, padding: 3 }}>
+                                            <TouchableOpacity onPress={() => this.props.navigation.navigate("AdminNewEmploy", { EmplDtls: item, tag: "User Details" })} style={{ marginLeft: 8, padding: 3 }}>
                                                 <Image style={{ height: 23, width: 23, tintColor: COLORS.black, resizeMode: "contain", }} source={IMAGES.hidden} />
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => this.props.navigation.navigate("AdminEmployeDetails", { UserId: item.usrId })} style={{ marginLeft: 8, padding: 3 }}>

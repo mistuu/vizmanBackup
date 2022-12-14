@@ -38,6 +38,8 @@ import SettingScreen from '../DrawerScreens/Admin/SettingScreen'
 import AdminVizScreen from '../DrawerScreens/Admin/AdminVizScreen';
 import AdminViz from '../DrawerScreens/Admin/AdminViz';
 import Reports from '../DrawerScreens/Reports/Reports';
+import PendingInvitesScreen from '../DrawerScreens/PendingInvitesScreen';
+import { axiosAuthGet } from '../../utility/apiConnection';
 
 
 var PushNotification = require('react-native-push-notification');
@@ -82,9 +84,12 @@ class DrawerScreen extends Component {
           backgroundColor: 'transparent',
         },
       ],
+      
     };
   }
-  componentDidMount() {}
+ async componentDidMount() {
+    
+  }
   // componentDidUpdate(prevProps) {
   //   if (this.props.AdminSwitch !== prevProps.AdminSwitch) {
   //     console.log('hthis.props.AdminSwitc', this.props.AdminSwitch);
@@ -461,6 +466,13 @@ class DrawerScreen extends Component {
       </View>
     )
   }
+  InviteScreen=({navigation})=>{
+    return(
+      <View style={{height: '100%', width: '100%'}}>
+        <PendingInvitesScreen navigation={navigation} />
+      </View>
+    )
+  }
   render() {
 
     console.log("IN Log",this.state.adminSwitch);
@@ -487,7 +499,7 @@ class DrawerScreen extends Component {
 
           }
 
-            {!this.state.adminSwitch && this.props.LoginDetails?.userRoleId == 1 &&<Drawer.Screen name="Employee" component={this.adminEmployee} />}
+            {!this.state.adminSwitch && this.props.LoginDetails?.userRoleId == 1 &&<Drawer.Screen name="User" component={this.adminEmployee} />}
             {!this.state.adminSwitch && this.props.LoginDetails?.userRoleId == 1 &&<Drawer.Screen name="Visitor" component={this.adminVisitor} />}
             
             {
@@ -504,7 +516,10 @@ class DrawerScreen extends Component {
             <Drawer.Screen name="Visitors" component={this.visitors} />
 
           )}
-
+          {
+            this.props.LoginDetails?.isApprover==true &&
+            <Drawer.Screen name="Pending Invites" component={this.InviteScreen} />
+          }
           {/* {this.props.LoginDetails?.userRoleId == 6 ?  <Drawer.Screen name="BuldingGateKeeper" component={this.BuildingGateKeeperdashboard} /> : null } */}
           { this.props.LoginDetails?.userRoleId == 6 ? (
             <Drawer.Screen

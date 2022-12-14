@@ -306,7 +306,7 @@ class Gatekeepar extends React.Component {
       notifDate: this.getCurrentDate(),
       userId: item.whomToMeet,
     };
-    this.props.SaveNotification(param);
+    // this.props.SaveNotification(param);
   }
   getAllReceptionst(params1, tag) {
     this.props.ReceptionList.forEach(element => {
@@ -376,7 +376,7 @@ class Gatekeepar extends React.Component {
       notifDate: this.getCurrentDate(),
       userId: item.usrId,
     };
-    this.props.SaveNotification(param);
+    // this.props.SaveNotification(param);
   }
 
   // wisSelected = selectedwisitorName => {
@@ -517,7 +517,7 @@ class Gatekeepar extends React.Component {
               onPress={() => {
                 this.state.selectedInOutId[0] != undefined
                   ? this.props.CheckOut(
-                      this.state.selectedInOutId[0],
+                      this.state.selectedInOutId[0]+"/"+this.props.LoginDetails.empID,
                       this.checkoutSuccess,
                     )
                   : alert('Please Select Visitor Name');
@@ -787,7 +787,7 @@ class Gatekeepar extends React.Component {
           height: '100%',
           backgroundColor: COLORS.whitef4,
         }}>
-        <View style={{width: '100%'}}>
+        <View style={{width: '100%',marginTop:Platform.OS=="ios"?-20:0}}>
           <Header title={'Dashboard'} navigation={this.props.navigation} />
         </View>
         <View

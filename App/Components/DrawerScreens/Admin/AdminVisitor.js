@@ -89,7 +89,7 @@ class AdminVisitor extends React.Component {
   };
   blockUser=async()=>{
     console.log(this.state.selectedItem.visitorId);
-    let response=await axPost("AdminDealer/VisitorBlock/"+this.state.selectedItem.visitorId+"/"+true)
+    let response=await axPost("AdminDealer/VisitorBlock/"+this.state.selectedItem.visitorId+"/"+true+"/"+this.props.LoginDetails.orgID)
     if(response==true){
       Toast.show("Visitor Blocked Successful")
       this.setState({modalVisible:false})
@@ -217,7 +217,7 @@ class AdminVisitor extends React.Component {
        
         <View style={{flex: 1, paddingBottom: 10, alignSelf: 'center'}}>
           <Animated.FlatList
-            style={{flex: 1}}
+            style={{flex: 1,marginBottom:"18%"}}
             scrollEventThrottle={16}
             onScroll={Animated.event(
               [{nativeEvent: {contentOffset: {y: this.state.curY}}}],

@@ -117,31 +117,46 @@ class VisitorUpdate extends Component {
 
   updateSubmit =async () => {
     const data = this.state;
-    const params = {
-      visitorId:data.visitorId,
-      orgId:data.orgId,
-      userId:this.props.LoginDetails.userID,
-      mobile: data.mob,
-      fullName: data.name,
-      email: data.email,
-      designation: data.designation,
-      company: data.company,
-      address: data.address,
-      isVip: data.vip,
-      isBlock: data.block,
-      addlCol1: data.col1Val,
-      addlCol2: data.col2Val,
-      addlCol3: data.col3Val,
-      addlCol4: data.col4Val,
-      addlCol5: data.col5Val,
-    };
-    console.log('Updated Value==', params);
-    let res=await axiosPost("Visitor/VisitorUpdate",params)
-    console.log("Update value ==",res);
-    if(res==true){
-      Toast.show("Visitor Updated")
-      this.props.navigation.goBack()
+    if(data.mob.length!=0){
+      if(data.mob.length>=8){
+        if(data.name.length!=0){
+          const params = {
+            visitorId:data.visitorId,
+            orgId:data.orgId,
+            userId:this.props.LoginDetails.userID,
+            mobile: data.mob,
+            fullName: data.name,
+            email: data.email,
+            designation: data.designation,
+            company: data.company,
+            address: data.address,
+            isVip: data.vip,
+            isBlock: data.block,
+            addlCol1: data.col1Val,
+            addlCol2: data.col2Val,
+            addlCol3: data.col3Val,
+            addlCol4: data.col4Val,
+            addlCol5: data.col5Val,
+          };
+          console.log('Updated Value==', params);
+          let res=await axiosPost("Visitor/VisitorUpdate",params)
+          console.log("Update value ==",res);
+          if(res==true){
+            Toast.show("Visitor Updated")
+            this.props.navigation.goBack()
+          }
+        }else{
+          alert("Name is Mendatory")
+        }
+      
+      }else{
+        alert("Invalid Mobile Number")
+      }
+    }else{
+      alert("Enter Mobile Number")
     }
+   
+    
   };
   render() {
     return (
@@ -196,15 +211,15 @@ class VisitorUpdate extends Component {
               }}>
               <ScrollView>
                 <TextInput
-                  placeholder="Mobile"
+                  placeholder="Mobile*"
                   keyboardType="phone-pad"
                   value={this.state.mob}
-                  maxLength={10}
+                  maxLength={15}
                   onChangeText={txt => this.setState({mob: txt})}
                   style={styles.textboxStyle}
                 />
                 <TextInput
-                  placeholder="Full Name"
+                  placeholder="Full Name*"
                   onChangeText={txt => this.setState({name: txt})}
                   value={this.state.name}
                   style={styles.textboxStyle}
@@ -251,7 +266,8 @@ class VisitorUpdate extends Component {
                     onToggle={isOn => this.blockToggle(isOn)}
                   />
                 </View>
-                {this.state.settingsVM?.vAddlCol1 ? (
+            
+                {this.state.settingsVM?.vAddlCol1 && this.props.AllSettings.mappingVM.col1 != null ?(
                   this.state.AllSettings.mappingVM?.valCol1 != 5 ? (
                     <View style={{}}>
                       <TextInput
@@ -618,6 +634,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     borderWidth: 0.5,
     margin: 5,
+    paddingVertical:Platform.OS=="android"?0:10
   },
   textInputStyle: {
     color: COLORS.black,

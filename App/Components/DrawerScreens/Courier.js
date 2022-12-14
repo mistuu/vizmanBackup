@@ -16,7 +16,7 @@ class Courier extends Component {
     render() {
         return (
             <View style={{ flex: 1, backgroundColor: COLORS.whitef4 }}>
-                <View style={{ width: "100%" }}>
+                <View style={{ width: "100%" ,marginTop:Platform.OS=="ios"?-20:0}}>
                     <Header title={"Courier"} navigation={this.props.navigation} />
                 </View>
                 <LinearGradient

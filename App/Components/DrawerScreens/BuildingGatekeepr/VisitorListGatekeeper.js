@@ -175,7 +175,9 @@ class VisitorListGatekeeper extends Component {
   render() {
     return (
       <View style={{ flex: 1, backgroundColor: COLORS.whitef4 }}>
+        <View style={{width:"100%",marginTop:Platform.OS=="ios"?-20:0}}>
         <Header title={"Visitor List"} navigation={this.props.navigation} />
+        </View>
         <View style={{ alignSelf: 'center', backgroundColor: COLORS.white, flexDirection: "row", borderRadius: 10, height: 35, width: '98%', padding: 5, marginVertical: 3 }}>
           <Image style={{ height: 20, width: 25, resizeMode: "contain", alignSelf: 'flex-start' }} source={IMAGES.search_a} />
           <View style={{ height: 25, flexGrow: 1, marginLeft: 5 }}>

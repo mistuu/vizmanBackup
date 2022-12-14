@@ -57,7 +57,7 @@ class BuildingGateKeeper extends React.Component {
 
         return (
             <View style={{ width: '100%', height: '100%', backgroundColor: COLORS.whitef4 }}>
-                <View style={{ width: "100%" }}>
+                <View style={{ width: "100%",marginTop:Platform.OS=="ios"?-20:0 }}>
                     <Header title={"Building Gatekeeper"} navigation={this.props.navigation} /></View>
 
                 <View style={{ flex: 1, }}>

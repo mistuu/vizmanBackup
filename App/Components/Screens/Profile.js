@@ -183,10 +183,10 @@ async  componentDidMount() {
       },
     };
     launchImageLibrary(options, response => {
-      console.log('++++++++++++++Image============', response);
+      // console.log('++++++++++++++Image============', response);
 
       if (response.didCancel) {
-        console.log('++++++++++++++Did cancle============');
+        // console.log('++++++++++++++Did cancle============');
       } else {
         response = response.assets;
         response = Object.assign({}, ...response);
@@ -196,7 +196,7 @@ async  componentDidMount() {
             console.log('+++++++', response.fileName + ',' + base64String);
           })
           .catch();
-        console.log('++++++++++++++Image============', response);
+        // console.log('++++++++++++++Image============', response);
         let ImageResponse = response.fileName + ',' + response;
         this.setState({imageR: ImageResponse});
         this.setState(prevState => {

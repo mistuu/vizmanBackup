@@ -1,6 +1,7 @@
 import {Picker} from '@react-native-community/picker';
 import {Formik} from 'formik';
 import React from 'react';
+import Moment from 'moment';
 import Modal from 'react-native-modal';
 import {
   Dimensions,
@@ -33,15 +34,18 @@ import moment from 'moment';
 import DropDownPicker from 'react-native-dropdown-picker';
 import ImageResizer from 'react-native-image-resizer';
 import ImagePicker from 'react-native-image-crop-picker';
-
+import SectionedMultiSelect from "react-native-sectioned-multi-select";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import DateTimePicker from '@react-native-community/datetimepicker';
+import Images from '../../../Assets/Images';
 const {width, height} = Dimensions.get('window');
 const textField = Yup.object().shape({
   // company: Yup.string()
   //   .required("This Field is required."),
-  mob: Yup.string()
+  mob: Yup.string(),
     // .required("This Field is required.")
-    .length(10, 'Mobile number should not be less than 10 digits')
-    .matches(/^(0|91|\+91)?-?[6789]\d{9}$/, 'Please enter Valid Mobile Number'),
+    // .length(10, 'Mobile number should not be less than 10 digits')
+    // .matches(/^(0|91|\+91)?-?[6789]\d{9}$/, 'Please enter Valid Mobile Number'),
 
   // address: Yup.string()
   //   .required('This Field is required.'),
@@ -58,8 +62,12 @@ class Out_Courier extends React.Component {
     this.handleBackButtonClick = this.handleBackButtonClick.bind(this);
     this.state = {
       whoMetList: [],
+      selectedItem: [],
+      selectedEmpItems: [],
       modalVisible: false,
       selectValue: '',
+      show:false,
+      date:new Date(),
       courierDetails: null,
       corEmp: null,
       imageBase64StringPhotoProof: {fileName: null, data: null},
@@ -97,7 +105,7 @@ class Out_Courier extends React.Component {
       );
       console.log('whom meet===:', response);
       response.filter(e => {
-        this.state.whoMetList.push({label: e.name, value: e.whomToMeet});
+        this.state.whoMetList.push({name: e.name, id: e.whomToMeet});
       });
       // this.setState({ whoMetList: response })
       // response.forEach(element => {
@@ -116,6 +124,31 @@ class Out_Courier extends React.Component {
     this.props.navigation.goBack();
     return true;
   }
+  onStateSelectedItemsChange = async (value, index) => {
+    let x = null
+    console.log(value);
+    // value=Object.assign({}, value)
+    await this.state.whoMetList.forEach(element => {
+      if (element.id == value[0]) {
+        x = element.name
+
+      }
+      // console.log("values:", element);
+    });
+
+    console.log("values:", x);
+    this.setState({ selectValue: value[0],selectedEmpItems:value, corEmp: x })
+    // this.state.visitorDetails.filter(i=>{
+    //   value.filter(x=>{
+    //     console.log(i);
+    //     if(i.userId==x){
+    //       this.state.tempList.push(i)
+    //     }
+    //   }
+    //     )
+    // })
+    // console.log("Selcted Item:-", value);
+  };
   chooseFileCamera = async () => {
     try {
       if (Platform.OS === 'android') {
@@ -372,67 +405,73 @@ class Out_Courier extends React.Component {
 
   onSubmit = async values => {
     if (this.state.selectValue != '') {
-      const params = {
-        courierId: 0,
-        name: values.from,
-        address: values.address,
-        employeeId: this.state.selectValue,
-        docket_No: values.dockerno,
-        courierCompany: values.company,
-        courierEmployeeName: this.state.executive,
-        courierMobile: values.mob,
-        remark: this.state.remark,
-        image: this.state.imagePath,
-        type: true,
-        is_IMP: this.state.urgentToggle,
-        orgId: this.props.LoginDetails.orgID,
-        userId: this.props.LoginDetails.userID,
-        employeeName: '',
-        page: '',
-        courierDate: '',
-      };
-      console.log('parameter:====', params);
-      let notifText1 = '';
-      if (values.dockerno != '') {
-        notifText1 =
-          'Hi ' +
-          this.state.corEmp +
-          ',your courier to ' +
-          values.from +
-          ' ' +
-          'is dispatched vide ' +
-          values.company +
-          ' ' +
-          'docket no ' +
-          values.dockerno;
-      } else {
-        notifText1 =
-          'Hi ' +
-          this.state.corEmp +
-          ', your courier to ' +
-          ' ' +
-          values.from +
-          ' ' +
-          'is dispatched.';
-      }
-      try {
-        let response = await axiosPost('Courier/SaveCourier', params);
-        console.log('success', response);
-        if (response === 0) {
-          var param = {
-            notifText: notifText1,
-            notifDate: moment().format('YYYY-MM-DDTHH:mm:ss'),
-            userId: this.state.selectValue,
-          };
-          console.log('params:====', param);
-          let re = axiosPost('Notification/SaveNotification', param);
-          console.log('Responce==:', re);
-          SimpleToast.show('Add Courier Successfully');
-          this.props.navigation.goBack('Courier');
+      if(values.mob==null ||values.mob==""|| values.mob.length>=8){
+        const params = {
+          courierId: 0,
+          name: values.from,
+          address: values.address,
+          employeeId: this.state.selectValue,
+          docket_No: values.dockerno,
+          courierCompany: values.company,
+          courierEmployeeName: this.state.executive,
+          courierMobile: values.mob,
+          remark: this.state.remark,
+          image: this.state.imagePath,
+          type: true,
+          is_IMP: this.state.urgentToggle,
+          orgId: this.props.LoginDetails.orgID,
+          userId: this.props.LoginDetails.userID,
+          employeeName: this.state.corEmp,
+          page: '',
+          empId:this.props.LoginDetails.empID,
+          courierDate:Moment(this.state.date).format(),
+        };
+        console.log('parameter:====', params);
+        let notifText1 = '';
+        if (values.dockerno != '') {
+          notifText1 =
+            'Hi ' +
+            this.state.corEmp +
+            ',your courier to ' +
+            values.from +
+            ' ' +
+            'is dispatched vide ' +
+            values.company +
+            ' ' +
+            'docket no ' +
+            values.dockerno;
         } else {
-          SimpleToast.show('Unsuccessfully');
+          notifText1 =
+            'Hi ' +
+            this.state.corEmp +
+            ', your courier to ' +
+            ' ' +
+            values.from +
+            ' ' +
+            'is dispatched.';
         }
-      } catch (error) {}
+        try {
+          let response = await axiosPost('Courier/SaveCourier', params);
+          console.log('success', response);
+          if (response === 0) {
+            var param = {
+              notifText: notifText1,
+              notifDate: moment().format('YYYY-MM-DDTHH:mm:ss'),
+              userId: this.state.selectValue,
+            };
+            console.log('params:====', param);
+            // let re = axiosPost('Notification/SaveNotification', param);
+            // console.log('Responce==:', re);
+            SimpleToast.show('Add Courier Successfully');
+            this.props.navigation.goBack('Courier');
+          } else {
+            SimpleToast.show('Unsuccessfully');
+          }
+        } catch (error) {}
+      }else{
+        alert("Invalid Mobile No")
+      }
+      
     } else {
       SimpleToast.show('From* Field is Required.');
     }
@@ -452,6 +491,9 @@ class Out_Courier extends React.Component {
       }
     });
   }
+  showMode = () => {
+    this.setState({show: true,});
+  };
   render() {
     return (
       <ScrollView style={{backgroundColor: Colors.white}}>
@@ -518,14 +560,27 @@ class Out_Courier extends React.Component {
                     marginBottom: 10,
                     backgroundColor: Colors.white,
                   }}>
-                  <DropDownPicker
+                <ScrollView contentContainerStyle={{flex:1,marginBottom:"10%"}}>
+
+                  <SectionedMultiSelect
+                    styles={search}
+                    colors={sColor}
                     items={this.state.whoMetList}
-                    placeholder={'From *'}
-                    // ={"Select Program"}
-                    containerStyle={{height: 50}}
-                    // style={{ backgroundColor: '#fafafa', zIndex: 10 }}
-                    dropDownStyle={{backgroundColor: '#fafafa'}}
-                    onChangeItem={item => this.onchangeValue(item)}
+                    single={true}
+                    searchPlaceholderText="Search"
+                    IconRenderer={Icon}
+                    uniqueKey="id"
+                    // subKey="id"
+                    selectText="From*"
+                    showDropDowns={true}
+                    // readOnlyHeadings={true}
+                    onSelectedItemsChange={(value, index) =>
+                      this.onStateSelectedItemsChange(value, index)
+                    }
+                    selectedItems={this.state.selectedEmpItems}
+                    // confirmText={"Select"}
+                    // onConfirm={() => this.onApproveSubmit()}
+                    hideConfirm={true}
                   />
                   {/* <View style={styles.otpView}>
                     <Picker
@@ -573,6 +628,103 @@ class Out_Courier extends React.Component {
                       </Text>
                     ) : null)
                   }
+                    {
+                    Platform.OS=="android"?
+
+                    <TouchableOpacity
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            marginRight: 5,
+                            marginTop:10,
+                            marginBottom:5
+                          }}
+                          onPress={() => this.showMode()}>
+                          <TextInput
+                            editable={false}
+                            style={{
+                              flexGrow: 1,
+                              borderBottomColor:Colors.primary,
+                              borderBottomWidth:1,
+                              marginRight: 10,
+                            }}
+                            placeholderTextColor={Colors.primary}
+                            placeholder="Select Date*"
+                            value={
+                              Moment(this.state.date).format('DD-MM-YYYY') 
+                               
+                            }
+                          />
+                          {this.state.show &&
+                          (
+                           
+                            <DateTimePicker
+                              testID="dateTimePicker"
+                              // style={{width: '100%', backgroundColor: 'white'}} //add this
+                              // style={{ height: 55, paddingTop: 10 }}
+                              timeZoneOffsetInMinutes={0}
+                              value={this.state.date}
+                              minimumDate={new Date()}
+                              // maximumDate={Moment().add(2, 'month')}
+                              mode={this.state.mode}
+                              is24Hour={true}
+                              display="default"
+                              onChange={(event,date)=>this.setState({date:date,show:false})}
+                            />
+                          )
+                          
+  }
+                        
+              
+                          <Image
+                            source={Images.date_icon}
+                            style={{height: 28, width: 32}}
+                          />
+                        </TouchableOpacity>:
+                        <View style={{ flexDirection: 'row',
+                        alignItems: 'center',
+                        marginRight: 20,
+                        marginTop:10,
+                        marginBottom:5}}>
+                         <TextInput
+                            editable={false}
+                            style={{
+                              flexGrow: 1,
+                              borderBottomColor:Colors.primary,
+                              borderBottomWidth:1,
+                              marginRight: 10,
+                            }}
+                            placeholderTextColor={Colors.primary}
+                            placeholder="Select Date*"
+                            value={
+                              Moment(this.state.date).format('DD-MM-YYYY') 
+                               
+                            }
+                          />  
+                        <DateTimePicker
+                        // testID="dateTimePicker"
+                        // style={{ backgroundColor: "white"}} //add this
+                        style={{
+                          height: 60,
+                          alignSelf: "center",
+                          marginRight: 50,
+                          borderRadius: 50,
+                          marginLeft: 12,
+                          width: "80%",
+                        }}
+                        // timeZoneOffsetInMinutes={0}
+                        value={this.state.date}
+                        minimumDate={new Date()}
+                        // maximumDate={Moment().add(2, 'month')}
+                        mode="date"
+                        is24Hour={true}
+                        display="default"
+                        onChange={(event,date)=>this.setState({date:date,show:false})}
+                        />
+                        </View>
+
+                  }
+                
                   <View style={styles.otpView}>
                     <TextInput
                       placeholder="Address "
@@ -676,11 +828,11 @@ class Out_Courier extends React.Component {
                           '',
                         );
                         setFieldValue('mob', num),
-                          value.toString().length === 10 &&
+                          value.toString().length <= 15 &&
                             this.defaultValueSet(value);
                       }}
                       keyboardType="phone-pad"
-                      maxLength={10}
+                      maxLength={15}
                       style={{
                         flex: 1,
                         fontSize: 18,
@@ -782,6 +934,9 @@ class Out_Courier extends React.Component {
                       <Text style={styles.submitText}> Submit </Text>
                     </View>
                   </TouchableOpacity>
+                 
+
+                  </ScrollView>
                 </View>
               </>
             )}
@@ -841,6 +996,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.primary,
     alignItems: 'center',
+    paddingVertical:Platform.OS=="android"?0:8
+
   },
   submitButton: {
     // backgroundColor:[{}],
@@ -864,5 +1021,74 @@ const styles = StyleSheet.create({
     // alignItems: 'center'
   },
 });
+const sColor = {
+  // text:'#FF5733',
+  primary: Colors.primary,
+  // success:'#FF5733',
+  // subText:'#FF5733',
+  // searchPlaceholderTextColor: '#FF5733',
+  // searchSelectionColor: '#FF5733',
+  // itemBackground:'#FF5733',
+  // chipColor:'#FF5733',
+  // selectToggleTextColor:'#FF5733',
+};
+const search = {
+  confirmText: {
+    // color: Colors.primary,
+    // backgroundColor:Colors.primary
+  },
+  // chipText: {
+  //     color: '#FF5733',
+  //     backgroundColor: '#FF5733',
+  //     textDecorationColor: '#FF5733',
+  //     textShadowColor: '#FF5733'
 
+  // },
+  // itemText: {
+  //     color: '#FF5733',
+  //     textShadowColor: '#FF5733',
+  //     textDecorationColor: '#FF5733',
+
+  // },
+  selectedItemText: {
+    // color: 'blue',
+    backgroundColor: Colors.tempGreen,
+  },
+  subItemText: {
+    // color: '#FF5733',
+    // backgroundColor: '#FF5733',
+    backgroundColor: Colors.primary,
+  },
+  confirmText: {
+    color: Colors.white,
+    textDecorationColor: "#FF5733",
+    textShadowColor: "#FF5733",
+  },
+  item: {
+    // backgroundColor:Colors.primary,
+    paddingHorizontal: 10,
+    textDecorationColor: "#FF5733",
+    textShadowColor: "#FF5733",
+  },
+  subItem: {
+    // backgroundColor:Colors.primary,
+    paddingHorizontal: 10,
+  },
+  selectedItem: {
+    // backgroundColor: '#FF5733'
+  },
+  selectedSubItem: {
+    // backgroundColor: '#FF5733'
+  },
+  selectedSubItemText: {
+    // backgroundColor:Colors.primary,
+    // color: 'blue',
+  },
+
+  selectToggleText: {
+    // color: '#FF5733',
+    fontSize: 15,
+  },
+  scrollView: { paddingHorizontal: 0 },
+};
 export default connect(mapStateToProps)(Out_Courier);

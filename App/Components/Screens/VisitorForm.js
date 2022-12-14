@@ -1,8 +1,9 @@
-import {Picker} from '@react-native-community/picker';
-import Moment from 'moment';
-import RadioButtonRN from 'radio-buttons-react-native';
-import React from 'react';
+import { Picker } from "@react-native-community/picker";
+import Moment from "moment";
+import RadioButtonRN from "radio-buttons-react-native";
+import React from "react";
 import {
+  Alert,
   FlatList,
   Image,
   Modal,
@@ -16,51 +17,54 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
+} from "react-native";
 
-import Contacts from 'react-native-contacts';
-import DatePicker from 'react-native-datepicker';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import Contacts from "react-native-contacts";
+import DatePicker from "react-native-datepicker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
-import DropDownPicker from 'react-native-dropdown-picker';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import ImgToBase64 from 'react-native-image-base64';
-import LinearGradient from 'react-native-linear-gradient';
+import DropDownPicker from "react-native-dropdown-picker";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import ImgToBase64 from "react-native-image-base64";
+import LinearGradient from "react-native-linear-gradient";
 // import DateTimePicker from 'react-native-modal-datetime-picker';
-import SimpleToast from 'react-native-simple-toast';
-import Toast from 'react-native-simple-toast';
-import {Hoshi} from 'react-native-textinput-effects';
-import {connect} from 'react-redux';
-import {COLORS, IMAGES} from '../../Assets';
-import {mapDispatchToProps, mapStateToProps} from '../../Reducers/ApiClass.js';
-import {axiosAuthGet} from '../../utility/apiConnection';
-import {randomColor, visitorDetailEmpty} from '../../utility/emptyClass';
-import Images from '../../Assets/Images';
-import ImageResizer from 'react-native-image-resizer';
-import moment from 'moment';
+import SimpleToast from "react-native-simple-toast";
+import Toast from "react-native-simple-toast";
+import { Hoshi } from "react-native-textinput-effects";
+import { connect } from "react-redux";
+import { COLORS, IMAGES } from "../../Assets";
+import {
+  mapDispatchToProps,
+  mapStateToProps,
+} from "../../Reducers/ApiClass.js";
+import { axiosAuthGet } from "../../utility/apiConnection";
+import { randomColor, visitorDetailEmpty } from "../../utility/emptyClass";
+import Images from "../../Assets/Images";
+import ImageResizer from "react-native-image-resizer";
+import moment from "moment";
 // import DatePicker from 'react-native-date-picker'
 
 const placeholderTextColor = COLORS.placeholderColor;
 const data = [
   {
-    label: 'Invite',
+    label: "Invite",
   },
   {
-    label: 'Check In',
+    label: "Check In",
   },
 ];
 const items = [
   // name key is must. It is to show the text in front
-  {id: 1, name: 'angellist'},
-  {id: 2, name: 'codepen'},
-  {id: 3, name: 'envelope'},
-  {id: 4, name: 'etsy'},
-  {id: 5, name: 'facebook'},
-  {id: 6, name: 'foursquare'},
-  {id: 7, name: 'github-alt'},
-  {id: 8, name: 'github'},
-  {id: 9, name: 'gitlab'},
-  {id: 10, name: 'instagram'},
+  { id: 1, name: "angellist" },
+  { id: 2, name: "codepen" },
+  { id: 3, name: "envelope" },
+  { id: 4, name: "etsy" },
+  { id: 5, name: "facebook" },
+  { id: 6, name: "foursquare" },
+  { id: 7, name: "github-alt" },
+  { id: 8, name: "github" },
+  { id: 9, name: "gitlab" },
+  { id: 10, name: "instagram" },
 ];
 class VisitorForm extends React.Component {
   constructor(props) {
@@ -71,58 +75,62 @@ class VisitorForm extends React.Component {
           ? this.props.route.params.VisitorDetails
           : visitorDetailEmpty,
       enable: this.props.route.params.tag == 2 ? false : true,
-      imageBase64StringPhotoProof: {fileName: null, data: null},
-      imageBase64StringIdProof: {fileName: null, data: null},
+      imageBase64StringPhotoProof: { fileName: null, data: null },
+      imageBase64StringIdProof: { fileName: null, data: null },
       invite: this.props.LoginDetails.userRoleId == 3 ? false : true,
-      vAddlCol1Error: '',
-      vAddlCol2Error: '',
-      vAddlCol3Error: '',
-      vAddlCol4Error: '',
-      DisplyName: ['uk'],
-      vAddlCol5Error: '',
-      mobileError: '',
-      emailError: '',
+      vAddlCol1Error: "",
+      vAddlCol2Error: "",
+      vAddlCol3Error: "",
+      vAddlCol4Error: "",
+      DisplyName: ["uk"],
+      vAddlCol5Error: "",
+      mobileError: "",
+      emailError: "",
       contactNoModal: false,
       contactsList: [],
       masterContactList: [],
       whomToMeet: [],
       AllImages: [],
       AllImagesUrl: [],
-      imagePath: '',
-      idProofPath: '',
+      imagePath: "",
+      idProofPath: "",
       nameList: [],
-      date: Platform.OS == 'android' ? null : new Date(),
+      date: Platform.OS == "android" ? null : new Date(),
       time: null,
-      mode: 'date',
+      mode: "date",
       show: false,
-      Outdate: Platform.OS == 'android' ? null : new Date(),
+      Outdate: Platform.OS == "android" ? null : new Date(),
       Outtime: null,
-      Outmode: 'date',
+      Outmode: "date",
       Outshow: false,
     };
   }
-  whomToMeetSuccess = res => this.afterwhomToMeetSuccess(res);
+  whomToMeetSuccess = (res) => this.afterwhomToMeetSuccess(res);
   afterwhomToMeetSuccess(res) {
-    console.log('Without Filter===', res);
-    res = res.filter(element => {
+    console.log("Without Filter===", res);
+    res = res.filter((element) => {
       return element.isVisitorAllow == true;
     });
-    const whomToMeet = res.map(v => ({label: v.name, value: v.whomToMeet}));
-    console.log('whomToMeet', res);
+    const whomToMeet = res.map((v) => ({ label: v.name, value: v.whomToMeet }));
+    console.log("whomToMeet", res);
 
-    this.setState({whomToMeet});
+    this.setState({ whomToMeet });
   }
   async componentDidMount() {
     this.props.ChkSubscriptionLimit(this.props.LoginDetails.userID);
     this.props.GetAllSettings(this.props.LoginDetails.userID);
     this.props.GetWhoomToMEet(
       this.props.LoginDetails.userID,
-      this.whomToMeetSuccess,
+      this.whomToMeetSuccess
     );
     // this.props.GetReceptionList(this.props.LoginDetails.userID)
     // if (this.props.route.params.tag == 1) {
     //     this.props.GetVisitorDtls(this.state.VisitorDetails.inOutId, this.getVisitorDtlsSuccess)
     // }
+    console.log(
+      "this.props.route.params.tag == 2",
+      this.props.route.params.VisitorDetails
+    );
     var VisitorDetails;
     if (
       this.props.route.params.tag == 0 &&
@@ -133,60 +141,70 @@ class VisitorForm extends React.Component {
         this.props.LoginDetails.userRoleId == 1
       ) {
         VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
-          date: Moment().format('DD-MM-YYYY'),
-          inTime: Moment().format('HH:mm:ss'),
           department: this.props.UserDetails.department,
+          date: null,
+          inTime: null,
         });
       } else {
         VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
-          date: Moment().format('DD-MM-YYYY'),
-          inTime: Moment().format('HH:mm:ss'),
+          date: null,
+          inTime: null,
         });
       }
-      this.setState({VisitorDetails});
-    } else if (this.props.route.params.tag == 2) {
+      this.setState({ VisitorDetails });
+    } 
+    else if (this.props.route.params.tag == 2) {
       var VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
         date: this.state.VisitorDetails.date
-          ? Moment(this.state.VisitorDetails.date).format('DD-MM-YYYY')
+          ? Moment(this.state.VisitorDetails.date).format("DD-MM-YYYY")
           : null,
         inTime: this.state.VisitorDetails.inTime
-          ? Moment(this.state.VisitorDetails.inTime).format('HH:mm:ss')
+          ? Moment(this.state.VisitorDetails.inTime).format("HH:mm:ss")
           : null,
         outTime: this.state.VisitorDetails.inTime
-          ? Moment(this.state.VisitorDetails.outTime).format('HH:mm:ss')
+          ? Moment(this.state.VisitorDetails.outTime).format("HH:mm:ss")
           : null,
       });
-      this.setState({VisitorDetails});
+      this.setState({ VisitorDetails });
     }
-    console.log('Mobile Details===', this.props.MobileNo?.mobStatus);
+    console.log("Mobile Details===", this.props.LoginDetails);
 
     if (this.props.MobileNo?.mobStatus == 1) {
       // this.setState({invite:true})
       try {
         let res = await axiosAuthGet(
-          'Visitor/GetVisitorByMobile/' + this.props.MobileNo.mob,
+          "Visitor/GetVisitorByMobile/" + this.props.MobileNo.mob+"/"+this.props.LoginDetails.orgID
         );
-        console.log('Mobile Details===', res.fullName);
+        console.log("Mobile Details===", res.fullName);
         if (res.isBlock != true) {
           this.props.GetVisitorByMobile(
-            this.props.MobileNo.mob,
-            this.getVisitorByMobileSuccess,
+            this.props.MobileNo.mob+"/"+this.props.LoginDetails.orgID,
+            this.getVisitorByMobileSuccess
           );
         } else {
-          alert('This User is Blocked');
+          alert("This User is Blocked");
+          Alert.alert(
+            "Alert ",
+            "This User is Blocked",
+            [
+              { text: "OK", onPress: () => this.props.navigation.goBack() }
+            ]
+          );
           // SimpleToast.show('This User is Blocked')
           this.clearRefresh();
+          const VisitorDetailss = Object.assign({}, this.state.VisitorDetails, {
+            mobile: "",
+          });
+          this.setState({ VisitorDetails: VisitorDetailss, });
           // mobile = '';
-
-          // this.setState({ VisitorDetails: visitorDetailEmpty })
         }
       } catch (error) {}
     }
   }
-  getVisitorDtlsSuccess = VisitorDetails => this.setState({VisitorDetails});
+  getVisitorDtlsSuccess = (VisitorDetails) => this.setState({ VisitorDetails });
   onChangeeee = (event, selectedValue) => {
     var VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
-      inTime: Moment(selectedValue).format('MM-DD-YYYY hh:mm:ss a'),
+      inTime: Moment(selectedValue).format("MM-DD-YYYY hh:mm:ss a"),
     });
 
     this.setState({
@@ -194,19 +212,19 @@ class VisitorForm extends React.Component {
       date: selectedValue,
     });
     console.log(
-      'Datetime==',
-      Moment(selectedValue).format('MM-DD-YYYY hh:mm:ss a'),
+      "Datetime==",
+      Moment(selectedValue).format("MM-DD-YYYY hh:mm:ss a")
     );
   };
 
   onChange = (event, selectedValue) => {
     console.log(selectedValue);
     // this.setState({show: Platform.OS == 'ios'});
-    if (this.state.mode == 'date') {
+    if (this.state.mode == "date") {
       const currentDate = selectedValue || new Date();
       this.setState({
         date: currentDate,
-        mode: 'time',
+        mode: "time",
         // show: Platform.OS != 'ios',
       });
       console.log(currentDate);
@@ -218,13 +236,13 @@ class VisitorForm extends React.Component {
       if (inTime >= currentTime) {
         this.setState({
           time: inTime,
-          mode: 'date',
+          mode: "date",
           show: false,
         });
       } else {
         this.setState({
           time: currentTime,
-          mode: 'date',
+          mode: "date",
           show: false,
         });
       }
@@ -234,28 +252,28 @@ class VisitorForm extends React.Component {
     }
     var VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
       inTime:
-        Moment(this.state.date).format('MM-DD-YYYY') +
-        ' ' +
-        Moment(this.state.time).format('hh:mm:ss a'),
+        Moment(this.state.date).format("MM-DD-YYYY") +
+        " " +
+        Moment(this.state.time).format("hh:mm:ss a"),
     });
-    console.log('In Time=======', VisitorDetails);
+    console.log("In Time=======", VisitorDetails);
 
     // Toast.show('Please select valid In Time');
-    this.setState({VisitorDetails});
+    this.setState({ VisitorDetails });
   };
 
-  showMode = currentMode => {
-    this.setState({show: true, mode: currentMode});
+  showMode = (currentMode) => {
+    this.setState({ show: true, mode: currentMode });
   };
 
   showDatepicker = () => {
-    this.setState({date: new Date(), time: new Date()});
-    this.showMode('date');
+    this.setState({ date: new Date(), time: new Date() });
+    this.showMode("date");
   };
 
   onOutChangeeee = (event, selectedValue) => {
     var VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
-      outTime: Moment(selectedValue).format('MM-DD-YYYY hh:mm:ss a'),
+      outTime: Moment(selectedValue).format("MM-DD-YYYY hh:mm:ss a"),
     });
     this.setState({
       VisitorDetails,
@@ -266,23 +284,23 @@ class VisitorForm extends React.Component {
   OutonChange = (event, selectedValue) => {
     // console.log("out Date",selectedValue.getTime()+"===="+this.state.date.getTime());
     // this.setState({Outshow: Platform.OS == 'ios'});
-    if (this.state.Outmode == 'date') {
+    if (this.state.Outmode == "date") {
       var currentDate = selectedValue || new Date();
-      var c = moment(currentDate).format('DD-MM-YYYY');
-      var d = moment(this.state.date).format('DD-MM-YYYY');
+      var c = moment(currentDate).format("DD-MM-YYYY");
+      var d = moment(this.state.date).format("DD-MM-YYYY");
       if (c.toString() >= d.toString()) {
         this.setState({
           Outdate: currentDate,
-          Outmode: 'time',
+          Outmode: "time",
           // Outshow: Platform.OS != 'ios',
         });
       } else {
         this.setState({
           Outdate: this.state.date,
-          Outmode: 'time',
+          Outmode: "time",
           // Outshow: Platform.OS != 'ios',
         });
-        Toast.show('Please Select Valid Date.');
+        Toast.show("Please Select Valid Date.");
       }
       console.log(currentDate);
     } else {
@@ -290,14 +308,14 @@ class VisitorForm extends React.Component {
       if (outTime >= this.state.time) {
         this.setState({
           Outtime: outTime,
-          Outmode: 'date',
+          Outmode: "date",
           Outshow: false,
         });
         var VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
           outTime:
-            Moment(this.state.Outdate).format('MM-DD-YYYY') +
-            ' ' +
-            Moment(outTime).format('hh:mm:ss a'),
+            Moment(this.state.Outdate).format("MM-DD-YYYY") +
+            " " +
+            Moment(outTime).format("hh:mm:ss a"),
         });
         this.setState({
           VisitorDetails,
@@ -305,103 +323,111 @@ class VisitorForm extends React.Component {
         });
       } else {
         this.setState({
-          Outtime: this.state.time,
-          Outmode: 'date',
+          Outtime: this.state.Outdate,
+          Outmode: "date",
           Outshow: false,
         });
         var VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
           outTime:
-            Moment(this.state.Outdate).format('MM-DD-YYYY') +
-            ' ' +
-            moment(this.state.time).format('hh:mm:ss a'),
+            Moment(this.state.Outdate).format("MM-DD-YYYY") +
+            " " +
+            moment(this.state.Outdate).format("hh:mm:ss a"),
         });
         this.setState({
           VisitorDetails,
           // isExpectedOutVisible: false,
         });
-        Toast.show('Please select valid Out Time');
+        Toast.show("Please select valid Out Time");
       }
     }
-    var VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
-      outTime:
-        Moment(this.state.Outdate).format('MM-DD-YYYY') +
-        ' ' +
-        Moment(outTime).format('hh:mm:ss a'),
-    });
-    this.setState({
-      VisitorDetails,
-      // isExpectedOutVisible: false,
-    });
-    console.log('out time====', VisitorDetails);
+    // var VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
+    //   outTime:
+    //     Moment(this.state.Outdate).format('MM-DD-YYYY') +
+    //     ' ' +
+    //     Moment(outTime).format('hh:mm:ss a'),
+    // });
+    // this.setState({
+    //   VisitorDetails,
+    //   // isExpectedOutVisible: false,
+    // });
+    // console.log('out time====', VisitorDetails);
   };
 
-  OutshowMode = currentMode => {
-    this.setState({Outshow: true, Outmode: currentMode});
+  OutshowMode = (currentMode) => {
+    this.setState({ Outshow: true, Outmode: currentMode });
   };
 
   OutshowDatepicker = () => {
-    this.setState({Outdate: new Date(), Outtime: new Date()});
+    this.setState({ Outdate: new Date(), Outtime: new Date() });
 
-    this.OutshowMode('date');
+    this.OutshowMode("date");
   };
   render() {
     return (
       <View
-        style={{width: '100%', height: '100%', backgroundColor: COLORS.white}}>
+        style={{ width: "100%", height: "100%", backgroundColor: COLORS.white }}
+      >
         <StatusBar
-          barStyle={'dark-content'}
+          barStyle={"dark-content"}
           backgroundColor="transparent"
           translucent={true}
         />
         <LinearGradient
           style={{
-            height: Platform.OS == 'ios' ? '12%' : '10%',
+            height: Platform.OS == "ios" ? "12%" : "10%",
             paddingTop: 25,
-            width: '100%',
-            justifyContent: 'center',
+            width: "100%",
+            justifyContent: "center",
           }}
-          colors={[COLORS.primary, COLORS.third]}>
+          colors={[COLORS.primary, COLORS.third]}
+        >
           <View
             style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginTop: Platform.OS == 'ios' ? 17 : 5,
-            }}>
+              flexDirection: "row",
+              alignItems: "center",
+              marginTop: Platform.OS == "ios" ? 17 : 5,
+            }}
+          >
             <TouchableOpacity
               style={{
                 marginLeft: 10,
                 padding: 10,
                 height: 50,
                 width: 50,
-                justifyContent: 'center',
-                alignItems: 'center',
+                justifyContent: "center",
+                alignItems: "center",
               }}
-              onPress={() => this.props.navigation.goBack()}>
-              <Image source={IMAGES.back} style={{height: 22, width: 22}} />
+              onPress={() => this.props.navigation.goBack()}
+            >
+              <Image source={IMAGES.back} style={{ height: 22, width: 22 }} />
             </TouchableOpacity>
             <Text
               style={{
-                color: 'white',
-                textAlign: 'center',
+                color: "white",
+                textAlign: "center",
                 paddingLeft: 20,
                 padding: 5,
                 fontSize: 22,
-              }}>
-              Invite Visitor
+              }}
+            >
+              {this.props.route.params.tag == 0 &&
+              this.props.LoginDetails.userRoleId == 2
+                ? "Check In Visitor"
+                : "Invite Visitor"}
             </Text>
           </View>
         </LinearGradient>
-        <ScrollView contentContainerStyle={{flexGrow: 1}}>
-          <View style={{padding: 12}}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={{ padding: 12 }}>
             {this.props.SubscriptionLimit > 0 ? (
-              <Text style={styles.error}>{'Subsctription Limit cross'}</Text>
+              <Text style={styles.error}>{"Subsctription Limit cross"}</Text>
             ) : null}
             {this.props.LoginDetails.userRoleId == 3 &&
             this.props.route.params.tag != 3 ? (
               <RadioButtonRN
-                style={{flexDirection: 'row', flex: 1}}
-                boxStyle={{flex: 1, margin: 5}}
-                textStyle={{paddingLeft: 5}}
+                style={{ flexDirection: "row", flex: 1 }}
+                boxStyle={{ flex: 1, margin: 5 }}
+                textStyle={{ paddingLeft: 5 }}
                 data={data}
                 initial={
                   this.props.MobileNo?.mobStatus == 1
@@ -410,34 +436,35 @@ class VisitorForm extends React.Component {
                     ? 2
                     : 1
                 }
-                selectedBtn={e => {
-                  if (e.label == 'Invite') {
-                    this.setState({invite: true});
+                selectedBtn={(e) => {
+                  if (e.label == "Invite") {
+                    this.setState({ invite: true });
                   } else {
                     var VisitorDetails = Object.assign(
                       {},
                       this.state.VisitorDetails,
                       {
-                        date: Moment(),
-                        inTime: Moment(),
-                      },
+                        date: new Date(),
+                        inTime: new Date(),
+                      }
                     );
-                    this.setState({invite: false, VisitorDetails});
+                    this.setState({ invite: false, VisitorDetails });
                   }
                 }}
               />
             ) : null}
             {
-              <View style={{width: '100%'}}>
+              <View style={{ width: "100%" }}>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    width: '100%',
+                    flexDirection: "row",
+                    width: "100%",
                     backgroundColor:
                       this.props.route.params.tag != 2
                         ? COLORS.white
                         : COLORS.whiteE0,
-                  }}>
+                  }}
+                >
                   <Hoshi
                     editable={
                       this.props.route.params.tag == 2 ||
@@ -445,18 +472,22 @@ class VisitorForm extends React.Component {
                         ? false
                         : true
                     }
-                    ref={mobile => {
+                    ref={(mobile) => {
                       this.mobile = mobile;
                     }}
                     //
-                    style={[styles.textInputStyle, {flexGrow: 1}]}
-                    ref={el => {
+                    style={[styles.textInputStyle, { flexGrow: 1 }]}
+                    ref={(el) => {
                       this.mobile = el;
                     }}
-                    onChangeText={mobile => {
-                      this.onChanged(mobile);
+                    
+                    onChange={(mob)=>console.log(mob.nativeEvent.text)}
+                    onChangeText={(mobile) => this.onChangeNumber(mobile)}
+                    onSubmitEditing={(mobile) => {
+                      this.onChanged(mobile.nativeEvent.text);
+                      // console.log(mobile.nativeEvent.text);
                     }}
-                    keyboardType={'phone-pad'}
+                    keyboardType={"phone-pad"}
                     maxLength={15}
                     value={
                       this.props.MobileNo?.mobStatus == 1
@@ -464,7 +495,7 @@ class VisitorForm extends React.Component {
                         : this.state.VisitorDetails.mobile
                     }
                     label="Mobile*"
-                    returnKeyType={'next'}
+                  returnKeyType={Platform.OS=="android"?"next":"done"}
                   />
 
                   {/* {Platform.OS === 'android' && this.props.LoginDetails.userRoleId !== 2 ? <TouchableOpacity onPress={() => { */}
@@ -473,7 +504,8 @@ class VisitorForm extends React.Component {
                     <TouchableOpacity
                       onPress={() => {
                         this.getContactNo();
-                      }}>
+                      }}
+                    >
                       <Image
                         source={IMAGES.phonebook}
                         style={{
@@ -482,13 +514,13 @@ class VisitorForm extends React.Component {
                           height: 28,
                           width: 28,
                           tintColor: COLORS.primary,
-                          resizeMode: 'contain',
+                          resizeMode: "contain",
                         }}
                       />
                     </TouchableOpacity>
                   ) : null}
                 </View>
-                {this.state.mobileError != '' ? (
+                {this.state.mobileError != "" ? (
                   <Text style={styles.error}>{this.state.mobileError}</Text>
                 ) : null}
               </View>
@@ -500,17 +532,18 @@ class VisitorForm extends React.Component {
                   backgroundColor: this.state.enable
                     ? COLORS.white
                     : COLORS.whiteE0,
-                }}>
+                }}
+              >
                 <Hoshi
                   editable={this.state.enable}
                   style={[styles.textInputStyle]}
-                  ref={el => {
+                  ref={(el) => {
                     this.fullName = el;
                   }}
-                  onChangeText={fullName => this.onChangedName(fullName)}
+                  onChangeText={(fullName) => this.onChangedName(fullName)}
                   value={this.state.VisitorDetails.fullName}
                   label="Full Name*"
-                  returnKeyType={'next'}
+                  returnKeyType={"next"}
                 />
               </View>
             }
@@ -523,21 +556,23 @@ class VisitorForm extends React.Component {
               // inverted={true}
               contentContainerStyle={{}}
               // initialScrollIndex={this.state.courierDetails.length - 1}
-              renderItem={({item}) => (
+              renderItem={({ item }) => (
                 <View
                   style={{
                     marginTop: 5,
                     marginBottom: 5,
-                    width: '100%',
+                    width: "100%",
                     // justifyContent: 'center',
                     // alignItems: 'center',
-                  }}>
+                  }}
+                >
                   <TouchableOpacity
                     onPress={() => {
                       // console.log(item.mobile);
                       this.onChanged(item.mobile),
-                        this.setState({nameList: []});
-                    }}>
+                        this.setState({ nameList: [] });
+                    }}
+                  >
                     <Text>{item.label}</Text>
                   </TouchableOpacity>
                 </View>
@@ -545,114 +580,116 @@ class VisitorForm extends React.Component {
             />
 
             {this.props.AllSettings.settingsVM.vCompany ? (
-              <View style={{backgroundColor: COLORS.white}}>
+              <View style={{ backgroundColor: COLORS.white }}>
                 <Hoshi
-                  ref={company => {
+                  ref={(company) => {
                     this.company = company;
                   }}
                   style={[styles.textInputStyle]}
-                  ref={el => {
+                  ref={(el) => {
                     this.company = el;
                   }}
-                  onChangeText={company => {
+                  onChangeText={(company) => {
                     const VisitorDetails = Object.assign(
                       {},
                       this.state.VisitorDetails,
-                      {company: company},
+                      { company: company }
                     );
-                    this.setState({VisitorDetails});
+                    this.setState({ VisitorDetails });
                   }}
                   editable={true}
                   value={this.state.VisitorDetails.company}
                   label="Company Name"
-                  returnKeyType={'next'}
+                  returnKeyType={"next"}
                 />
               </View>
             ) : null}
 
             {this.props.AllSettings.settingsVM.vEmail ? (
-              <View style={{backgroundColor: COLORS.white}}>
+              <View style={{ backgroundColor: COLORS.white }}>
                 <Hoshi
                   editable={true}
-                  ref={email => {
+                  ref={(email) => {
                     this.email = email;
                   }}
                   style={[styles.textInputStyle]}
-                  ref={el => {
+                  ref={(el) => {
                     this.email = el;
                   }}
-                  onChangeText={email => {
+                  onChangeText={(email) => {
                     var emailError;
                     if (this.validate(email)) {
-                      emailError = '';
+                      emailError = "";
                     } else {
-                      emailError = 'Enter Valid Email Ex:abc@gmail.com';
+                      emailError = "Enter Valid Email Ex:abc@gmail.com";
                     }
                     const VisitorDetails = Object.assign(
                       {},
                       this.state.VisitorDetails,
-                      {email: email},
+                      { email: email }
                     );
-                    this.setState({VisitorDetails, emailError});
+                    this.setState({ VisitorDetails, emailError });
                   }}
                   value={this.state.VisitorDetails.email}
                   label="E-Mail"
-                  returnKeyType={'next'}
+                  returnKeyType={"next"}
                 />
-                {this.state.emailError != '' ? (
+                {this.state.emailError != "" ? (
                   <Text style={styles.error}>{this.state.emailError}</Text>
                 ) : null}
               </View>
             ) : null}
 
             {this.props.AllSettings.settingsVM.vAddress ? (
-              <View style={{backgroundColor: COLORS.white}}>
+              <View style={{ backgroundColor: COLORS.white }}>
                 <Hoshi
                   editable={true}
-                  ref={address => {
+                  ref={(address) => {
                     this.address = address;
                   }}
                   style={[styles.textInputStyle]}
-                  ref={el => {
+                  ref={(el) => {
                     this.address = el;
                   }}
-                  onChangeText={address => {
+                  onChangeText={(address) => {
                     const VisitorDetails = Object.assign(
                       {},
                       this.state.VisitorDetails,
-                      {address: address},
+                      { address: address }
                     );
-                    this.setState({VisitorDetails});
+                    this.setState({ VisitorDetails });
                   }}
                   value={this.state.VisitorDetails.address}
                   label="Address"
-                  returnKeyType={'next'}
+                  returnKeyType={"next"}
                 />
               </View>
             ) : null}
             <View
               style={{
-                width: '100%',
+                width: "100%",
                 backgroundColor:
                   this.props.route.params.tag != 2
                     ? COLORS.white
                     : COLORS.whiteE0,
-              }}>
+              }}
+            >
               {(this.props.LoginDetails.userRoleId == 3 ||
                 this.props.LoginDetails.userRoleId == 4 ||
                 this.props.LoginDetails.userRoleId == 1 ||
                 this.props.route.params.tag == 2) &&
               this.state.invite ? (
                 <View style={{}}>
-                  {Platform.OS == 'android' ? (
+                  {Platform.OS == "android" ? (
                     <View>
                       <TouchableOpacity
                         style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
+                          flexDirection: "row",
+                          alignItems: "center",
                           marginRight: 5,
                         }}
-                        onPress={() => this.showDatepicker()}>
+                        onPress={() => this.showDatepicker()}
+                      >
                         <Hoshi
                           editable={false}
                           disabled={
@@ -668,15 +705,15 @@ class VisitorForm extends React.Component {
                           label="Expected In Time*"
                           value={
                             this.state.date != null &&
-                            Moment(this.state.date).format('DD-MM-YYYY') +
-                              '  ' +
-                              moment(this.state.time).format('hh:mm:ss a')
+                            Moment(this.state.date).format("DD-MM-YYYY") +
+                              "  " +
+                              moment(this.state.time).format("hh:mm:ss a")
                           }
                         />
                         {this.state.show && (
                           <DateTimePicker
                             testID="dateTimePicker"
-                            style={{width: '100%', backgroundColor: 'white'}} //add this
+                            style={{ width: "100%", backgroundColor: "white" }} //add this
                             // style={{ height: 55, paddingTop: 10 }}
                             timeZoneOffsetInMinutes={0}
                             value={this.state.date}
@@ -690,29 +727,30 @@ class VisitorForm extends React.Component {
                         )}
                         <Image
                           source={Images.clock}
-                          style={{height: 28, width: 32}}
+                          style={{ height: 28, width: 32 }}
                         />
                       </TouchableOpacity>
                     </View>
                   ) : (
                     <View
                       style={{
-                        alignItems: 'flex-start',
+                        alignItems: "flex-start",
                         marginTop: 10,
                         borderBottomWidth: 1,
-                        justifyContent: 'flex-start',
-                      }}>
+                        justifyContent: "flex-start",
+                      }}
+                    >
                       <Text>Expected In Time*:-</Text>
                       <DateTimePicker
                         // testID="dateTimePicker"
                         // style={{ backgroundColor: "white"}} //add this
                         style={{
                           height: 60,
-                          alignSelf: 'center',
+                          alignSelf: "center",
                           marginRight: 50,
                           borderRadius: 50,
                           marginLeft: 12,
-                          width: '80%',
+                          width: "80%",
                         }}
                         // timeZoneOffsetInMinutes={0}
                         value={this.state.date}
@@ -932,15 +970,16 @@ class VisitorForm extends React.Component {
                 this.props.LoginDetails.userRoleId == 1) &&
               this.state.invite ? (
                 <View style={{}}>
-                  {Platform.OS == 'android' ? (
+                  {Platform.OS == "android" ? (
                     <View>
                       <TouchableOpacity
                         style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
+                          flexDirection: "row",
+                          alignItems: "center",
                           marginRight: 5,
                         }}
-                        onPress={() => this.OutshowDatepicker()}>
+                        onPress={() => this.OutshowDatepicker()}
+                      >
                         <Hoshi
                           editable={false}
                           style={{
@@ -953,9 +992,9 @@ class VisitorForm extends React.Component {
                           label="Expected Out Time"
                           value={
                             this.state.Outdate != null &&
-                            Moment(this.state.Outdate).format('DD-MM-YYYY') +
-                              '  ' +
-                              Moment(this.state.Outtime).format('hh:mm:ss a')
+                            Moment(this.state.Outdate).format("DD-MM-YYYY") +
+                              "  " +
+                              Moment(this.state.Outtime).format("hh:mm:ss a")
                           }
                         />
                         {this.state.Outshow && (
@@ -975,7 +1014,7 @@ class VisitorForm extends React.Component {
 
                         <Image
                           source={Images.clock}
-                          style={{height: 28, width: 32}}
+                          style={{ height: 28, width: 32 }}
                         />
                       </TouchableOpacity>
                     </View>
@@ -983,21 +1022,22 @@ class VisitorForm extends React.Component {
                     <View
                       style={{
                         marginTop: 10,
-                        alignItems: 'flex-start',
+                        alignItems: "flex-start",
                         borderBottomWidth: 1,
-                        justifyContent: 'flex-start',
-                      }}>
+                        justifyContent: "flex-start",
+                      }}
+                    >
                       <Text>Expected Out Time*:</Text>
                       <DateTimePicker
                         // testID="dateTimePicker"
                         // style={{ backgroundColor: "white"}} //add this
                         style={{
                           height: 60,
-                          alignSelf: 'center',
+                          alignSelf: "center",
                           marginRight: 50,
                           borderRadius: 50,
                           marginLeft: 12,
-                          width: '80%',
+                          width: "80%",
                         }}
                         // timeZoneOffsetInMinutes={0}
                         value={this.state.Outdate}
@@ -1164,31 +1204,104 @@ class VisitorForm extends React.Component {
               null}
             </View>
             {this.props.AllSettings.settingsVM.vDesignation ? (
-              <View style={{backgroundColor: COLORS.white}}>
+              <View style={{ backgroundColor: COLORS.white }}>
                 <Hoshi
-                  ref={designation => {
+                  ref={(designation) => {
                     this.designation = designation;
                   }}
                   style={[styles.textInputStyle]}
-                  ref={el => {
+                  ref={(el) => {
                     this.designation = el;
                   }}
-                  onChangeText={designation => {
+                  onChangeText={(designation) => {
                     const VisitorDetails = Object.assign(
                       {},
                       this.state.VisitorDetails,
-                      {designation: designation},
+                      { designation: designation }
                     );
-                    this.setState({VisitorDetails});
+                    this.setState({ VisitorDetails });
                   }}
                   editable={true}
                   value={this.state.VisitorDetails.designation}
                   label="Designation"
-                  returnKeyType={'next'}
+                  returnKeyType={"next"}
                 />
               </View>
             ) : null}
             {this.props.LoginDetails.userRoleId !== 4 &&
+            this.props.LoginDetails.userRoleId !== 1 ? (
+              <View
+                style={{
+                  backgroundColor:
+                    this.props.route.params.tag != 2
+                      ? COLORS.white
+                      : COLORS.whiteE0,
+                  justifyContent: "space-around",
+                  overflow: "hidden",
+                  borderBottomColor:
+                    this.state.VisitorDetails.whomToMeet == null ||
+                    this.state.VisitorDetails.whomToMeet == 0
+                      ? COLORS.black
+                      : "green",
+                  borderBottomWidth: 1,
+                }}
+              >
+                {
+                  <DropDownPicker
+                    items={this.state.whomToMeet}
+                    defaultValue={
+                      this.state.whomToMeet.length > 0
+                        ? this.state.VisitorDetails.whomToMeet
+                        : undefined
+                    }
+                    disabled={this.props.route.params.tag == 2 ? true : false}
+                    placeholder={"Whom to Meet*"}
+                    placeholderStyle={{ color: "#6a7989", fontSize: 15 }}
+                    searchable={true}
+                    searchablePlaceholder="Search Whom to meet"
+                    containerStyle={{ backgroundColor: "#fff" }}
+                    dropDownStyle={{ position: "relative", maxHeight: 300 }}
+                    style={{
+                      right: this.props.route.params.tag == 2 ? 0 : 7,
+                      backgroundColor:
+                        this.props.route.params.tag == 2
+                          ? COLORS.whiteE0
+                          : "#fff",
+                      height: 55,
+                    }}
+                    itemStyle={{
+                      justifyContent: "flex-start",
+                    }}
+                    selectedLabelStyle={{
+                      right: this.props.route.params.tag != 2 ? 0 : 7,
+                      color: "#6a7989",
+                      fontWeight:
+                        this.props.route.params.tag == 2 ? "bold" : null,
+                      fontSize: 18,
+                    }}
+                    onChangeItem={(item) => {
+                      console.log("item: ", item);
+                      if (item != undefined) {
+                        const VisitorDetails = Object.assign(
+                          {},
+                          this.state.VisitorDetails,
+                          {
+                            whomToMeetName: item.label,
+                            whomToMeet: item.value,
+                          }
+                        );
+                        this.setState({ VisitorDetails });
+                        this.props.GetUsersDetails1(
+                          item.value,
+                          this.getDepartmentSuccess
+                        );
+                      }
+                    }}
+                  />
+                }
+              </View>
+            ) : (
+              this.props.LoginDetails.isApprover == true &&
               this.props.LoginDetails.userRoleId !== 1 && (
                 <View
                   style={{
@@ -1196,15 +1309,16 @@ class VisitorForm extends React.Component {
                       this.props.route.params.tag != 2
                         ? COLORS.white
                         : COLORS.whiteE0,
-                    justifyContent: 'space-around',
-                    overflow: 'hidden',
+                    justifyContent: "space-around",
+                    overflow: "hidden",
                     borderBottomColor:
                       this.state.VisitorDetails.whomToMeet == null ||
                       this.state.VisitorDetails.whomToMeet == 0
                         ? COLORS.black
-                        : 'green',
+                        : "green",
                     borderBottomWidth: 1,
-                  }}>
+                  }}
+                >
                   {
                     <DropDownPicker
                       items={this.state.whomToMeet}
@@ -1214,32 +1328,32 @@ class VisitorForm extends React.Component {
                           : undefined
                       }
                       disabled={this.props.route.params.tag == 2 ? true : false}
-                      placeholder={'Whom to Meet*'}
-                      placeholderStyle={{color: '#6a7989', fontSize: 15}}
+                      placeholder={"Whom to Meet*"}
+                      placeholderStyle={{ color: "#6a7989", fontSize: 15 }}
                       searchable={true}
                       searchablePlaceholder="Search Whom to meet"
-                      containerStyle={{backgroundColor: '#fff'}}
-                      dropDownStyle={{position: 'relative', maxHeight: 300}}
+                      containerStyle={{ backgroundColor: "#fff" }}
+                      dropDownStyle={{ position: "relative", maxHeight: 300 }}
                       style={{
                         right: this.props.route.params.tag == 2 ? 0 : 7,
                         backgroundColor:
                           this.props.route.params.tag == 2
                             ? COLORS.whiteE0
-                            : '#fff',
+                            : "#fff",
                         height: 55,
                       }}
                       itemStyle={{
-                        justifyContent: 'flex-start',
+                        justifyContent: "flex-start",
                       }}
                       selectedLabelStyle={{
                         right: this.props.route.params.tag != 2 ? 0 : 7,
-                        color: '#6a7989',
+                        color: "#6a7989",
                         fontWeight:
-                          this.props.route.params.tag == 2 ? 'bold' : null,
+                          this.props.route.params.tag == 2 ? "bold" : null,
                         fontSize: 18,
                       }}
-                      onChangeItem={item => {
-                        console.log('item: ', item);
+                      onChangeItem={(item) => {
+                        console.log("item: ", item);
                         if (item != undefined) {
                           const VisitorDetails = Object.assign(
                             {},
@@ -1247,36 +1361,187 @@ class VisitorForm extends React.Component {
                             {
                               whomToMeetName: item.label,
                               whomToMeet: item.value,
-                            },
+                            }
                           );
-                          this.setState({VisitorDetails});
+                          this.setState({ VisitorDetails });
                           this.props.GetUsersDetails1(
                             item.value,
-                            this.getDepartmentSuccess,
+                            this.getDepartmentSuccess
                           );
                         }
                       }}
                     />
                   }
                 </View>
-              )}
+              )
+            )}
+
             {!this.props.AdminSwitch &&
-              this.props.LoginDetails.userRoleId === 1 && (
+            this.props.LoginDetails.userRoleId === 1 &&
+            this.props.LoginDetails.isApprover == true ? (
+              <View
+                style={{
+                  backgroundColor:
+                    this.props.route.params.tag != 2
+                      ? COLORS.white
+                      : COLORS.whiteE0,
+                  justifyContent: "space-around",
+                  overflow: "hidden",
+                  borderBottomColor:
+                    this.state.VisitorDetails.whomToMeet == null ||
+                    this.state.VisitorDetails.whomToMeet == 0
+                      ? COLORS.black
+                      : "green",
+                  borderBottomWidth: 1,
+                }}
+              >
+                {
+                  <DropDownPicker
+                    items={this.state.whomToMeet}
+                    defaultValue={
+                      this.state.whomToMeet.length > 0
+                        ? this.state.VisitorDetails.whomToMeet
+                        : undefined
+                    }
+                    disabled={this.props.route.params.tag == 2 ? true : false}
+                    placeholder={"Whom to Meet*"}
+                    placeholderStyle={{ color: "#6a7989", fontSize: 15 }}
+                    searchable={true}
+                    searchablePlaceholder="Search Whom to meet"
+                    containerStyle={{ backgroundColor: "#fff" }}
+                    dropDownStyle={{ position: "relative", maxHeight: 300 }}
+                    style={{
+                      right: this.props.route.params.tag == 2 ? 0 : 7,
+                      backgroundColor:
+                        this.props.route.params.tag == 2
+                          ? COLORS.whiteE0
+                          : "#fff",
+                      height: 55,
+                    }}
+                    itemStyle={{
+                      justifyContent: "flex-start",
+                    }}
+                    selectedLabelStyle={{
+                      right: this.props.route.params.tag != 2 ? 0 : 7,
+                      color: "#6a7989",
+                      fontWeight:
+                        this.props.route.params.tag == 2 ? "bold" : null,
+                      fontSize: 18,
+                    }}
+                    onChangeItem={(item) => {
+                      console.log("item: ", item);
+                      if (item != undefined) {
+                        const VisitorDetails = Object.assign(
+                          {},
+                          this.state.VisitorDetails,
+                          {
+                            whomToMeetName: item.label,
+                            whomToMeet: item.value,
+                          }
+                        );
+                        this.setState({ VisitorDetails });
+                        this.props.GetUsersDetails1(
+                          item.value,
+                          this.getDepartmentSuccess
+                        );
+                      }
+                    }}
+                  />
+                }
+              </View>
+            ) : this.props.AdminSwitch &&
+              this.props.LoginDetails.userRoleId === 1 &&
+              this.props.LoginDetails.isApprover == true ? (
+              <View
+                style={{
+                  backgroundColor:
+                    this.props.route.params.tag != 2
+                      ? COLORS.white
+                      : COLORS.whiteE0,
+                  justifyContent: "space-around",
+                  overflow: "hidden",
+                  borderBottomColor:
+                    this.state.VisitorDetails.whomToMeet == null ||
+                    this.state.VisitorDetails.whomToMeet == 0
+                      ? COLORS.black
+                      : "green",
+                  borderBottomWidth: 1,
+                }}
+              >
+                {
+                  <DropDownPicker
+                    items={this.state.whomToMeet}
+                    defaultValue={
+                      this.state.whomToMeet.length > 0
+                        ? this.state.VisitorDetails.whomToMeet
+                        : undefined
+                    }
+                    disabled={this.props.route.params.tag == 2 ? true : false}
+                    placeholder={"Whom to Meet*"}
+                    placeholderStyle={{ color: "#6a7989", fontSize: 15 }}
+                    searchable={true}
+                    searchablePlaceholder="Search Whom to meet"
+                    containerStyle={{ backgroundColor: "#fff" }}
+                    dropDownStyle={{ position: "relative", maxHeight: 300 }}
+                    style={{
+                      right: this.props.route.params.tag == 2 ? 0 : 7,
+                      backgroundColor:
+                        this.props.route.params.tag == 2
+                          ? COLORS.whiteE0
+                          : "#fff",
+                      height: 55,
+                    }}
+                    itemStyle={{
+                      justifyContent: "flex-start",
+                    }}
+                    selectedLabelStyle={{
+                      right: this.props.route.params.tag != 2 ? 0 : 7,
+                      color: "#6a7989",
+                      fontWeight:
+                        this.props.route.params.tag == 2 ? "bold" : null,
+                      fontSize: 18,
+                    }}
+                    onChangeItem={(item) => {
+                      console.log("item: ", item);
+                      if (item != undefined) {
+                        const VisitorDetails = Object.assign(
+                          {},
+                          this.state.VisitorDetails,
+                          {
+                            whomToMeetName: item.label,
+                            whomToMeet: item.value,
+                          }
+                        );
+                        this.setState({ VisitorDetails });
+                        this.props.GetUsersDetails1(
+                          item.value,
+                          this.getDepartmentSuccess
+                        );
+                      }
+                    }}
+                  />
+                }
+              </View>
+            ) : (
+              !this.props.AdminSwitch &&
+              this.props.LoginDetails.userRoleId === 1 &&
+               (
                 <View
                   style={{
                     backgroundColor:
                       this.props.route.params.tag != 2
                         ? COLORS.white
                         : COLORS.whiteE0,
-                    justifyContent: 'space-around',
-                    overflow: 'hidden',
+                    justifyContent: "space-around",
+                    overflow: "hidden",
                     borderBottomColor:
                       this.state.VisitorDetails.whomToMeet == null ||
                       this.state.VisitorDetails.whomToMeet == 0
                         ? COLORS.black
-                        : 'green',
+                        : "green",
                     borderBottomWidth: 1,
-                  }}>
+                  }}
+                >
                   {
                     <DropDownPicker
                       items={this.state.whomToMeet}
@@ -1286,32 +1551,32 @@ class VisitorForm extends React.Component {
                           : undefined
                       }
                       disabled={this.props.route.params.tag == 2 ? true : false}
-                      placeholder={'Whom to Meet*'}
-                      placeholderStyle={{color: '#6a7989', fontSize: 15}}
+                      placeholder={"Whom to Meet*"}
+                      placeholderStyle={{ color: "#6a7989", fontSize: 15 }}
                       searchable={true}
                       searchablePlaceholder="Search Whom to meet"
-                      containerStyle={{backgroundColor: '#fff'}}
-                      dropDownStyle={{position: 'relative', maxHeight: 300}}
+                      containerStyle={{ backgroundColor: "#fff" }}
+                      dropDownStyle={{ position: "relative", maxHeight: 300 }}
                       style={{
                         right: this.props.route.params.tag == 2 ? 0 : 7,
                         backgroundColor:
                           this.props.route.params.tag == 2
                             ? COLORS.whiteE0
-                            : '#fff',
+                            : "#fff",
                         height: 55,
                       }}
                       itemStyle={{
-                        justifyContent: 'flex-start',
+                        justifyContent: "flex-start",
                       }}
                       selectedLabelStyle={{
                         right: this.props.route.params.tag != 2 ? 0 : 7,
-                        color: '#6a7989',
+                        color: "#6a7989",
                         fontWeight:
-                          this.props.route.params.tag == 2 ? 'bold' : null,
+                          this.props.route.params.tag == 2 ? "bold" : null,
                         fontSize: 18,
                       }}
-                      onChangeItem={item => {
-                        console.log('item: ', item);
+                      onChangeItem={(item) => {
+                        console.log("item: ", item);
                         if (item != undefined) {
                           const VisitorDetails = Object.assign(
                             {},
@@ -1319,19 +1584,20 @@ class VisitorForm extends React.Component {
                             {
                               whomToMeetName: item.label,
                               whomToMeet: item.value,
-                            },
+                            }
                           );
-                          this.setState({VisitorDetails});
+                          this.setState({ VisitorDetails });
                           this.props.GetUsersDetails1(
                             item.value,
-                            this.getDepartmentSuccess,
+                            this.getDepartmentSuccess
                           );
                         }
                       }}
                     />
                   }
                 </View>
-              )}
+              )
+            )}
             {this.props.AllSettings.settingsVM.vDepartment ? (
               <View
                 style={{
@@ -1339,10 +1605,11 @@ class VisitorForm extends React.Component {
                     this.props.route.params.tag != 2
                       ? COLORS.white
                       : COLORS.whiteE0,
-                }}>
+                }}
+              >
                 <Hoshi
                   editable={false}
-                  ref={department => {
+                  ref={(department) => {
                     this.department = department;
                   }}
                   style={
@@ -1354,42 +1621,42 @@ class VisitorForm extends React.Component {
                           : COLORS.whiteE0,
                     })
                   }
-                  ref={el => {
+                  ref={(el) => {
                     this.department = el;
                   }}
-                  onChangeText={department => {
+                  onChangeText={(department) => {
                     const VisitorDetails = Object.assign(
                       {},
                       this.state.VisitorDetails,
-                      {department: department},
+                      { department: department }
                     );
-                    this.setState({VisitorDetails});
+                    this.setState({ VisitorDetails });
                   }}
                   value={this.state.VisitorDetails.department}
                   label="Department To Visit"
-                  returnKeyType={'next'}
+                  returnKeyType={"next"}
                 />
               </View>
             ) : null}
             {this.props.AllSettings.settingsVM.vPurpose ? (
-              <View style={{backgroundColor: COLORS.white}}>
+              <View style={{ backgroundColor: COLORS.white }}>
                 <Hoshi
-                  ref={purpose => {
+                  ref={(purpose) => {
                     this.purpose = purpose;
                   }}
-                  returnKeyType={'done'}
+                  returnKeyType={"done"}
                   editable={true}
                   style={[styles.textInputStyle]}
-                  ref={el => {
+                  ref={(el) => {
                     this.purpose = el;
                   }}
-                  onChangeText={purpose => {
+                  onChangeText={(purpose) => {
                     const VisitorDetails = Object.assign(
                       {},
                       this.state.VisitorDetails,
-                      {purpose: purpose},
+                      { purpose: purpose }
                     );
-                    this.setState({VisitorDetails});
+                    this.setState({ VisitorDetails });
                   }}
                   value={this.state.VisitorDetails.purpose}
                   label="Purpose*"
@@ -1400,32 +1667,32 @@ class VisitorForm extends React.Component {
             {this.props.AllSettings.settingsVM.vAddlCol1 &&
             this.props.AllSettings.mappingVM.col1 != null ? (
               this.props.AllSettings.mappingVM.valCol1 != 5 ? (
-                <View style={{backgroundColor: COLORS.white}}>
+                <View style={{ backgroundColor: COLORS.white }}>
                   <Hoshi
                     editable={true}
-                    returnKeyType={'done'}
+                    returnKeyType={"done"}
                     keyboardType={
                       this.props.AllSettings.mappingVM.valCol1 == 2 ||
                       this.props.AllSettings.mappingVM.valCol1 == 4
-                        ? 'phone-pad'
-                        : 'default'
+                        ? "phone-pad"
+                        : "default"
                     }
                     maxLength={
                       this.props.AllSettings.mappingVM.valCol1 == 4 ? 10 : 100
                     }
                     style={[styles.textInputStyle]}
-                    ref={el => {
+                    ref={(el) => {
                       this.purpose = el;
                     }}
-                    onChangeText={text => {
+                    onChangeText={(text) => {
                       var VisitorDetails,
-                        vAddlCol1Error = '',
+                        vAddlCol1Error = "",
                         value = text;
                       if (this.props.AllSettings.mappingVM.valCol1 == 3) {
                         if (this.validate(text)) {
-                          vAddlCol1Error = '';
+                          vAddlCol1Error = "";
                         } else {
-                          vAddlCol1Error = 'Enter Valid Email Ex:abc@gmail.com';
+                          vAddlCol1Error = "Enter Valid Email Ex:abc@gmail.com";
                         }
                         value = text;
                       } else if (
@@ -1436,25 +1703,25 @@ class VisitorForm extends React.Component {
                           this.props.AllSettings.mappingVM.valCol1 == 4 &&
                           this.state.VisitorDetails.addlCol1?.length !== 9
                         )
-                          vAddlCol1Error = 'Please enter valid mobile';
-                        else vAddlCol1Error = '';
+                          vAddlCol1Error = "Please enter valid mobile";
+                        else vAddlCol1Error = "";
                         value = text.replace(
                           /[- #*;,.+<>N()\{\}\[\]\\\/]/gi,
-                          '',
+                          ""
                         );
                       }
 
                       VisitorDetails = Object.assign(
                         {},
                         this.state.VisitorDetails,
-                        {addlCol1: value},
+                        { addlCol1: value }
                       );
-                      this.setState({VisitorDetails, vAddlCol1Error});
+                      this.setState({ VisitorDetails, vAddlCol1Error });
                     }}
                     value={this.state.VisitorDetails.addlCol1}
                     label={this.props.AllSettings.mappingVM.col1}
                   />
-                  {this.state.vAddlCol1Error != '' ? (
+                  {this.state.vAddlCol1Error != "" ? (
                     <Text style={styles.error}>
                       {this.state.vAddlCol1Error}
                     </Text>
@@ -1469,23 +1736,24 @@ class VisitorForm extends React.Component {
                       //   ? COLORS.white
                       //   : COLORS.whiteE0,
                     },
-                  ]}>
+                  ]}
+                >
                   <Text style={styles.switchLable}>
                     {this.props.AllSettings.mappingVM.col1}
                   </Text>
                   <View style={styles.switch}>
                     <Switch
                       // disabled={!this.state.enable}
-                      onValueChange={value => {
+                      onValueChange={(value) => {
                         var VisitorDetails = Object.assign(
                           {},
                           this.state.VisitorDetails,
-                          {addlCol1: value},
+                          { addlCol1: value }
                         );
-                        this.setState({VisitorDetails});
+                        this.setState({ VisitorDetails });
                       }}
                       value={
-                        this.state.VisitorDetails.addlCol1 == 'true'
+                        this.state.VisitorDetails.addlCol1 == "true"
                           ? true
                           : this.state.VisitorDetails.addlCol1
                       }
@@ -1497,32 +1765,32 @@ class VisitorForm extends React.Component {
             {this.props.AllSettings.settingsVM.vAddlCol2 &&
             this.props.AllSettings.mappingVM.col2 != null ? (
               this.props.AllSettings.mappingVM.valCol2 != 5 ? (
-                <View style={{backgroundColor: COLORS.white}}>
+                <View style={{ backgroundColor: COLORS.white }}>
                   <Hoshi
                     editable={true}
-                    returnKeyType={'done'}
+                    returnKeyType={"done"}
                     keyboardType={
                       this.props.AllSettings.mappingVM.valCol2 == 2 ||
                       this.props.AllSettings.mappingVM.valCol2 == 4
-                        ? 'phone-pad'
-                        : 'default'
+                        ? "phone-pad"
+                        : "default"
                     }
                     maxLength={
                       this.props.AllSettings.mappingVM.valCol2 == 4 ? 10 : 100
                     }
                     style={[styles.textInputStyle]}
-                    ref={el => {
+                    ref={(el) => {
                       this.purpose = el;
                     }}
-                    onChangeText={text => {
+                    onChangeText={(text) => {
                       var VisitorDetails,
-                        vAddlCol2Error = '',
+                        vAddlCol2Error = "",
                         value = text;
                       if (this.props.AllSettings.mappingVM.valCol2 == 3) {
                         if (this.validate(text)) {
-                          vAddlCol2Error = '';
+                          vAddlCol2Error = "";
                         } else {
-                          vAddlCol2Error = 'Enter Valid Email Ex:abc@gmail.com';
+                          vAddlCol2Error = "Enter Valid Email Ex:abc@gmail.com";
                         }
                         value = text;
                       } else if (
@@ -1533,25 +1801,25 @@ class VisitorForm extends React.Component {
                           this.props.AllSettings.mappingVM.valCol2 == 4 &&
                           this.state.VisitorDetails.addlCol2?.length !== 9
                         )
-                          vAddlCol2Error = 'Please enter valid mobile';
-                        else vAddlCol2Error = '';
+                          vAddlCol2Error = "Please enter valid mobile";
+                        else vAddlCol2Error = "";
                         value = text.replace(
                           /[- #*;,.+<>N()\{\}\[\]\\\/]/gi,
-                          '',
+                          ""
                         );
                       }
 
                       VisitorDetails = Object.assign(
                         {},
                         this.state.VisitorDetails,
-                        {addlCol2: value},
+                        { addlCol2: value }
                       );
-                      this.setState({VisitorDetails, vAddlCol2Error});
+                      this.setState({ VisitorDetails, vAddlCol2Error });
                     }}
                     value={this.state.VisitorDetails.addlCol2}
                     label={this.props.AllSettings.mappingVM.col2}
                   />
-                  {this.state.vAddlCol2Error != '' ? (
+                  {this.state.vAddlCol2Error != "" ? (
                     <Text style={styles.error}>
                       {this.state.vAddlCol2Error}
                     </Text>
@@ -1566,23 +1834,24 @@ class VisitorForm extends React.Component {
                       //   ? COLORS.white
                       //   : COLORS.whiteE0,
                     },
-                  ]}>
+                  ]}
+                >
                   <Text style={styles.switchLable}>
                     {this.props.AllSettings.mappingVM.col2}
                   </Text>
                   <View style={styles.switch}>
                     <Switch
                       // disabled={!this.state.enable}
-                      onValueChange={value => {
+                      onValueChange={(value) => {
                         var VisitorDetails = Object.assign(
                           {},
                           this.state.VisitorDetails,
-                          {addlCol2: value},
+                          { addlCol2: value }
                         );
-                        this.setState({VisitorDetails});
+                        this.setState({ VisitorDetails });
                       }}
                       value={
-                        this.state.VisitorDetails.addlCol2 == 'true'
+                        this.state.VisitorDetails.addlCol2 == "true"
                           ? true
                           : this.state.VisitorDetails.addlCol2
                       }
@@ -1594,32 +1863,32 @@ class VisitorForm extends React.Component {
             {this.props.AllSettings.settingsVM.vAddlCol3 &&
             this.props.AllSettings.mappingVM.col3 != null ? (
               this.props.AllSettings.mappingVM.valCol3 != 5 ? (
-                <View style={{backgroundColor: COLORS.white}}>
+                <View style={{ backgroundColor: COLORS.white }}>
                   <Hoshi
                     editable={true}
-                    returnKeyType={'done'}
+                    returnKeyType={"done"}
                     keyboardType={
                       this.props.AllSettings.mappingVM.valCol3 == 2 ||
                       this.props.AllSettings.mappingVM.valCol3 == 4
-                        ? 'phone-pad'
-                        : 'default'
+                        ? "phone-pad"
+                        : "default"
                     }
                     maxLength={
                       this.props.AllSettings.mappingVM.valCol3 == 4 ? 10 : 100
                     }
                     style={[styles.textInputStyle]}
-                    ref={el => {
+                    ref={(el) => {
                       this.purpose = el;
                     }}
-                    onChangeText={text => {
+                    onChangeText={(text) => {
                       var VisitorDetails,
-                        vAddlCol3Error = '',
+                        vAddlCol3Error = "",
                         value = text;
                       if (this.props.AllSettings.mappingVM.valCol3 == 3) {
                         if (this.validate(text)) {
-                          vAddlCol3Error = '';
+                          vAddlCol3Error = "";
                         } else {
-                          vAddlCol3Error = 'Enter Valid Email Ex:abc@gmail.com';
+                          vAddlCol3Error = "Enter Valid Email Ex:abc@gmail.com";
                         }
                         value = text;
                       } else if (
@@ -1630,25 +1899,25 @@ class VisitorForm extends React.Component {
                           this.props.AllSettings.mappingVM.valCol3 == 4 &&
                           this.state.VisitorDetails.addlCol3?.length !== 9
                         )
-                          vAddlCol3Error = 'Please enter valid mobile';
-                        else vAddlCol3Error = '';
+                          vAddlCol3Error = "Please enter valid mobile";
+                        else vAddlCol3Error = "";
                         value = text.replace(
                           /[- #*;,.+<>N()\{\}\[\]\\\/]/gi,
-                          '',
+                          ""
                         );
                       }
 
                       VisitorDetails = Object.assign(
                         {},
                         this.state.VisitorDetails,
-                        {addlCol3: value},
+                        { addlCol3: value }
                       );
-                      this.setState({VisitorDetails, vAddlCol3Error});
+                      this.setState({ VisitorDetails, vAddlCol3Error });
                     }}
                     value={this.state.VisitorDetails.addlCol3}
                     label={this.props.AllSettings.mappingVM.col3}
                   />
-                  {this.state.vAddlCol3Error != '' ? (
+                  {this.state.vAddlCol3Error != "" ? (
                     <Text style={styles.error}>
                       {this.state.vAddlCol3Error}
                     </Text>
@@ -1663,23 +1932,24 @@ class VisitorForm extends React.Component {
                       //   ? COLORS.white
                       //   : COLORS.whiteE0,
                     },
-                  ]}>
+                  ]}
+                >
                   <Text style={styles.switchLable}>
                     {this.props.AllSettings.mappingVM.col3}
                   </Text>
                   <View style={styles.switch}>
                     <Switch
                       // disabled={!this.state.enable}
-                      onValueChange={value => {
+                      onValueChange={(value) => {
                         var VisitorDetails = Object.assign(
                           {},
                           this.state.VisitorDetails,
-                          {addlCol3: value},
+                          { addlCol3: value }
                         );
-                        this.setState({VisitorDetails});
+                        this.setState({ VisitorDetails });
                       }}
                       value={
-                        this.state.VisitorDetails.addlCol3 === 'true'
+                        this.state.VisitorDetails.addlCol3 === "true"
                           ? true
                           : this.state.VisitorDetails.addlCol3
                       }
@@ -1691,32 +1961,32 @@ class VisitorForm extends React.Component {
             {this.props.AllSettings.settingsVM.vAddlCol4 &&
             this.props.AllSettings.mappingVM.col4 != null ? (
               this.props.AllSettings.mappingVM.valCol4 != 5 ? (
-                <View style={{backgroundColor: COLORS.white}}>
+                <View style={{ backgroundColor: COLORS.white }}>
                   <Hoshi
                     editable={true}
-                    returnKeyType={'done'}
+                    returnKeyType={"done"}
                     keyboardType={
                       this.props.AllSettings.mappingVM.valCol4 == 2 ||
                       this.props.AllSettings.mappingVM.valCol4 == 4
-                        ? 'phone-pad'
-                        : 'default'
+                        ? "phone-pad"
+                        : "default"
                     }
                     maxLength={
                       this.props.AllSettings.mappingVM.valCol4 == 4 ? 10 : 100
                     }
                     style={[styles.textInputStyle]}
-                    ref={el => {
+                    ref={(el) => {
                       this.purpose = el;
                     }}
-                    onChangeText={text => {
+                    onChangeText={(text) => {
                       var VisitorDetails,
-                        vAddlCol4Error = '',
+                        vAddlCol4Error = "",
                         value = text;
                       if (this.props.AllSettings.mappingVM.valCol4 == 3) {
                         if (this.validate(text)) {
-                          vAddlCol4Error = '';
+                          vAddlCol4Error = "";
                         } else {
-                          vAddlCol4Error = 'Enter Valid Email Ex:abc@gmail.com';
+                          vAddlCol4Error = "Enter Valid Email Ex:abc@gmail.com";
                         }
                         value = text;
                       } else if (
@@ -1727,25 +1997,25 @@ class VisitorForm extends React.Component {
                           this.props.AllSettings.mappingVM.valCol4 == 4 &&
                           this.state.VisitorDetails.addlCol4?.length !== 9
                         )
-                          vAddlCol4Error = 'Please enter valid mobile';
-                        else vAddlCol4Error = '';
+                          vAddlCol4Error = "Please enter valid mobile";
+                        else vAddlCol4Error = "";
                         value = text.replace(
                           /[- #*;,.+<>N()\{\}\[\]\\\/]/gi,
-                          '',
+                          ""
                         );
                       }
 
                       VisitorDetails = Object.assign(
                         {},
                         this.state.VisitorDetails,
-                        {addlCol4: value},
+                        { addlCol4: value }
                       );
-                      this.setState({VisitorDetails, vAddlCol4Error});
+                      this.setState({ VisitorDetails, vAddlCol4Error });
                     }}
                     value={this.state.VisitorDetails.addlCol4}
                     label={this.props.AllSettings.mappingVM.col4}
                   />
-                  {this.state.vAddlCol4Error != '' ? (
+                  {this.state.vAddlCol4Error != "" ? (
                     <Text style={styles.error}>
                       {this.state.vAddlCol4Error}
                     </Text>
@@ -1760,23 +2030,24 @@ class VisitorForm extends React.Component {
                       //   ? COLORS.white
                       //   : COLORS.whiteE0,
                     },
-                  ]}>
+                  ]}
+                >
                   <Text style={styles.switchLable}>
                     {this.props.AllSettings.mappingVM.col4}
                   </Text>
                   <View style={styles.switch}>
                     <Switch
                       // disabled={!this.state.enable}
-                      onValueChange={value => {
+                      onValueChange={(value) => {
                         var VisitorDetails = Object.assign(
                           {},
                           this.state.VisitorDetails,
-                          {addlCol4: value},
+                          { addlCol4: value }
                         );
-                        this.setState({VisitorDetails});
+                        this.setState({ VisitorDetails });
                       }}
                       value={
-                        this.state.VisitorDetails.addlCol4 === 'true'
+                        this.state.VisitorDetails.addlCol4 === "true"
                           ? true
                           : this.state.VisitorDetails.addlCol4
                       }
@@ -1788,32 +2059,32 @@ class VisitorForm extends React.Component {
             {this.props.AllSettings.settingsVM.vAddlCol5 &&
             this.props.AllSettings.mappingVM.col5 != null ? (
               this.props.AllSettings.mappingVM.valCol5 != 5 ? (
-                <View style={{backgroundColor: COLORS.white}}>
+                <View style={{ backgroundColor: COLORS.white }}>
                   <Hoshi
                     editable={true}
-                    returnKeyType={'done'}
+                    returnKeyType={"done"}
                     keyboardType={
                       this.props.AllSettings.mappingVM.valCol5 == 2 ||
                       this.props.AllSettings.mappingVM.valCol5 == 4
-                        ? 'phone-pad'
-                        : 'default'
+                        ? "phone-pad"
+                        : "default"
                     }
                     maxLength={
                       this.props.AllSettings.mappingVM.valCol5 == 4 ? 10 : 100
                     }
                     style={[styles.textInputStyle]}
-                    ref={el => {
+                    ref={(el) => {
                       this.purpose = el;
                     }}
-                    onChangeText={text => {
+                    onChangeText={(text) => {
                       var VisitorDetails,
-                        vAddlCol5Error = '',
+                        vAddlCol5Error = "",
                         value = text;
                       if (this.props.AllSettings.mappingVM.valCol5 == 3) {
                         if (this.validate(text)) {
-                          vAddlCol5Error = '';
+                          vAddlCol5Error = "";
                         } else {
-                          vAddlCol5Error = 'Enter Valid Email Ex:abc@gmail.com';
+                          vAddlCol5Error = "Enter Valid Email Ex:abc@gmail.com";
                         }
                         value = text;
                       } else if (
@@ -1824,25 +2095,25 @@ class VisitorForm extends React.Component {
                           this.props.AllSettings.mappingVM.valCol5 == 4 &&
                           this.state.VisitorDetails.addlCol5?.length !== 9
                         )
-                          vAddlCol5Error = 'Please enter valid mobile';
-                        else vAddlCol5Error = '';
+                          vAddlCol5Error = "Please enter valid mobile";
+                        else vAddlCol5Error = "";
                         value = text.replace(
                           /[- #*;,.+<>N()\{\}\[\]\\\/]/gi,
-                          '',
+                          ""
                         );
                       }
 
                       VisitorDetails = Object.assign(
                         {},
                         this.state.VisitorDetails,
-                        {addlCol5: value},
+                        { addlCol5: value }
                       );
-                      this.setState({VisitorDetails, vAddlCol5Error});
+                      this.setState({ VisitorDetails, vAddlCol5Error });
                     }}
                     value={this.state.VisitorDetails.addlCol5}
                     label={this.props.AllSettings.mappingVM.col5}
                   />
-                  {this.state.vAddlCol5Error != '' ? (
+                  {this.state.vAddlCol5Error != "" ? (
                     <Text style={styles.error}>
                       {this.state.vAddlCol5Error}
                     </Text>
@@ -1852,24 +2123,25 @@ class VisitorForm extends React.Component {
                 <View
                   style={[
                     styles.switchContainer,
-                    {backgroundColor: COLORS.white},
-                  ]}>
+                    { backgroundColor: COLORS.white },
+                  ]}
+                >
                   <Text style={styles.switchLable}>
                     {this.props.AllSettings.mappingVM.col5}
                   </Text>
                   <View style={styles.switch}>
                     <Switch
                       disabled={false}
-                      onValueChange={value => {
+                      onValueChange={(value) => {
                         var VisitorDetails = Object.assign(
                           {},
                           this.state.VisitorDetails,
-                          {addlCol5: value},
+                          { addlCol5: value }
                         );
-                        this.setState({VisitorDetails});
+                        this.setState({ VisitorDetails });
                       }}
                       value={
-                        this.state.VisitorDetails.addlCol5 == 'true'
+                        this.state.VisitorDetails.addlCol5 == "true"
                           ? true
                           : this.state.VisitorDetails.addlCol5
                       }
@@ -1884,20 +2156,21 @@ class VisitorForm extends React.Component {
               <View
                 style={[
                   styles.switchContainer,
-                  {backgroundColor: COLORS.white},
-                ]}>
-                <Text style={styles.switchLable}>{'VIP'}</Text>
+                  { backgroundColor: COLORS.white },
+                ]}
+              >
+                <Text style={styles.switchLable}>{"VIP"}</Text>
                 <View style={styles.switch}>
                   <Switch
                     disabled={false}
-                    onValueChange={isVip => {
-                      console.log('ISVip', isVip);
+                    onValueChange={(isVip) => {
+                      console.log("ISVip", isVip);
                       var VisitorDetails = Object.assign(
                         {},
                         this.state.VisitorDetails,
-                        {isVip},
+                        { isVip }
                       );
-                      this.setState({VisitorDetails});
+                      this.setState({ VisitorDetails });
                     }}
                     value={this.state.VisitorDetails.isVip}
                   />
@@ -1914,17 +2187,18 @@ class VisitorForm extends React.Component {
                 !this.state.invite)) ? (
               <View
                 style={{
-                  width: '100%',
+                  width: "100%",
                   paddingVertical: 10,
-                  justifyContent: 'center',
-                }}>
+                  justifyContent: "center",
+                }}
+              >
                 <Hoshi
-                  style={{width: '100%'}}
-                  label={'Temperature' + ''}
+                  style={{ width: "100%" }}
+                  label={"Temperature" + ""}
                   placeholderTextColor={COLORS.placeholderColor}
                   maxLength={6}
-                  keyboardType={'phone-pad'}
-                  onChangeText={vizTemp => this.handleInputChange(vizTemp)}
+                  keyboardType={"phone-pad"}
+                  onChangeText={(vizTemp) => this.handleInputChange(vizTemp)}
                   value={this.state.VisitorDetails.vizTemp}
                 />
               </View>
@@ -1932,17 +2206,18 @@ class VisitorForm extends React.Component {
               this.props.LoginDetails.userRoleId == 2 && (
                 <View
                   style={{
-                    width: '100%',
+                    width: "100%",
                     paddingVertical: 10,
-                    justifyContent: 'center',
-                  }}>
+                    justifyContent: "center",
+                  }}
+                >
                   <Hoshi
-                    style={{width: '100%'}}
-                    label={'Temperature' + ''}
+                    style={{ width: "100%" }}
+                    label={"Temperature" + ""}
                     placeholderTextColor={COLORS.placeholderColor}
                     maxLength={6}
-                    keyboardType={'phone-pad'}
-                    onChangeText={vizTemp => this.handleInputChange(vizTemp)}
+                    keyboardType={"phone-pad"}
+                    onChangeText={(vizTemp) => this.handleInputChange(vizTemp)}
                     value={this.state.VisitorDetails.vizTemp}
                   />
                 </View>
@@ -1955,24 +2230,25 @@ class VisitorForm extends React.Component {
             (this.props.LoginDetails.userRoleId == 2 ||
               (this.props.LoginDetails.userRoleId == 3 &&
                 !this.state.invite)) ? (
-              <View style={[styles.switchContainer, {alignItems: 'center'}]}>
+              <View style={[styles.switchContainer, { alignItems: "center" }]}>
                 <Text style={styles.switchLable}>is vaccinated</Text>
-                <View style={[styles.switchLable, {flexDirection: 'row'}]}>
+                <View style={[styles.switchLable, { flexDirection: "row" }]}>
                   <TouchableOpacity
                     onPress={() => {
                       var VisitorDetails = Object.assign(
                         {},
                         this.state.VisitorDetails,
-                        {isVizArogyaSetu: true},
+                        { isVizArogyaSetu: true }
                       );
-                      this.setState({VisitorDetails});
+                      this.setState({ VisitorDetails });
                     }}
                     style={{
-                      width: '50%',
-                      flexDirection: 'row',
-                      justifyContent: 'flex-end',
-                      alignItems: 'center',
-                    }}>
+                      width: "50%",
+                      flexDirection: "row",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                    }}
+                  >
                     <View
                       style={{
                         borderRadius: 15,
@@ -1987,7 +2263,7 @@ class VisitorForm extends React.Component {
                             : COLORS.white,
                       }}
                     />
-                    <Text style={{paddingLeft: 2, alignSelf: 'flex-start'}}>
+                    <Text style={{ paddingLeft: 2, alignSelf: "flex-start" }}>
                       Yes
                     </Text>
                   </TouchableOpacity>
@@ -1996,16 +2272,17 @@ class VisitorForm extends React.Component {
                       var VisitorDetails = Object.assign(
                         {},
                         this.state.VisitorDetails,
-                        {isVizArogyaSetu: false},
+                        { isVizArogyaSetu: false }
                       );
-                      this.setState({VisitorDetails});
+                      this.setState({ VisitorDetails });
                     }}
                     style={{
-                      width: '50%',
-                      flexDirection: 'row',
-                      justifyContent: 'flex-end',
-                      alignItems: 'center',
-                    }}>
+                      width: "50%",
+                      flexDirection: "row",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                    }}
+                  >
                     <View
                       style={{
                         borderRadius: 15,
@@ -2020,7 +2297,7 @@ class VisitorForm extends React.Component {
                             : COLORS.white,
                       }}
                     />
-                    <Text style={{paddingLeft: 2, alignSelf: 'flex-start'}}>
+                    <Text style={{ paddingLeft: 2, alignSelf: "flex-start" }}>
                       No
                     </Text>
                   </TouchableOpacity>
@@ -2028,24 +2305,27 @@ class VisitorForm extends React.Component {
               </View>
             ) : (
               this.props.LoginDetails.userRoleId == 2 && (
-                <View style={[styles.switchContainer, {alignItems: 'center'}]}>
+                <View
+                  style={[styles.switchContainer, { alignItems: "center" }]}
+                >
                   <Text style={styles.switchLable}>is vaccinated</Text>
-                  <View style={[styles.switchLable, {flexDirection: 'row'}]}>
+                  <View style={[styles.switchLable, { flexDirection: "row" }]}>
                     <TouchableOpacity
                       onPress={() => {
                         var VisitorDetails = Object.assign(
                           {},
                           this.state.VisitorDetails,
-                          {isVizArogyaSetu: true},
+                          { isVizArogyaSetu: true }
                         );
-                        this.setState({VisitorDetails});
+                        this.setState({ VisitorDetails });
                       }}
                       style={{
-                        width: '50%',
-                        flexDirection: 'row',
-                        justifyContent: 'flex-end',
-                        alignItems: 'center',
-                      }}>
+                        width: "50%",
+                        flexDirection: "row",
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                      }}
+                    >
                       <View
                         style={{
                           borderRadius: 15,
@@ -2060,7 +2340,7 @@ class VisitorForm extends React.Component {
                               : COLORS.white,
                         }}
                       />
-                      <Text style={{paddingLeft: 2, alignSelf: 'flex-start'}}>
+                      <Text style={{ paddingLeft: 2, alignSelf: "flex-start" }}>
                         Yes
                       </Text>
                     </TouchableOpacity>
@@ -2069,16 +2349,17 @@ class VisitorForm extends React.Component {
                         var VisitorDetails = Object.assign(
                           {},
                           this.state.VisitorDetails,
-                          {isVizArogyaSetu: false},
+                          { isVizArogyaSetu: false }
                         );
-                        this.setState({VisitorDetails});
+                        this.setState({ VisitorDetails });
                       }}
                       style={{
-                        width: '50%',
-                        flexDirection: 'row',
-                        justifyContent: 'flex-end',
-                        alignItems: 'center',
-                      }}>
+                        width: "50%",
+                        flexDirection: "row",
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                      }}
+                    >
                       <View
                         style={{
                           borderRadius: 15,
@@ -2093,7 +2374,7 @@ class VisitorForm extends React.Component {
                               : COLORS.white,
                         }}
                       />
-                      <Text style={{paddingLeft: 2, alignSelf: 'flex-start'}}>
+                      <Text style={{ paddingLeft: 2, alignSelf: "flex-start" }}>
                         No
                       </Text>
                     </TouchableOpacity>
@@ -2103,7 +2384,8 @@ class VisitorForm extends React.Component {
             )}
 
             <View
-              style={{flexDirection: 'row', marginTop: 10, marginBottom: 10}}>
+              style={{ flexDirection: "row", marginTop: 10, marginBottom: 10 }}
+            >
               {!this.state.invite || this.props.LoginDetails.userRoleId == 2 ? (
                 this.props.LoginDetails.userRoleId != 4 ||
                 this.props.LoginDetails.userRoleId != 1 ? (
@@ -2112,15 +2394,17 @@ class VisitorForm extends React.Component {
                       <Text>Id Proof</Text>
                       <View
                         style={{
-                          flexDirection: 'row',
-                          alignContent: 'center',
-                          alignItems: 'center',
+                          flexDirection: "row",
+                          alignContent: "center",
+                          alignItems: "center",
                           // justifyContent: 'center',
-                        }}>
+                        }}
+                      >
                         <TouchableOpacity
                           activeOpacity={1}
-                          style={{flexDirection: 'row'}}
-                          onPress={() => this.selectPhotoTapped('Id')}>
+                          style={{ flexDirection: "row" }}
+                          onPress={() => this.selectPhotoTapped("Id")}
+                        >
                           {/* <Hoshi
                       editable={false}
                       style={{
@@ -2136,12 +2420,12 @@ class VisitorForm extends React.Component {
 
                           <Image
                             source={IMAGES.camera}
-                            style={{right: 5, top: 10, height: 28, width: 32}}
+                            style={{ right: 5, top: 10, height: 28, width: 32 }}
                           />
                         </TouchableOpacity>
-                        {this.state.idProofPath != '' && (
+                        {this.state.idProofPath != "" && (
                           <Image
-                            source={{uri: this.state.idProofPath}}
+                            source={{ uri: this.state.idProofPath }}
                             style={{
                               borderRadius: 7,
                               height: 50,
@@ -2160,28 +2444,30 @@ class VisitorForm extends React.Component {
                 this.props.LoginDetails.userRoleId != 4 ||
                 this.props.LoginDetails.userRoleId != 1 ? (
                   this.props.AllSettings.settingsVM.vPhotoProof ? (
-                    <View style={{marginLeft: 'auto', marginRight: 50}}>
+                    <View style={{ marginLeft: "auto", marginRight: 50 }}>
                       <Text>Photo</Text>
                       <View
                         style={{
-                          flexDirection: 'row',
-                          alignContent: 'center',
-                          alignItems: 'center',
+                          flexDirection: "row",
+                          alignContent: "center",
+                          alignItems: "center",
                           // justifyContent: 'center',
-                        }}>
+                        }}
+                      >
                         {/* <Text>Photo</Text> */}
                         <TouchableOpacity
                           activeOpacity={1}
                           style={{}}
-                          onPress={() => this.selectPhotoTapped('Photo')}>
+                          onPress={() => this.selectPhotoTapped("Photo")}
+                        >
                           <Image
                             source={IMAGES.camera}
-                            style={{right: 5, top: 10, height: 28, width: 32}}
+                            style={{ right: 5, top: 10, height: 28, width: 32 }}
                           />
                         </TouchableOpacity>
-                        {this.state.imagePath != '' && (
+                        {this.state.imagePath != "" && (
                           <Image
-                            source={{uri: this.state.imagePath}}
+                            source={{ uri: this.state.imagePath }}
                             style={{
                               borderRadius: 7,
                               height: 50,
@@ -2234,7 +2520,8 @@ class VisitorForm extends React.Component {
 
             {this.props.route.params.tag == 0 ? (
               <View
-                style={{flexDirection: 'row', alignSelf: 'flex-end', top: 10}}>
+                style={{ flexDirection: "row", alignSelf: "flex-end", top: 10 }}
+              >
                 <TouchableOpacity
                   style={{
                     borderRadius: 10,
@@ -2242,18 +2529,43 @@ class VisitorForm extends React.Component {
                     padding: 11,
                     marginRight: 15,
                   }}
-                  onPress={() => {
-                    console.log('All Details', this.state.VisitorDetails);
-                    this.props.SubscriptionLimit !== 0
-                      ? alert('Subscription Limit cross')
+                  onPress={async() => {
+                    console.log("All Details", this.state.VisitorDetails);
+                    let res = await axiosAuthGet(
+                      "Visitor/GetVisitorByMobile/" + this.state.VisitorDetails.mobile+"/"+this.props.LoginDetails.orgID
+                    );
+                    // console.log("Mobile Details===", res.fullName);
+                
+                  if (res?.isBlock != true) {
+                      this.props.SubscriptionLimit !== 0
+                      ? alert("Subscription Limit cross")
                       : this.props.LoginDetails.userRoleId == 2
                       ? this.checkForGate()
                       : this.props.LoginDetails.userRoleId == 4 ||
                         this.props.LoginDetails.userRoleId == 1
                       ? this.checkForEmp()
                       : this.checkForRec();
-                  }}>
-                  <Text style={{color: COLORS.white, fontSize: 17}}>
+                    } else {
+                      alert("This User is Blocked");
+                      Alert.alert(
+                        "Alert ",
+                        "This User is Blocked",
+                        [
+                          { text: "OK", onPress: () =>  {this.clearRefresh()
+                          const VisitorDetailss = Object.assign({}, this.state.VisitorDetails, {
+                            mobile: "",
+                          });
+                          this.setState({ VisitorDetails: VisitorDetailss, }) }}
+                        ]
+                      );
+                      // SimpleToast.show('This User is Blocked')
+                     
+                      // mobile = '';
+                    }
+                    
+                  }}
+                >
+                  <Text style={{ color: COLORS.white, fontSize: 17 }}>
                     Submit
                   </Text>
                 </TouchableOpacity>
@@ -2263,18 +2575,22 @@ class VisitorForm extends React.Component {
                     backgroundColor: COLORS.skyBlue,
                     padding: 11,
                   }}
-                  onPress={() => this.clearRefresh()}>
-                  <Text style={{color: COLORS.white, fontSize: 17}}>Reset</Text>
+                  onPress={() => this.clearRefresh()}
+                >
+                  <Text style={{ color: COLORS.white, fontSize: 17 }}>
+                    Reset
+                  </Text>
                 </TouchableOpacity>
               </View>
             ) : (
               this.props.LoginDetails.userRoleId == 1 && (
                 <View
                   style={{
-                    flexDirection: 'row',
-                    alignSelf: 'flex-end',
+                    flexDirection: "row",
+                    alignSelf: "flex-end",
                     top: 10,
-                  }}>
+                  }}
+                >
                   <TouchableOpacity
                     style={{
                       borderRadius: 10,
@@ -2282,18 +2598,40 @@ class VisitorForm extends React.Component {
                       padding: 11,
                       marginRight: 15,
                     }}
-                    onPress={() => {
-                      console.log('All Details', this.state.VisitorDetails);
-                      this.props.SubscriptionLimit !== 0
-                        ? alert('Subscription Limit cross')
+                    onPress={async() => {
+                      let res = await axiosAuthGet(
+                        "Visitor/GetVisitorByMobile/" + this.state.VisitorDetails.mobile+"/"+this.props.LoginDetails.orgID
+                      );
+                      // console.log("Mobile Details===", res.fullName);
+                      if (res?.isBlock != true) {
+                        this.props.SubscriptionLimit !== 0
+                        ? alert("Subscription Limit cross")
                         : this.props.LoginDetails.userRoleId == 2
                         ? this.checkForGate()
                         : this.props.LoginDetails.userRoleId == 4 ||
                           this.props.LoginDetails.userRoleId == 1
                         ? this.checkForEmp()
                         : this.checkForRec();
+                      } else {
+                        alert("This User is Blocked");
+                        Alert.alert(
+                          "Alert ",
+                          "This User is Blocked",
+                          [
+                            { text: "OK", onPress: () =>  {this.clearRefresh()
+                            const VisitorDetailss = Object.assign({}, this.state.VisitorDetails, {
+                              mobile: "",
+                            });
+                            this.setState({ VisitorDetails: VisitorDetailss, }) }}
+                          ]
+                        );
+                        // SimpleToast.show('This User is Blocked')
+                       
+                        // mobile = '';
+                      }
+                      
                     }}>
-                    <Text style={{color: COLORS.white, fontSize: 17}}>
+                    <Text style={{ color: COLORS.white, fontSize: 17 }}>
                       Submit
                     </Text>
                   </TouchableOpacity>
@@ -2303,8 +2641,9 @@ class VisitorForm extends React.Component {
                       backgroundColor: COLORS.skyBlue,
                       padding: 11,
                     }}
-                    onPress={() => this.clearRefresh()}>
-                    <Text style={{color: COLORS.white, fontSize: 17}}>
+                    onPress={() => this.clearRefresh()}
+                  >
+                    <Text style={{ color: COLORS.white, fontSize: 17 }}>
                       Reset
                     </Text>
                   </TouchableOpacity>
@@ -2312,45 +2651,49 @@ class VisitorForm extends React.Component {
               )
             )}
             {this.props.route.params.tag == 2 ? (
-              <View style={{alignSelf: 'center', top: 10}}>
+              <View style={{ alignSelf: "center", top: 10 }}>
                 <View
                   style={{
-                    alignSelf: 'flex-end',
-                    flexDirection: 'row',
+                    alignSelf: "flex-end",
+                    flexDirection: "row",
                     padding: 10,
                     margin: 10,
-                  }}>
+                  }}
+                >
                   <TouchableOpacity
                     style={{
                       paddingRight: 10,
                       height: 37,
                       width: 200,
-                      alignSelf: 'center',
+                      alignSelf: "center",
                       borderRadius: 6,
                     }}
                     onPress={() => {
                       this.checkArogyaSetu(this.state.VisitorDetails, 2);
-                    }}>
+                    }}
+                  >
                     <LinearGradient
                       style={{
                         flex: 1,
                         borderRadius: 7,
-                        justifyContent: 'center',
-                        alignItems: 'center',
+                        justifyContent: "center",
+                        alignItems: "center",
                       }}
-                      colors={[COLORS.secondary, COLORS.secondary]}>
+                      colors={[COLORS.secondary, COLORS.secondary]}
+                    >
                       <Text
                         style={{
                           width: 200,
-                          textAlign: 'center',
+                          textAlign: "center",
                           color: COLORS.white,
                           fontSize: 17,
-                          fontWeight: 'bold',
-                        }}>
+                          fontWeight: "bold",
+                        }}
+                      >
                         {this.props.AllSettings.settingsVM.vPhotoProof ||
                         this.props.AllSettings.settingsVM.vIdProof
-                          ? 'Skip And Check In'
-                          : 'Check In'}
+                          ? "Skip And Check In"
+                          : "Check In"}
                       </Text>
                     </LinearGradient>
                   </TouchableOpacity>
@@ -2360,7 +2703,7 @@ class VisitorForm extends React.Component {
                       style={{
                         height: 37,
                         width: 90,
-                        alignSelf: 'center',
+                        alignSelf: "center",
                         borderRadius: 6,
                       }}
                       onPress={() => {
@@ -2371,25 +2714,28 @@ class VisitorForm extends React.Component {
                         ) {
                           this.checkArogyaSetu(this.state.VisitorDetails, 1);
                         } else {
-                          alert('Please select Photo or Id Proof');
+                          alert("Please select Photo or Id Proof");
                         }
-                      }}>
+                      }}
+                    >
                       <LinearGradient
                         style={{
                           flex: 1,
                           borderRadius: 7,
-                          justifyContent: 'center',
-                          alignItems: 'center',
+                          justifyContent: "center",
+                          alignItems: "center",
                         }}
-                        colors={[COLORS.secondary, COLORS.secondary]}>
+                        colors={[COLORS.secondary, COLORS.secondary]}
+                      >
                         <Text
                           style={{
                             width: 100,
-                            textAlign: 'center',
+                            textAlign: "center",
                             color: COLORS.white,
                             fontSize: 17,
-                            fontWeight: 'bold',
-                          }}>
+                            fontWeight: "bold",
+                          }}
+                        >
                           Check In
                         </Text>
                       </LinearGradient>
@@ -2422,38 +2768,69 @@ class VisitorForm extends React.Component {
     }
 
     this.setState({
-      mobileError: '',
-      vAddlCol1Error: '',
-      vAddlCol2Error: '',
-      vAddlCol3Error: '',
-      vAddlCol4Error: '',
-      vAddlCol5Error: '',
-      emailError: '',
+      mobileError: "",
+      vAddlCol1Error: "",
+      vAddlCol2Error: "",
+      vAddlCol3Error: "",
+      vAddlCol4Error: "",
+      vAddlCol5Error: "",
+      emailError: "",
       VisitorDetails,
       enable: this.props.route.params.tag == 2 ? false : true,
       date: null,
       Intime: null,
       Outtime: null,
-      imageBase64StringIdProof: {fileName: null, data: null},
-      imageBase64StringPhotoProof: {fileName: null, data: null},
+      imageBase64StringIdProof: { fileName: null, data: null },
+      imageBase64StringPhotoProof: { fileName: null, data: null },
     });
   }
+  onChangeNumber = (text) => {
+    var VisitorDetails;
+    if (text.length == 0) {
+      VisitorDetails = visitorDetailEmpty;
+
+      this.setState({
+        mobileError: "",
+        vAddlCol1Error: "",
+        vAddlCol2Error: "",
+        vAddlCol3Error: "",
+        vAddlCol4Error: "",
+        vAddlCol5Error: "",
+        emailError: "",
+        VisitorDetails,
+        enable: this.props.route.params.tag == 2 ? false : true,
+        date: Platform.OS == "android" ? null : new Date(),
+        Intime: null,
+        Outtime: Platform.OS == "android" ? null : new Date(),
+        imageBase64StringIdProof: { fileName: null, data: null },
+        imageBase64StringPhotoProof: { fileName: null, data: null },
+      });
+    } else {
+      {
+        const VisitorDetailss = Object.assign({}, this.state.VisitorDetails, {
+          mobile: text,
+        });
+        this.setState({ VisitorDetails: VisitorDetailss });
+      }
+    }
+  };
   async onChanged(text, FisrtName) {
-    let mobile = '';
-    let numbers = '0123456789';
-    let mobileError = '';
-    console.log('Firstname:', FisrtName);
+    let mobile = "";
+    let numbers = "0123456789";
+    let mobileError = "";
+    console.log("Firstname:", FisrtName);
     for (var i = 0; i < text.length; i++) {
       if (numbers.indexOf(text[i]) > -1) {
         mobile = mobile + text[i];
-        if (mobile[0] > 5) {
-          if (mobile.length == 10 && mobile.length <= 15) {
+        if (mobile[0] >= 1) {
+          console.log(mobile.length);
+          if (mobile.length >= 8 && mobile.length <= 15) {
             try {
               let res = await axiosAuthGet(
-                'Visitor/GetVisitorByMobile/' + mobile,
+                "Visitor/GetVisitorByMobile/" + text+"/"+this.props.LoginDetails.orgID
               );
-              console.log('Final response ====', res);
-              if (res == null || res == '') {
+              console.log("Final response ====", res);
+              if (res == null || res == "") {
                 var departVal = this.state.VisitorDetails.department;
                 this.props.ChkSubscriptionLimit(this.props.LoginDetails.userID);
                 this.props.GetAllSettings(this.props.LoginDetails.userID);
@@ -2480,46 +2857,46 @@ class VisitorForm extends React.Component {
                 VisitorDetails = visitorDetailEmpty;
 
                 this.setState({
-                  mobileError: '',
-                  vAddlCol1Error: '',
-                  vAddlCol2Error: '',
-                  vAddlCol3Error: '',
-                  vAddlCol4Error: '',
-                  vAddlCol5Error: '',
-                  emailError: '',
+                  mobileError: "",
+                  vAddlCol1Error: "",
+                  vAddlCol2Error: "",
+                  vAddlCol3Error: "",
+                  vAddlCol4Error: "",
+                  vAddlCol5Error: "",
+                  emailError: "",
                   VisitorDetails,
                   enable: this.props.route.params.tag == 2 ? false : true,
-                  date: null,
+                  date: Platform.OS=="android"? null:new Date(),
                   Intime: null,
-                  Outtime: null,
-                  imageBase64StringIdProof: {fileName: null, data: null},
-                  imageBase64StringPhotoProof: {fileName: null, data: null},
+                  Outtime:Platform.OS=="android"? null:new Date(),
+                  imageBase64StringIdProof: { fileName: null, data: null },
+                  imageBase64StringPhotoProof: { fileName: null, data: null },
                 });
               } else {
-                console.log('bye bye ');
+                console.log("bye bye ");
                 if (res.isBlock != true) {
                   this.props.GetVisitorByMobile(
-                    mobile,
-                    this.getVisitorByMobileSuccess,
+                    text+"/"+this.props.LoginDetails.orgID,
+                    this.getVisitorByMobileSuccess
                   );
                 } else {
-                  alert('This User is Blocked');
+                  alert("This User is Blocked");
                   // SimpleToast.show('This User is Blocked')
                   this.clearRefresh();
-                  mobile = '';
+                  mobile = "";
 
                   // this.setState({ VisitorDetails: visitorDetailEmpty })
                 }
               }
-              console.log('Mobile Details===', res);
+              console.log("Mobile Details===", res);
             } catch (error) {}
             // this.getVisitorByMobile(mobile)
           } else {
-            this.setState({enable: true});
+            this.setState({ enable: true });
           }
         } else {
-          mobile = '';
-          mobileError = 'Please Enter Valid Mobile Number';
+          mobile = "";
+          mobileError = "Please Enter Valid Mobile Number";
           // alert('Please Enter Valid Mobile Number')
         }
       } else {
@@ -2532,9 +2909,9 @@ class VisitorForm extends React.Component {
       mobile: mobile,
       fullName: FisrtName,
     });
-    this.setState({VisitorDetails: VisitorDetailss, mobileError});
+    this.setState({ VisitorDetails: VisitorDetailss, mobileError });
   }
-  getVisitorByMobileSuccess = response =>
+  getVisitorByMobileSuccess = (response) =>
     this.afterGetVisitorByMobileSuccess(response);
   afterGetVisitorByMobileSuccess(Response) {
     var VisitorDetails = this.state.VisitorDetails,
@@ -2561,25 +2938,25 @@ class VisitorForm extends React.Component {
 
       enable = false;
     }
-    this.setState({VisitorDetails, enable});
+    this.setState({ VisitorDetails, enable });
   }
   getContactNo() {
-    if (Platform.OS === 'android') {
+    if (Platform.OS === "android") {
       PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
-        title: 'Contacts',
-        message: 'This app would like to view your contacts.',
-        buttonPositive: 'Please accept bare mortal',
-      }).then(async contacts => {
-        if (contacts === 'granted')
-          await Contacts.getAll().then(data => {
-            const newArr1 = data.map(v => ({
+        title: "Contacts",
+        message: "This app would like to view your contacts.",
+        buttonPositive: "Please accept bare mortal",
+      }).then(async (contacts) => {
+        if (contacts === "granted")
+          await Contacts.getAll().then((data) => {
+            const newArr1 = data.map((v) => ({
               ...v,
               color:
                 randomColor[Math.floor(Math.random() * randomColor.length)],
             }));
-            console.log('Hello', newArr1);
+            console.log("Hello", newArr1);
             newArr1.sort((a, b) =>
-              a.displayName?.localeCompare(b?.displayName),
+              a.displayName?.localeCompare(b?.displayName)
             );
             // console.log("All Data===",);
             this.setState({
@@ -2590,19 +2967,19 @@ class VisitorForm extends React.Component {
           });
       });
     } else {
-      Contacts.checkPermission().then(permission => {
+      Contacts.checkPermission().then((permission) => {
         // Contacts.PERMISSION_AUTHORIZED || Contacts.PERMISSION_UNDEFINED || Contacts.PERMISSION_DENIED
-        if (permission === 'undefined') {
-          Contacts.requestPermission().then(permission => {
-            if (permission === 'granted')
-              Contacts.getAll().then(data => {
-                const newArr1 = data.map(v => ({
+        if (permission === "undefined") {
+          Contacts.requestPermission().then((permission) => {
+            if (permission === "granted")
+              Contacts.getAll().then((data) => {
+                const newArr1 = data.map((v) => ({
                   ...v,
                   color:
                     randomColor[Math.floor(Math.random() * randomColor.length)],
                 }));
                 newArr1.sort((a, b) =>
-                  a?.givenName.localeCompare(b?.givenName),
+                  a?.givenName.localeCompare(b?.givenName)
                 );
 
                 this.setState({
@@ -2613,17 +2990,17 @@ class VisitorForm extends React.Component {
               });
           });
         }
-        if (permission === 'authorized') {
+        if (permission === "authorized") {
           // yay!
-          Contacts.getAll().then(data => {
-            console.log('data', data);
+          Contacts.getAll().then((data) => {
+            console.log("data", data);
 
-            const newArr1 = data.map(v => ({
+            const newArr1 = data.map((v) => ({
               ...v,
               color:
                 randomColor[Math.floor(Math.random() * randomColor.length)],
             }));
-            console.log('New Array:-', newArr1);
+            console.log("New Array:-", newArr1);
             newArr1.sort((a, b) => a?.givenName.localeCompare(b.givenName));
 
             this.setState({
@@ -2633,7 +3010,7 @@ class VisitorForm extends React.Component {
             });
           });
         }
-        if (permission === 'denied') {
+        if (permission === "denied") {
           // x.x
         }
       });
@@ -2643,18 +3020,18 @@ class VisitorForm extends React.Component {
     // var mobile = item.phoneNumbers[0]?.number?.replace('+91', '');
     var mobile = item.phoneNumbers[0]?.number;
 
-    console.log('Moible No:-', mobile);
+    console.log("Moible No:-", mobile);
     // var VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
     //   mobile: mobile.replace(/[^\d]/g, ''),
     //   email: item.emailAddresses[0]?.email,
     //   fullName: item.displayName,
     // });
-    if (Platform.OS == 'ios') {
+    if (Platform.OS == "ios") {
       this.onChanged(mobile, item.givenName);
-      this.setState({contactNoModal: false});
+      this.setState({ contactNoModal: false });
     } else {
       this.onChanged(mobile, item.displayName);
-      this.setState({contactNoModal: false});
+      this.setState({ contactNoModal: false });
     }
     // this.props.GetVisitorByMobile(
     //   mobile,
@@ -2663,14 +3040,14 @@ class VisitorForm extends React.Component {
     // );
   }
   searchContactNo(search) {
-    if (search != '') {
+    if (search != "") {
       const newData = this.state.masterContactList.filter(function (item) {
         // var name = Platform.OS === 'android'?item?.displayName:item?.givenName
         var itemm =
           item?.emailAddresses[0]?.email +
-          item?.phoneNumbers[0]?.number?.replace(/[^\d]/g, '') +
+          item?.phoneNumbers[0]?.number?.replace(/[^\d]/g, "") +
           item?.givenName;
-        const itemData = itemm ? itemm.toUpperCase() : ''.toUpperCase();
+        const itemData = itemm ? itemm.toUpperCase() : "".toUpperCase();
         const textData = search.toUpperCase();
         return itemData.indexOf(textData) > -1;
       });
@@ -2686,64 +3063,72 @@ class VisitorForm extends React.Component {
   ContactNoModal() {
     return (
       <Modal
-        animationType={'fade'}
+        animationType={"fade"}
         transparent={true}
         visible={this.state.contactNoModal}
         onRequestClose={() => {
-          this.setState({contactNoModal: false});
-        }}>
+          this.setState({ contactNoModal: false });
+        }}
+      >
         <View
           style={{
-            width: '100%',
-            height: '100%',
+            width: "100%",
+            height: "100%",
             backgroundColor: COLORS.white,
-          }}>
+          }}
+        >
           <LinearGradient
             style={{
-              height: Platform.OS == 'ios' ? 100 : 60,
+              height: Platform.OS == "ios" ? 100 : 60,
               padding: 10,
-              width: '100%',
-              justifyContent: 'center',
+              width: "100%",
+              justifyContent: "center",
             }}
-            colors={[COLORS.primary, COLORS.third]}>
+            colors={[COLORS.primary, COLORS.third]}
+          >
             <View
               style={{
                 flex: 1,
-                flexDirection: 'row',
+                flexDirection: "row",
                 borderWidth: 1,
                 borderRadius: 20,
                 backgroundColor: COLORS.white,
-                alignItems: 'center',
-                marginTop: Platform.OS === 'ios' ? 35 : 0,
-              }}>
+                alignItems: "center",
+                marginTop: Platform.OS === "ios" ? 35 : 0,
+              }}
+            >
               <TouchableOpacity
                 style={{
                   marginLeft: 10,
                   height: 50,
-                  alignContent: 'center',
-                  justifyContent: 'center',
+                  alignContent: "center",
+                  justifyContent: "center",
                 }}
                 onPress={() =>
-                  this.setState({contactNoModal: false, AddmodalVisible: true})
-                }>
+                  this.setState({
+                    contactNoModal: false,
+                    AddmodalVisible: true,
+                  })
+                }
+              >
                 <Image
                   source={IMAGES.back}
-                  style={{height: 22, width: 22, tintColor: COLORS.black}}
+                  style={{ height: 22, width: 22, tintColor: COLORS.black }}
                 />
               </TouchableOpacity>
 
               <TextInput
                 style={{
                   color: COLORS.black,
-                  textAlign: 'left',
+                  textAlign: "left",
                   flexGrow: 1,
                   backgroundColor: COLORS.white,
                   paddingLeft: 20,
                   padding: 5,
                   fontSize: 22,
                 }}
-                placeholder={'Search Contact Number'}
-                onChangeText={text => this.searchContactNo(text)}
+                placeholder={"Search Contact Number"}
+                onChangeText={(text) => this.searchContactNo(text)}
               />
               <Image
                 source={IMAGES.search_a}
@@ -2757,8 +3142,8 @@ class VisitorForm extends React.Component {
             </View>
           </LinearGradient>
           <FlatList
-            style={{flex: 1}}
-            contentContainerStyle={{flexGrow: 1}}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ flexGrow: 1 }}
             data={this.state.contactsList}
             keyExtractor={(item, index) => index.toString()}
             renderItem={(item, index) => {
@@ -2770,41 +3155,44 @@ class VisitorForm extends React.Component {
                     this.selectMobileNo(item);
                   }}
                   style={{
-                    flexDirection: 'row',
+                    flexDirection: "row",
                     marginBottom: 2,
                     backgroundColor: COLORS.white,
                     padding: 10,
                     elevation: 1,
-                  }}>
+                  }}
+                >
                   <View
                     style={{
                       marginRight: 10,
-                      justifyContent: 'center',
-                      alignItems: 'center',
+                      justifyContent: "center",
+                      alignItems: "center",
                       backgroundColor: item.color,
                       height: 35,
                       width: 35,
                       borderRadius: 17,
-                    }}>
+                    }}
+                  >
                     <Text
                       style={{
-                        textAlign: 'center',
+                        textAlign: "center",
                         fontSize: 20,
                         color: COLORS.white,
-                        fontWeight: 'bold',
-                      }}>
-                      {Platform.OS == 'android'
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {Platform.OS == "android"
                         ? item?.displayName?.charAt(0)
                         : item?.givenName?.charAt(0)}
                     </Text>
                   </View>
-                  <View style={{flexGrow: 1}}>
-                    <Text style={{fontSize: 15, fontWeight: '900'}}>
-                      {Platform.OS === 'android'
+                  <View style={{ flexGrow: 1 }}>
+                    <Text style={{ fontSize: 15, fontWeight: "900" }}>
+                      {Platform.OS === "android"
                         ? item?.displayName
                         : item?.givenName}
                     </Text>
-                    <Text style={{fontSize: 12, fontWeight: '500'}}>
+                    <Text style={{ fontSize: 12, fontWeight: "500" }}>
                       {item?.phoneNumbers[0]?.number}
                     </Text>
                   </View>
@@ -2815,10 +3203,11 @@ class VisitorForm extends React.Component {
               <View
                 style={{
                   flex: 1,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Text style={{color: COLORS.placeholderColor, fontSize: 20}}>
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{ color: COLORS.placeholderColor, fontSize: 20 }}>
                   No Contact Found
                 </Text>
               </View>
@@ -2834,7 +3223,7 @@ class VisitorForm extends React.Component {
     var mm = today.getMonth() + 1;
     var yyyy = today.getFullYear();
     var d =
-      this.addZero(dd) + '-' + this.addZero(mm) + '-' + this.addZero(yyyy);
+      this.addZero(dd) + "-" + this.addZero(mm) + "-" + this.addZero(yyyy);
     var temp = this.getParsedDate1(d);
     let date1 = new Date();
     let hours = date1.getHours();
@@ -2842,18 +3231,18 @@ class VisitorForm extends React.Component {
     let seconds = date1.getSeconds();
     var t3 =
       temp +
-      'T' +
+      "T" +
       this.addZero(hours) +
-      ':' +
+      ":" +
       this.addZero(minutes) +
-      ':' +
+      ":" +
       this.addZero(seconds);
 
     return t3;
   }
   sendNotification(item, tag) {
     let by;
-    console.log('Item and Log=====', item, tag);
+    console.log("Item and Log=====", item, tag);
     if (
       this.props.LoginDetails.userRoleId === 4 ||
       this.props.LoginDetails.userRoleId === 1
@@ -2872,24 +3261,24 @@ class VisitorForm extends React.Component {
       if (this.props.LoginDetails.userRoleId === 2) {
         notifText1 =
           item.fullName +
-          ' ( ' +
+          " ( " +
           item.inviteCode.toString().trim() +
-          ' ) Checked In by ' +
+          " ) Checked In by " +
           by;
       } else {
         if (this.state.invite) {
           notifText1 =
             item.fullName +
-            ' ( ' +
+            " ( " +
             item.inviteCode.toString().trim() +
-            ' ) Invited by ' +
+            " ) Invited by " +
             by;
         } else {
           notifText1 =
             item.fullName +
-            ' ( ' +
+            " ( " +
             item.inviteCode.toString().trim() +
-            ' ) Checked In by ' +
+            " ) Checked In by " +
             by;
         }
       }
@@ -2901,9 +3290,9 @@ class VisitorForm extends React.Component {
       // if (item.inviteCode != null) {
       notifText1 =
         item.fullName +
-        ' ( ' +
+        " ( " +
         item.inviteCode.toString().trim() +
-        ' ) Checked Out by ' +
+        " ) Checked Out by " +
         by;
       // } else {
       //     notifText1 = item.fullName + " Checked Out "
@@ -2911,23 +3300,23 @@ class VisitorForm extends React.Component {
     } else if (tag == 2) {
       notifText1 =
         item.fullName +
-        ' ( ' +
+        " ( " +
         item.inviteCode.toString().trim() +
-        ' ) Approved by ' +
+        " ) Approved by " +
         by;
     } else if (tag == 3) {
       notifText1 =
         item.fullName +
-        ' ( ' +
+        " ( " +
         item.inviteCode.toString().trim() +
-        ' ) Rejected by ' +
+        " ) Rejected by " +
         by;
     } else if (tag == 4) {
       notifText1 =
         item.fullName +
-        ' ( ' +
+        " ( " +
         item.inviteCode.toString().trim() +
-        ' ) Rescheduled by ' +
+        " ) Rescheduled by " +
         by;
     }
     var param = {
@@ -2935,18 +3324,18 @@ class VisitorForm extends React.Component {
       notifDate: this.getCurrentDate(),
       userId: item.whomToMeet,
     };
-    console.log('Notification:-SendNoti', param);
-    this.props.SaveNotification(param);
+    console.log("Notification:-SendNoti", param);
+    // this.props.SaveNotification(param);
   }
   getAllReceptionst(params1, tag) {
-    this.props.ReceptionList.forEach(element => {
+    this.props.ReceptionList.forEach((element) => {
       this.sendNotificationRec(params1, element, tag); // 5 = Approve
     });
     // let Response = await apiConnection.fetchGetData('Users/GetReceptionList', global.LoginDetails.userID);
   }
   sendNotificationRec(params1, item, tag) {
     // tag = 5 = approve, 6 = reject, 7 = reschedule 8 = check in
-    console.log('Notification List', params1, tag);
+    console.log("Notification List", params1, tag);
 
     let by;
 
@@ -2961,50 +3350,50 @@ class VisitorForm extends React.Component {
     if (tag == 5) {
       notifText1 =
         this.state.VisitorDetails.fullName +
-        ' ( ' +
+        " ( " +
         this.state.VisitorDetails.inviteCode.toString().trim() +
-        ' ) Approved by ' +
+        " ) Approved by " +
         by; //by Employee "
       // notifText1 = item.fullName  + " Approved"// by Employee "
     } else if (tag == 6) {
       notifText1 =
         this.state.VisitorDetails.fullName +
-        ' ( ' +
+        " ( " +
         this.state.VisitorDetails.inviteCode.toString().trim() +
-        ' )  Rejected by ' +
+        " )  Rejected by " +
         by; // by Employee "
     } else if (tag == 7) {
       notifText1 =
         this.state.VisitorDetails.fullName +
-        ' ( ' +
+        " ( " +
         this.state.VisitorDetails.inviteCode.toString().trim() +
-        ' ) Rescheduled by ' +
+        " ) Rescheduled by " +
         by; // by Employee "
     } else if (tag == 8) {
       if (this.props.LoginDetails.userRoleId === 2) {
         notifText1 =
           this.state.VisitorDetails.fullName +
-          ' ( ' +
+          " ( " +
           this.state.VisitorDetails.inviteCode.toString().trim() +
-          ' ) Checked In by ' +
+          " ) Checked In by " +
           by;
       } else {
         if (this.state.invite) {
           notifText1 =
             this.state.VisitorDetails.fullName +
-            ' ( ' +
+            " ( " +
             this.state.VisitorDetails.inviteCode.toString().trim() +
-            ' ) Invited by ' +
+            " ) Invited by " +
             by; // by Employee "
-          console.log('Empm====Notification2', notifText1);
+          console.log("Empm====Notification2", notifText1);
         } else {
           notifText1 =
             this.state.VisitorDetails.fullName +
-            ' ( ' +
+            " ( " +
             this.state.VisitorDetails.inviteCode.toString().trim() +
-            ' ) Checked In by ' +
+            " ) Checked In by " +
             by; // by Employee "
-          console.log('Empm====Notification2', notifText1);
+          console.log("Empm====Notification2", notifText1);
         }
       }
 
@@ -3022,9 +3411,9 @@ class VisitorForm extends React.Component {
     } else if (tag == 9) {
       notifText1 =
         params1.fullName +
-        ' ( ' +
+        " ( " +
         params1.inviteCode.toString().trim() +
-        ' ) Checked Out by ' +
+        " ) Checked Out by " +
         by; // by Employee "
     }
     var param = {
@@ -3032,19 +3421,26 @@ class VisitorForm extends React.Component {
       notifDate: this.getCurrentDate(),
       userId: item.usrId,
     };
-    console.log('Notification:-SendNotiRecpt', param);
+    console.log("Notification:-SendNotiRecpt", param);
 
-    this.props.SaveNotification(param);
+    // this.props.SaveNotification(param);
   }
   insertChekIn(item) {
     var isArogyaSetu =
       item.isVizArogyaSetu == null ? false : item.isVizArogyaSetu;
     var vizTemp = item.vizTemp == null ? false : item.vizTemp;
-    var params1 = item.inOutId + '/' + isArogyaSetu + '/' + vizTemp;
-    console.log('Data is ======', item);
+    var params1 =
+      item.inOutId +
+      "/" +
+      isArogyaSetu +
+      "/" +
+      vizTemp +
+      "/" +
+      this.props.LoginDetails.empID;
+    console.log("Data is ======", item);
     this.props.CheckIn(params1, this.insertChekInSuccess);
   }
-  insertChekInSuccess = res => this.afterInsertChekInSuccess(res);
+  insertChekInSuccess = (res) => this.afterInsertChekInSuccess(res);
 
   afterInsertChekInSuccess(respp) {
     // let respp = await apiConnection.getData('Visitor/CheckIn/' + item.inOutId + "/" + item.isVizArogyaSetu + "/" + item.vizTemp);
@@ -3052,19 +3448,19 @@ class VisitorForm extends React.Component {
       this.sendNotification(this.state.VisitorDetails, 1);
       this.getAllReceptionst(this.state.VisitorDetails, 8);
       Toast.show(
-        this.state.VisitorDetails.fullName + ' Check In successfully',
-        Toast.LONG,
+        this.state.VisitorDetails.fullName + " Check In successfully",
+        Toast.LONG
       );
       this.props.mobileNo({
         mobStatus: 0,
-        mob: '',
+        mob: "",
       });
       this.props.Update(true);
       this.props.navigation.goBack();
     } else {
       Toast.show(
-        this.state.VisitorDetails.fullName + ' Check In Unsuccessfull',
-        Toast.LONG,
+        this.state.VisitorDetails.fullName + " Check In Unsuccessfull",
+        Toast.LONG
       );
     }
   }
@@ -3082,19 +3478,21 @@ class VisitorForm extends React.Component {
       idprfPath: null,
       isVizArogyaSetu: isArogyaSetu,
       vizTemp: vizTemp,
+      userId: this.props.LoginDetails.userID,
+      empId: this.props.LoginDetails.empID,
       // inviteCode: this.makeid(6)
     };
     // let respp = await apiConnection.getData('Visitor/CheckinWithPhoto', params1);
     this.props.CheckinWithPhoto(params1, this.checkinWithPhotoSuccess);
   }
-  checkinWithPhotoSuccess = res => this.afterCheckinWithPhotoSuccess(res);
+  checkinWithPhotoSuccess = (res) => this.afterCheckinWithPhotoSuccess(res);
   afterCheckinWithPhotoSuccess(respp) {
     if (respp) {
       this.sendNotification(this.state.VisitorDetails, 1);
       this.getAllReceptionst(this.state.VisitorDetails, 8);
       Toast.show(
-        this.state.VisitorDetails.fullName + ' Check In successfully',
-        Toast.LONG,
+        this.state.VisitorDetails.fullName + " Check In successfully",
+        Toast.LONG
       );
 
       this.props.Update(true);
@@ -3102,8 +3500,8 @@ class VisitorForm extends React.Component {
       this.props.navigation.goBack();
     } else {
       Toast.show(
-        this.state.VisitorDetails.fullName + ' Check In Unsuccessfull',
-        Toast.LONG,
+        this.state.VisitorDetails.fullName + " Check In Unsuccessfull",
+        Toast.LONG
       );
     }
   }
@@ -3122,7 +3520,7 @@ class VisitorForm extends React.Component {
           isReschedualVisible: false,
         });
       } else {
-        Toast.show('Please First Select In Time');
+        Toast.show("Please First Select In Time");
       }
     } else if (tag == 3) {
       this.setState({
@@ -3133,18 +3531,18 @@ class VisitorForm extends React.Component {
     }
   }
   handleInputChange = (vizTemp, tag) => {
-    var Temp = vizTemp.replace(/[- #*;,+<>N()\{\}\[\]\\\/]/gi, '');
+    var Temp = vizTemp.replace(/[- #*;,+<>N()\{\}\[\]\\\/]/gi, "");
     if (this.validateTemp(Temp)) {
       if (tag == 1) {
         var invitecodeArray = Object.assign({}, this.state.invitecodeArray, {
           vizTemp: Temp,
         });
-        this.setState({invitecodeArray});
+        this.setState({ invitecodeArray });
       } else {
         var VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
           vizTemp: Temp,
         });
-        this.setState({VisitorDetails});
+        this.setState({ VisitorDetails });
       }
     }
   };
@@ -3153,39 +3551,39 @@ class VisitorForm extends React.Component {
     var rgx = /^[0-9]*\.?[0-9]*$/;
     return s.match(rgx);
   }
-  getDepartmentSuccess = res => this.afterGetDepartmentSuccess(res);
+  getDepartmentSuccess = (res) => this.afterGetDepartmentSuccess(res);
   afterGetDepartmentSuccess(res) {
     if (res) {
       var VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
         department: res.department,
       });
-      this.setState({VisitorDetails});
+      this.setState({ VisitorDetails });
     }
   }
-  validate = text => {
+  validate = (text) => {
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    if (text != '' && reg.test(text) === false) {
+    if (text != "" && reg.test(text) === false) {
       return false;
     } else {
       return true;
     }
   };
   dynamicFieldValidate() {
-    return this.state.vAddlCol1Error !== '' ||
-      this.state.vAddlCol2Error !== '' ||
-      this.state.vAddlCol3Error !== '' ||
-      this.state.vAddlCol4Error !== '' ||
-      this.state.vAddlCol5Error !== ''
+    return this.state.vAddlCol1Error !== "" ||
+      this.state.vAddlCol2Error !== "" ||
+      this.state.vAddlCol3Error !== "" ||
+      this.state.vAddlCol4Error !== "" ||
+      this.state.vAddlCol5Error !== ""
       ? alert(
           this.state.vAddlCol1Error +
-            ' \n' +
+            " \n" +
             this.state.vAddlCol2Error +
-            ' \n' +
+            " \n" +
             this.state.vAddlCol3Error +
-            ' \n' +
+            " \n" +
             this.state.vAddlCol4Error +
-            ' \n' +
-            this.state.vAddlCol5Error,
+            " \n" +
+            this.state.vAddlCol5Error
         )
       : true;
   }
@@ -3193,192 +3591,384 @@ class VisitorForm extends React.Component {
   checkForGate = () => {
     //Handler for the Submit onPress
     var temp = 0;
-    if (this.state.VisitorDetails.fullName != '') {
-      if (this.props.AllSettings.settingsVM.vEmail) {
-        if (
-          this.state.VisitorDetails.email != null &&
-          this.state.VisitorDetails.email?.trim() !== ''
-        ) {
-          if (!this.validate(this.state.VisitorDetails.email)) {
-            temp = 1;
-            alert('Please Enter Valid E-mail');
-          }
-        } else {
-          temp = 0;
-        }
-      }
-    } else {
-      temp = 1;
-      alert('Please Enter Full Name');
-    }
+    // if (this.state.VisitorDetails.fullName != '') {
+    //   if (this.props.AllSettings.settingsVM.vEmail) {
+    //     if (
+    //       this.state.VisitorDetails.email != null &&
+    //       this.state.VisitorDetails.email?.trim() !== ''
+    //     ) {
+    //       if (!this.validate(this.state.VisitorDetails.email)) {
+    //         temp = 1;
+    //         alert('Please Enter Valid E-mail');
+    //       }
+    //     } else {
+    //       temp = 0;
+    //     }
+    //   }
+    // } else {
+    //   temp = 1;
+    //   alert('Please Enter Full Name');
+    // }
     if (temp == 0) {
-      if (
-        this.state.VisitorDetails.mobile != '' &&
-        this.state.VisitorDetails.mobile.length <= 15
-      ) {
-        if (this.state.VisitorDetails.whomToMeetName != null) {
-          if (this.props.AllSettings.settingsVM.vPurpose) {
+      if (this.state.VisitorDetails.mobile != "") {
+        if (
+          this.state.VisitorDetails.mobile.length >= 8 &&
+          this.state.VisitorDetails.mobile.length <= 15
+        ) {
+          if (
+            this.state.VisitorDetails?.fullName != "" &&
+            this.state.VisitorDetails?.fullName != null
+          ) {
             if (
-              this.state.VisitorDetails.purpose != null &&
-              this.state.VisitorDetails.purpose != ''
+              this.state.VisitorDetails?.email == null ||
+              this.state.VisitorDetails.email == "" ||
+              this.validate(this.state.VisitorDetails.email)
             ) {
-              this.checkArogyaSetu(this.state.VisitorDetails, 3);
+              if (this.state.invite) {
+                console.log(this.state.VisitorDetails.inTime);
+
+                // if (this.state.VisitorDetails.outTime != null && this.state.VisitorDetails.outTime != '') {
+                if (this.state.VisitorDetails.whomToMeetName != null) {
+                  if (this.props.AllSettings.settingsVM.vPurpose) {
+                    if (
+                      this.state.VisitorDetails.purpose != null &&
+                      this.state.VisitorDetails.purpose != ""
+                    ) {
+                      this.checkArogyaSetu(this.state.VisitorDetails, 3);
+                    } else {
+                      alert("Please Enter purpose");
+                    }
+                  } else {
+                    this.checkArogyaSetu(this.state.VisitorDetails, 3);
+                  }
+                } else {
+                  alert("Please Select whom to meet you want to meet");
+                }
+                // }
+                // else {
+                //     alert('Please Select Expected Out Time')
+                // }
+              }
             } else {
-              alert('Please Enter Purpose');
+              temp = 1;
+              alert("Please Enter Valid E-mail");
             }
           } else {
-            this.checkArogyaSetu(this.state.VisitorDetails, 3);
+            temp = 1;
+            alert("Please Enter Full Name");
           }
         } else {
-          alert('Please Select whom to meet you want to meet');
+          alert("Please Enter Valid Mobile No.");
         }
       } else {
-        alert('Please Enter Valid Mobile No.');
+        alert("Please Enter Mobile No.");
       }
     }
+    // if (temp == 0) {
+    //   if (
+    //     this.state.VisitorDetails.mobile != ''
+    //   ) {
+    //     if(this.state.VisitorDetails.mobile.length >= 8 && this.state.VisitorDetails.mobile.length <= 15){
+    //       if (this.state.VisitorDetails.whomToMeetName != null) {
+    //         if (this.props.AllSettings.settingsVM.vPurpose) {
+    //           if (
+    //             this.state.VisitorDetails.purpose != null &&
+    //             this.state.VisitorDetails.purpose != ''
+    //           ) {
+    //             this.checkArogyaSetu(this.state.VisitorDetails, 3);
+    //           } else {
+    //             alert('Please Enter Purpose');
+    //           }
+    //         } else {
+    //           this.checkArogyaSetu(this.state.VisitorDetails, 3);
+    //         }
+    //       } else {
+    //         alert('Please Select whom to meet you want to meet');
+    //       }
+    //     }else{
+    //     alert('Please Enter Valid Mobile No');
+    //     }
+    //   } else {
+    //     alert('Please Enter Mobile No');
+    //   }
+    // }
   };
 
   /** For Employee */
   checkForEmp = () => {
     var temp = 0;
     console.log(
-      'this.state.VisitorDetails.email',
-      this.state.VisitorDetails.date,
+      "this.state.VisitorDetails.email",
+      this.state.VisitorDetails.date
     );
     //Handler for the Submit onPress
-    if (this.state.VisitorDetails.fullName != '') {
-      if (this.props.AllSettings.settingsVM.vEmail) {
-        if (
-          this.state.VisitorDetails.email != null &&
-          this.state.VisitorDetails.email?.trim() !== ''
-        ) {
-          if (this.validate(this.state.VisitorDetails.email)) {
-            temp = 0;
-          } else {
-            temp = 1;
-            alert('Please Enter Valid E-mail');
-          }
-        }
-      }
-    } else {
-      temp = 1;
-      alert('Please Enter Full Name');
-    }
+    // if (this.state.VisitorDetails.fullName != '') {
+    //   if (this.props.AllSettings.settingsVM.vEmail) {
+    //     if (
+    //       this.state.VisitorDetails.email != null &&
+    //       this.state.VisitorDetails.email?.trim() !== ''
+    //     ) {
+    //       if (this.validate(this.state.VisitorDetails.email)) {
+    //         temp = 0;
+    //       } else {
+    //         temp = 1;
+    //         alert('Please Enter Valid E-mail');
+    //       }
+    //     }
+    //   }
+    // } else {
+    //   temp = 1;
+    //   alert('Please Enter Full Name');
+    // }
+
     if (temp == 0) {
-      if (
-        this.state.VisitorDetails.mobile != '' &&
-        this.state.VisitorDetails.mobile.length <= 15
-      ) {
+      if (this.state.VisitorDetails.mobile != "") {
         if (
-          this.state.VisitorDetails.inTime != null &&
-          this.state.VisitorDetails.inTime != ''
+          this.state.VisitorDetails.mobile.length >= 8 &&
+          this.state.VisitorDetails.mobile.length <= 15
         ) {
-          // if (this.state.VisitorDetails.outTime != null && this.state.VisitorDetails.outTime != '') {
-          if (this.props.AllSettings.settingsVM.vPurpose) {
+          if (
+            this.state.VisitorDetails?.fullName != "" &&
+            this.state.VisitorDetails?.fullName != null
+          ) {
             if (
-              this.state.VisitorDetails.purpose != null &&
-              this.state.VisitorDetails.purpose != ''
+              this.state.VisitorDetails?.email == null ||
+              this.state.VisitorDetails.email == "" ||
+              this.validate(this.state.VisitorDetails.email)
             ) {
-              // console.log("this.state.VisitorDetails.inTime",this.state.VisitorDetails.inTime);
-              this.dynamicFieldValidate() && this.insertVisitor();
+              if (this.state.invite) {
+                if (
+                  this.state.VisitorDetails.inTime != null &&
+                  this.state.VisitorDetails.inTime != ""
+                ) {
+                  // if (this.state.VisitorDetails.outTime != null && this.state.VisitorDetails.outTime != '') {
+                  if (this.props.LoginDetails.isApprover == true) {
+                    console.log(this.state.VisitorDetails.inTime);
+
+                    if (this.state.VisitorDetails.whomToMeetName != null) {
+                      if (this.props.AllSettings.settingsVM.vPurpose) {
+                        if (
+                          this.state.VisitorDetails.purpose != null &&
+                          this.state.VisitorDetails.purpose != ""
+                        ) {
+                          this.dynamicFieldValidate() && this.insertVisitor();
+                        } else {
+                          alert("Please Enter purpose");
+                        }
+                      } else {
+                        this.dynamicFieldValidate() && this.insertVisitor();
+                      }
+                    } else {
+                      alert("Please Select whom to meet you want to meet");
+                    }
+                  }
+                  else if(this.props.LoginDetails.isApprover == false && this.props.LoginDetails.userRoleId==1 &&!this.props.AdminSwitch){
+                    if (this.state.VisitorDetails.whomToMeetName != null) {
+                      if (this.props.AllSettings.settingsVM.vPurpose) {
+                        if (
+                          this.state.VisitorDetails.purpose != null &&
+                          this.state.VisitorDetails.purpose != ""
+                        ) {
+                          this.dynamicFieldValidate() && this.insertVisitor();
+                        } else {
+                          alert("Please Enter purpose");
+                        }
+                      } else {
+                        this.dynamicFieldValidate() && this.insertVisitor();
+                      }
+                    } else {
+                      alert("Please Select whom to meet you want to meet");
+                    }
+                  }
+                  else if(this.props.LoginDetails.isApprover == false && this.props.LoginDetails.userRoleId==1 && this.props.AdminSwitch){
+                    if (this.props.AllSettings.settingsVM.vPurpose) {
+                      if (
+                        this.state.VisitorDetails.purpose != null &&
+                        this.state.VisitorDetails.purpose != ""
+                      ) {
+                        this.dynamicFieldValidate() && this.insertVisitor();
+                      } else {
+                        alert("Please Enter purpose");
+                      }
+                    } else {
+                      this.dynamicFieldValidate() && this.insertVisitor();
+                    }
+                  }
+                   else {
+                    if (this.props.AllSettings.settingsVM.vPurpose) {
+                      if (
+                        this.state.VisitorDetails.purpose != null &&
+                        this.state.VisitorDetails.purpose != ""
+                      ) {
+                        this.dynamicFieldValidate() && this.insertVisitor();
+                      } else {
+                        alert("Please Enter purpose");
+                      }
+                    } else {
+                      this.dynamicFieldValidate() && this.insertVisitor();
+                    }
+                  }
+
+                  // }
+                  // else {
+                  //     alert('Please Select Expected Out Time')
+                  // }
+                } else {
+                  alert("Please Select Expected In Time");
+                }
+              }
             } else {
-              alert('Please Enter purpose');
+              temp = 1;
+              alert("Please Enter Valid E-mail");
             }
           } else {
-            this.dynamicFieldValidate() && this.insertVisitor();
+            temp = 1;
+            alert("Please Enter Full Name");
           }
         } else {
-          alert('Please Select Expected In Time');
+          alert("Please Enter Valid Mobile No.");
         }
       } else {
-        alert('Please Enter Valid Mobile No.');
+        alert("Please Enter Mobile No.");
       }
     }
+    // if (temp == 0) {
+    //   if (
+    //     this.state.VisitorDetails.mobile != '' &&
+    //     this.state.VisitorDetails.mobile.length <= 15
+    //   ) {
+    //     // if (
+    //     //   this.state.VisitorDetails.inTime != null &&
+    //     //   this.state.VisitorDetails.inTime != ''
+    //     // ) {
+    //       // if (this.state.VisitorDetails.outTime != null && this.state.VisitorDetails.outTime != '') {
+    //       if (this.props.AllSettings.settingsVM.vPurpose) {
+    //         if (
+    //           this.state.VisitorDetails.purpose != null &&
+    //           this.state.VisitorDetails.purpose != ''
+    //         ) {
+    //           // console.log("this.state.VisitorDetails.inTime",this.state.VisitorDetails.inTime);
+    //           this.dynamicFieldValidate() && this.insertVisitor();
+    //         } else {
+    //           alert('Please Enter purpose');
+    //         }
+    //       } else {
+    //         this.dynamicFieldValidate() && this.insertVisitor();
+    //       }
+    //     // }
+    //     //  else {
+    //     //   alert('Please Select Expected In Time');
+    //     // }
+    //   } else {
+    //     alert('Please Enter Valid Mobile No.');
+    //   }
+    // }
   };
   /** For Receptionst */
   checkForRec = () => {
     var temp = 0;
+    console.log("temo:=", temp);
     //Handler for the Submit onPress
-    if (this.state.VisitorDetails.fullName != '') {
-      if (this.props.AllSettings.settingsVM.vEmail) {
-        if (
-          this.state.VisitorDetails.email != null &&
-          this.state.VisitorDetails.email?.trim() !== ''
-        ) {
-          if (this.validate(this.state.VisitorDetails.email)) {
-            temp = 0;
-          } else {
-            temp = 1;
-            alert('Please Enter Valid E-mail');
-          }
-        }
-      }
-    } else {
-      temp = 1;
-      alert('Please Enter Full Name');
-    }
+    // if (this.state.VisitorDetails.fullName != '') {
+    //   if (this.props.AllSettings.settingsVM.vEmail) {
+    //     if (
+    //       this.state.VisitorDetails.email != null &&
+    //       this.state.VisitorDetails.email?.trim() !== ''
+    //     ) {
+    //       if (this.validate(this.state.VisitorDetails.email)) {
+    //         temp = 0;
+    //       } else {
+    //         temp = 1;
+    //         alert('Please Enter Valid E-mail');
+    //       }
+    //     }
+    //   }
+    // } else {
+    //   temp = 1;
+    //   alert('Please Enter Full Name');
+    // }
     if (temp == 0) {
-      if (
-        this.state.VisitorDetails.mobile != '' &&
-        this.state.VisitorDetails.mobile.length <= 15
-      ) {
-        console.log(this.state.VisitorDetails);
-        if(this.state.invite){
-           if (
-              this.state.VisitorDetails.inTime != null &&
-              this.state.VisitorDetails.inTime != ''
+      if (this.state.VisitorDetails.mobile != "") {
+        if (
+          this.state.VisitorDetails.mobile.length >= 8 &&
+          this.state.VisitorDetails.mobile.length <= 15
+        ) {
+          if (
+            this.state.VisitorDetails?.fullName != "" &&
+            this.state.VisitorDetails?.fullName != null
+          ) {
+            if (
+              this.state.VisitorDetails?.email == null ||
+              this.state.VisitorDetails.email == "" ||
+              this.validate(this.state.VisitorDetails.email)
             ) {
-              // if (this.state.VisitorDetails.outTime != null && this.state.VisitorDetails.outTime != '') {
-              if (this.state.VisitorDetails.whomToMeetName != null) {
-                if (this.props.AllSettings.settingsVM.vPurpose) {
-                  if (
-                    this.state.VisitorDetails.purpose != null &&
-                    this.state.VisitorDetails.purpose != ''
-                  ) {
-                    this.checkArogyaSetu(this.state.VisitorDetails, 3);
+              if (this.state.invite) {
+                console.log(this.state.VisitorDetails.inTime);
+
+                if (
+                  this.state.VisitorDetails.inTime != null &&
+                  this.state.VisitorDetails.inTime != ""
+                ) {
+                  // if (this.state.VisitorDetails.outTime != null && this.state.VisitorDetails.outTime != '') {
+                  if (this.state.VisitorDetails.whomToMeetName != null) {
+                    if (this.props.AllSettings.settingsVM.vPurpose) {
+                      if (
+                        this.state.VisitorDetails.purpose != null &&
+                        this.state.VisitorDetails.purpose != ""
+                      ) {
+                        this.checkArogyaSetu(this.state.VisitorDetails, 3);
+                      } else {
+                        alert("Please Enter purpose");
+                      }
+                    } else {
+                      this.checkArogyaSetu(this.state.VisitorDetails, 3);
+                    }
                   } else {
-                    alert('Please Enter purpose');
+                    alert("Please Select whom to meet you want to meet");
                   }
                 } else {
-                  this.checkArogyaSetu(this.state.VisitorDetails, 3);
+                  alert("Please Select Expected In Time");
                 }
               } else {
-                alert('Please Select whom to meet you want to meet');
-              }
-              // }
-              // else {
-              //     alert('Please Select Expected Out Time')
-              // }
-            } else {
-              alert('Please Select Expected In Time');
-            }
-        }
-        else{
-          this.state.VisitorDetails.inTime=moment().format('MM-DD-YYYY hh:mm:ss a')
-          this.state.VisitorDetails.date=moment().format('MM-DD-YYYY hh:mm:ss a')
-          console.log(this.state.VisitorDetails);
-          
-          // this.state.VisitorDetails.inTime
-            if (this.state.VisitorDetails.whomToMeetName != null) {
-              if (this.props.AllSettings.settingsVM.vPurpose) {
-                if (
-                  this.state.VisitorDetails.purpose != null &&
-                  this.state.VisitorDetails.purpose != ''
-                ) {
-                  this.checkArogyaSetu(this.state.VisitorDetails, 3);
+                this.state.VisitorDetails.inTime = moment().format(
+                  "MM-DD-YYYY hh:mm:ss a"
+                );
+                this.state.VisitorDetails.date = moment().format(
+                  "MM-DD-YYYY hh:mm:ss a"
+                );
+                console.log(this.state.VisitorDetails);
+
+                // this.state.VisitorDetails.inTime
+                if (this.state.VisitorDetails.whomToMeetName != null) {
+                  if (this.props.AllSettings.settingsVM.vPurpose) {
+                    if (
+                      this.state.VisitorDetails.purpose != null &&
+                      this.state.VisitorDetails.purpose != ""
+                    ) {
+                      this.checkArogyaSetu(this.state.VisitorDetails, 3);
+                    } else {
+                      alert("Please Enter purpose");
+                    }
+                  } else {
+                    this.checkArogyaSetu(this.state.VisitorDetails, 3);
+                  }
                 } else {
-                  alert('Please Enter purpose');
+                  alert("Please Select whom to meet you want to meet");
                 }
-              } else {
-                this.checkArogyaSetu(this.state.VisitorDetails, 3);
               }
             } else {
-              alert('Please Select whom to meet you want to meet');
+              temp = 1;
+              alert("Please Enter Valid E-mail");
             }
+          } else {
+            temp = 1;
+            alert("Please Enter Full Name");
+          }
+        } else {
+          alert("Please Enter Valid Mobile No.");
         }
-        
       } else {
-        alert('Please Enter Valid Mobile No.');
+        alert("Please Enter Mobile No.");
       }
     }
   };
@@ -3417,7 +4007,7 @@ class VisitorForm extends React.Component {
   }
   addZero(no) {
     if (no.toString().length == 1) {
-      return '0' + no;
+      return "0" + no;
     } else {
       return no;
     }
@@ -3444,43 +4034,43 @@ class VisitorForm extends React.Component {
         inTime: null,
         checkInTime:
           year +
-          '-' +
+          "-" +
           month +
-          '-' +
+          "-" +
           date +
-          'T' +
+          "T" +
           hours +
-          ':' +
+          ":" +
           min +
-          ':' +
+          ":" +
           sec +
-          '.' +
+          "." +
           mills +
-          'Z',
+          "Z",
         date:
           year +
-          '-' +
+          "-" +
           month +
-          '-' +
+          "-" +
           date +
-          'T' +
+          "T" +
           hours +
-          ':' +
+          ":" +
           min +
-          ':' +
+          ":" +
           sec +
-          '.' +
+          "." +
           mills +
-          'Z',
+          "Z",
         inviteCode: inviteCode1,
         empId: this.props.LoginDetails.empID,
       });
-      this.setState({VisitorDetails: params1});
+      this.setState({ VisitorDetails: params1 });
       this.props.SaveVisitor(params1, this.saveVisitorSuccess);
     } else if (this.props.LoginDetails.userRoleId == 4) {
       // Emp
       var meet = false;
-      await this.state.whomToMeet.filter(element => {
+      await this.state.whomToMeet.filter((element) => {
         if (this.props.LoginDetails.empID === element.value) {
           meet = true;
         }
@@ -3498,7 +4088,10 @@ class VisitorForm extends React.Component {
           userId: this.props.LoginDetails.userID,
           orgId: this.props.LoginDetails.orgID,
           company: this.state.VisitorDetails.company,
-          whomToMeet: this.props.LoginDetails.empID,
+          whomToMeet:
+            this.state.VisitorDetails.whomToMeet == null
+              ? this.props.LoginDetails.empID
+              : this.state.VisitorDetails.whomToMeet,
           whomToMeetName: this.props.LoginDetails.fullName,
           inTime: this.state.VisitorDetails.inTime,
           outTime: this.state.VisitorDetails.outTime,
@@ -3510,11 +4103,11 @@ class VisitorForm extends React.Component {
           idProof: null,
           empId: this.props.LoginDetails.empID,
         });
-        this.setState({VisitorDetails: params1});
-        console.log('List Data===', params1);
+        this.setState({ VisitorDetails: params1 });
+        console.log("List Data===", params1);
         this.props.SaveVisitor(params1, this.saveVisitorSuccess);
       } else {
-        Toast.show('You are Not Allowed to Invite Visitor.');
+        Toast.show("You are Not Allowed to Invite Visitor.");
       }
     } else if (
       this.props.AdminSwitch &&
@@ -3522,7 +4115,7 @@ class VisitorForm extends React.Component {
     ) {
       // Emp
       var meet = false;
-      await this.state.whomToMeet.filter(element => {
+      await this.state.whomToMeet.filter((element) => {
         if (this.props.LoginDetails.empID === element.value) {
           meet = true;
         }
@@ -3552,11 +4145,11 @@ class VisitorForm extends React.Component {
           idProof: null,
           empId: this.props.LoginDetails.empID,
         });
-        this.setState({VisitorDetails: params1});
-        console.log('List Data===', params1);
+        this.setState({ VisitorDetails: params1 });
+        console.log("List Data===", params1);
         this.props.SaveVisitor(params1, this.saveVisitorSuccess);
       } else {
-        Toast.show('You are Not Allowed to Invite Visitor.');
+        Toast.show("You are Not Allowed to Invite Visitor.");
       }
     } else if (
       !this.props.AdminSwitch &&
@@ -3570,12 +4163,16 @@ class VisitorForm extends React.Component {
       //   : (outTime =
       //       newDate + 'T' + this.state.VisitorDetails.outTime + '.000Z');
       if (this.state.invite) {
-        console.log('=====', this.props.LoginDetails);
+        console.log("=====", this.props.LoginDetails);
         params1 = Object.assign({}, this.state.VisitorDetails, {
           userId: this.props.LoginDetails.userID,
           orgId: this.props.LoginDetails.orgID,
           company: this.state.VisitorDetails.company,
           inTime: this.state.VisitorDetails.inTime,
+          whomToMeet:
+            this.state.VisitorDetails.whomToMeet == null
+              ? this.props.LoginDetails.empID
+              : this.state.VisitorDetails.whomToMeet,
           outTime: this.state.VisitorDetails.outTime,
           checkInTime: null,
           date: this.state.VisitorDetails.inTime,
@@ -3585,8 +4182,8 @@ class VisitorForm extends React.Component {
           idProof: null,
           empId: this.props.LoginDetails.empID,
         });
-        this.setState({VisitorDetails: params1});
-        console.log('Last Data===', params1);
+        this.setState({ VisitorDetails: params1 });
+        console.log("Last Data===", params1);
         this.props.SaveVisitor(params1, this.saveVisitorSuccess);
       } else {
         params1 = Object.assign({}, this.state.VisitorDetails, {
@@ -3598,59 +4195,59 @@ class VisitorForm extends React.Component {
           outTime: null,
           checkInTime:
             year +
-            '-' +
+            "-" +
             month +
-            '-' +
+            "-" +
             date +
-            'T' +
+            "T" +
             hours +
-            ':' +
+            ":" +
             min +
-            ':' +
+            ":" +
             sec +
-            '.' +
+            "." +
             mills +
-            'Z',
+            "Z",
           date:
             year +
-            '-' +
+            "-" +
             month +
-            '-' +
+            "-" +
             date +
-            'T' +
+            "T" +
             hours +
-            ':' +
+            ":" +
             min +
-            ':' +
+            ":" +
             sec +
-            '.' +
+            "." +
             mills +
-            'Z',
+            "Z",
           inviteCode: inviteCode1,
           empId: this.props.LoginDetails.empID,
         });
-        this.setState({VisitorDetails: params1});
+        this.setState({ VisitorDetails: params1 });
         this.props.SaveVisitor(params1, this.saveVisitorSuccess);
       }
     }
     // this.setState({ VisitorDetails: params1 })
-    console.log('Param1', this.props.LoginDetails);
-    console.log('Whom Meet', this.state.whomToMeet);
+    console.log("Param1", this.props.LoginDetails);
+    console.log("Whom Meet", this.state.whomToMeet);
   }
-  saveVisitorSuccess = res => this.afterSaveVisitorSuccess(res);
+  saveVisitorSuccess = (res) => this.afterSaveVisitorSuccess(res);
   afterSaveVisitorSuccess(respp) {
     // if (respp != null) {
     console.log(
-      'this.state.Intime',
+      "this.state.Intime",
       this.state.invite,
-      this.props.LoginDetails.userRoleId,
+      this.props.LoginDetails.userRoleId
     );
 
     if (
       this.props.LoginDetails.userRoleId == 2 ||
       (this.props.LoginDetails.userRoleId == 3 && !this.state.invite)
     ) {
-      Toast.show('New Visitor Checked In', Toast.LONG);
+      Toast.show("New Visitor Checked In", Toast.LONG);
       // alert("New Visitor Checked In.")
       this.sendNotification(this.state.VisitorDetails, 1);
       this.getAllReceptionst(this.state.VisitorDetails, 8);
@@ -3660,12 +4257,12 @@ class VisitorForm extends React.Component {
       this.state.invite
     ) {
       this.getAllReceptionst(this.state.VisitorDetails, 8);
-      Toast.show('Visitor invited successfully', Toast.LONG);
+      Toast.show("Visitor invited successfully", Toast.LONG);
     } else if (this.props.LoginDetails.userRoleId == 3 && this.state.invite) {
       // this.getAllReceptionst(this.state.VisitorDetails, 8);
       console.log(
-        '==================================================',
-        this.state.VisitorDetails?.whomToMeet,
+        "==================================================",
+        this.state.VisitorDetails?.whomToMeet
       );
       if (
         this.props.LoginDetails.empID == this.state.VisitorDetails?.whomToMeet
@@ -3674,13 +4271,13 @@ class VisitorForm extends React.Component {
       } else {
         this.sendNotification(this.state.VisitorDetails, 1);
       }
-      Toast.show('Visitor invited successfully', Toast.LONG);
+      Toast.show("Visitor invited successfully", Toast.LONG);
     } else {
       // Alert.alert("Success", "Visitor invited successfully");
 
       this.sendNotification(this.state.VisitorDetails, 1);
       this.getAllReceptionst(this.state.VisitorDetails, 8);
-      Toast.show('Visitor invited successfully', Toast.LONG);
+      Toast.show("Visitor invited successfully", Toast.LONG);
     }
     // if (this.state.switchValue) {
     //     this.sendNotificationforAllgetkeeper(params1)
@@ -3694,42 +4291,42 @@ class VisitorForm extends React.Component {
     // }
   }
   getParsedDate1(date) {
-    date = String(date).split('-');
+    date = String(date).split("-");
     return [
       this.addZero(parseInt(date[2])) +
-        '-' +
+        "-" +
         this.addZero(parseInt(date[1])) +
-        '-' +
+        "-" +
         this.addZero(parseInt(date[0])),
     ];
   }
   getParsedDate(date) {
-    date = String(date).split('-');
+    date = String(date).split("-");
     return [
-      parseInt(date[2]) + '-' + parseInt(date[1]) + '-' + parseInt(date[0]),
+      parseInt(date[2]) + "-" + parseInt(date[1]) + "-" + parseInt(date[0]),
     ];
   }
   makeid(length) {
-    var result = '';
+    var result = "";
     var characters =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     var charactersLength = characters.length;
     for (var i = 0; i < length; i++) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
   }
-  selectPhotoTapped = async type => {
+  selectPhotoTapped = async (type) => {
     try {
-      if (Platform.OS === 'android') {
-        console.log('Step:2');
+      if (Platform.OS === "android") {
+        console.log("Step:2");
 
         // Calling the permission function
         const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.CAMERA,
+          PermissionsAndroid.PERMISSIONS.CAMERA
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('Step:3');
+          console.log("Step:3");
           const options = {
             quality: 1.0,
             maxWidth: 500,
@@ -3738,7 +4335,7 @@ class VisitorForm extends React.Component {
               skipBackup: true,
             },
           };
-          launchCamera(options, async response => {
+          launchCamera(options, async (response) => {
             if (response.didCancel) {
             } else {
               response = response.assets;
@@ -3749,19 +4346,19 @@ class VisitorForm extends React.Component {
                 response.uri,
                 response.height,
                 response.width,
-                'JPEG',
+                "JPEG",
                 100,
                 0,
                 undefined,
-                false,
+                false
               )
-                .then(async res => {
+                .then(async (res) => {
                   u = await res.uri;
-                  console.log('Resize', res);
+                  console.log("Resize", res);
                 })
-                .catch(err => {});
+                .catch((err) => {});
               await ImgToBase64.getBase64String(u)
-                .then(base64String => {
+                .then((base64String) => {
                   base64Url = base64String;
                   // var s={img:"data:"+res.type+";base64," + base64String}
 
@@ -3773,20 +4370,20 @@ class VisitorForm extends React.Component {
 
               // this.setState({AllImages: pic});
               // console.log(this.state.AllImages);
-              if (Platform.OS == 'ios') {
-                var tempSplit = response.uri.split('/');
+              if (Platform.OS == "ios") {
+                var tempSplit = response.uri.split("/");
                 response.fileName = tempSplit[tempSplit.length - 1];
               }
               let ImageResponse = {
                 fileName: response.fileName,
-                data: ',' + base64Url,
+                data: "," + base64Url,
               };
 
-              if (type == 'Photo') {
+              if (type == "Photo") {
                 this.setState({
-                  imagePath: 'data:' + response.type + ';base64,' + base64Url,
+                  imagePath: "data:" + response.type + ";base64," + base64Url,
                 });
-                var ImageResponseCopy = response.fileName + ',' + base64Url;
+                var ImageResponseCopy = response.fileName + "," + base64Url;
 
                 // if (this.state.AllImages.length < 1) {
                 //   this.state.AllImagesUrl.push(
@@ -3811,21 +4408,21 @@ class VisitorForm extends React.Component {
                 const VisitorDetails = Object.assign(
                   {},
                   this.state.VisitorDetails,
-                  {imageBase64StringPhotoProof: ImageResponseCopy},
+                  { imageBase64StringPhotoProof: ImageResponseCopy }
                 );
                 this.setState({
                   VisitorDetails,
                   imageBase64StringPhotoProof: ImageResponse,
                 });
-              } else if (type == 'Id') {
+              } else if (type == "Id") {
                 this.setState({
-                  idProofPath: 'data:' + response.type + ';base64,' + base64Url,
+                  idProofPath: "data:" + response.type + ";base64," + base64Url,
                 });
-                let ImageResponseCopy = response.fileName + ',' + base64Url;
+                let ImageResponseCopy = response.fileName + "," + base64Url;
                 const VisitorDetails = Object.assign(
                   {},
                   this.state.VisitorDetails,
-                  {imageBase64StringIdProof: ImageResponseCopy},
+                  { imageBase64StringIdProof: ImageResponseCopy }
                 );
                 this.setState({
                   VisitorDetails,
@@ -3836,7 +4433,7 @@ class VisitorForm extends React.Component {
           });
         } else {
           // Permission Denied
-          alert('CAMERA Permission Denied');
+          alert("CAMERA Permission Denied");
         }
       } else {
         const options = {
@@ -3847,7 +4444,7 @@ class VisitorForm extends React.Component {
             skipBackup: true,
           },
         };
-        launchCamera(options, async response => {
+        launchCamera(options, async (response) => {
           if (response.didCancel) {
           } else {
             response = response.assets;
@@ -3858,61 +4455,61 @@ class VisitorForm extends React.Component {
               response.uri,
               response.height,
               response.width,
-              'JPEG',
+              "JPEG",
               100,
               0,
               undefined,
-              false,
+              false
             )
-              .then(async res => {
+              .then(async (res) => {
                 u = await res.uri;
-                console.log('Resize', res);
+                console.log("Resize", res);
               })
-              .catch(err => {});
+              .catch((err) => {});
             await ImgToBase64.getBase64String(u)
-              .then(base64String => {
+              .then((base64String) => {
                 base64Url = base64String;
 
                 console.log(
-                  '+++++++',
-                  'data:' + response.type + ';base64,' + base64String,
+                  "+++++++",
+                  "data:" + response.type + ";base64," + base64String
                 );
               })
               .catch();
-            var pic = 'data:' + response.type + ';base64,' + base64Url;
+            var pic = "data:" + response.type + ";base64," + base64Url;
             // console.log(pic);
-            if (Platform.OS == 'ios') {
-              var tempSplit = response.uri.split('/');
+            if (Platform.OS == "ios") {
+              var tempSplit = response.uri.split("/");
               response.fileName = tempSplit[tempSplit.length - 1];
             }
             let ImageResponse = {
               fileName: response.fileName,
-              data: ',' + base64Url,
+              data: "," + base64Url,
             };
-            let ImageResponseCopy = response.fileName + ',' + base64Url;
+            let ImageResponseCopy = response.fileName + "," + base64Url;
 
             console.log(response.fileName);
-            if (type == 'Photo') {
+            if (type == "Photo") {
               this.setState({
-                imagePath: 'data:' + response.type + ';base64,' + base64Url,
+                imagePath: "data:" + response.type + ";base64," + base64Url,
               });
               const VisitorDetails = Object.assign(
                 {},
                 this.state.VisitorDetails,
-                {imageBase64StringPhotoProof: ImageResponseCopy},
+                { imageBase64StringPhotoProof: ImageResponseCopy }
               );
               this.setState({
                 VisitorDetails,
                 imageBase64StringPhotoProof: ImageResponse,
               });
-            } else if (type == 'Id') {
+            } else if (type == "Id") {
               this.setState({
-                idProofPath: 'data:' + response.type + ';base64,' + base64Url,
+                idProofPath: "data:" + response.type + ";base64," + base64Url,
               });
               const VisitorDetails = Object.assign(
                 {},
                 this.state.VisitorDetails,
-                {imageBase64StringIdProof: ImageResponseCopy},
+                { imageBase64StringIdProof: ImageResponseCopy }
               );
               this.setState({
                 VisitorDetails,
@@ -3926,7 +4523,7 @@ class VisitorForm extends React.Component {
     } catch (error) {}
   };
   SearchFilterFunction(search) {
-    if (search != '') {
+    if (search != "") {
       const newData = this.state.visitorDataforsearch.filter(function (item) {
         var itemm = item.inviteCode + item.mobile + item.fullName;
         // if (this.props.LoginDetails.userRoleId != 2) {
@@ -3934,7 +4531,7 @@ class VisitorForm extends React.Component {
         // } else {
         //     itemm = item.inviteCode
         // }
-        const itemData = itemm ? itemm.toUpperCase() : ''.toUpperCase();
+        const itemData = itemm ? itemm.toUpperCase() : "".toUpperCase();
         const textData = search.toUpperCase();
         return itemData.indexOf(textData) > -1;
       });
@@ -3950,21 +4547,21 @@ class VisitorForm extends React.Component {
     }
   }
 
-  onChangedName = async fullName => {
+  onChangedName = async (fullName) => {
     const VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
       fullName,
     });
-    this.setState({VisitorDetails});
+    this.setState({ VisitorDetails });
     try {
       let res = await axiosAuthGet(
-        'Visitor/GetVisitorMobByName/' +
+        "Visitor/GetVisitorMobByName/" +
           fullName +
-          '/' +
-          this.props.LoginDetails.userID,
+          "/" +
+          this.props.LoginDetails.userID
       );
       // console.log("==============",fullName,this.props.LoginDetails.userID,res);
-      this.setState({nameList: res});
-      console.log('All Name==', res);
+      this.setState({ nameList: res });
+      console.log("All Name==", res);
     } catch (error) {}
   };
 }
@@ -3975,10 +4572,10 @@ const styles = StyleSheet.create({
     marginBottom: 1,
     borderBottomWidth: 1.2,
     borderBottomColor: COLORS.black,
-    height: Platform.OS === 'ios' ? 40 : null,
+    height: Platform.OS === "ios" ? 40 : null,
   },
   dateInput: {
-    width: '100%',
+    width: "100%",
     height: 45,
     padding: 10,
     fontSize: 18,
@@ -3986,25 +4583,25 @@ const styles = StyleSheet.create({
     borderRightWidth: 0,
     borderTopWidth: 0,
     borderBottomWidth: 1.5,
-    borderBottomColor: 'green',
+    borderBottomColor: "green",
   },
-  datepicker: {width: '100%', height: 55, paddingTop: 10},
-  error: {color: 'red', fontSize: 10, padding: 2},
+  datepicker: { width: "100%", height: 55, paddingTop: 10 },
+  error: { color: "red", fontSize: 10, padding: 2 },
   switchLable: {
     paddingLeft: 10,
     paddingTop: 15,
-    textAlign: 'left',
-    alignSelf: 'center',
-    width: '49%',
+    textAlign: "left",
+    alignSelf: "center",
+    width: "49%",
   },
-  switch: {alignItems: 'flex-end', width: '50%', padding: 5},
+  switch: { alignItems: "flex-end", width: "50%", padding: 5 },
   switchContainer: {
-    width: '100%',
-    alignItems: 'flex-end',
+    width: "100%",
+    alignItems: "flex-end",
     height: 55,
-    flexDirection: 'row',
+    flexDirection: "row",
     borderBottomWidth: 1.5,
-    borderColor: 'green',
+    borderColor: "green",
   },
 });
 // const mapStateToProps = (state) => ({

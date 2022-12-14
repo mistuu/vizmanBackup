@@ -8,6 +8,7 @@ import {
   TextInput,
   StyleSheet,
   ScrollView,
+  Alert,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, IMAGES} from '../../../Assets';
@@ -23,6 +24,7 @@ import { mapStateToProps } from '../../../Reducers/ApiClass';
 import Toast from 'react-native-simple-toast';
 import {IMAGEURL} from '../../../utility/util'
 import Geolocation from '@react-native-community/geolocation';
+import axios from 'axios';
 
 class OrgDetails extends Component {
   constructor(props) {
@@ -48,6 +50,7 @@ class OrgDetails extends Component {
       data:null,
       currentLongitude:null,
       currentLatitude:null,
+      zipCode:null
     };
   }
   componentDidMount() {
@@ -55,9 +58,11 @@ class OrgDetails extends Component {
       'hardwareBackPress',
       this.handleBackButtonClick,
     );
+
     this.getCompanyData()
   }
   getCompanyData=async()=>{
+   
     let response=await axiosAuthGet("VizOrganization/GetCompanyById/"+this.props.LoginDetails.userID)
     console.log(response); 
     this.setState({
@@ -74,14 +79,32 @@ class OrgDetails extends Component {
       currentLongitude:response.longitude,
       data:response
     })
+   
     if(response.orgLogo!=null){
       this.setState({OrgLogo: response.orgLogo,img:{uri:IMAGEURL+ response.orgLogo}}) 
       
     }
   }
   handleBackButtonClick() {
-    this.props.navigation.goBack();
-    return true;
+    if(this.props.LoginDetails.orgID==0){
+      Alert.alert(
+        "Alert",
+        "Are you sure Leave this Screen?",
+        [
+          {
+            text: "Cancel",
+            onPress: () => console.log("Cancel Pressed"),
+            style: "cancel"
+          },
+          { text: "OK", onPress: () =>{BackHandler.exitApp() } }
+        ]
+      );
+
+    }else{
+      this.props.navigation.goBack();
+          return true
+    }
+
   }
   componentWillUnmount() {
     BackHandler.removeEventListener(
@@ -120,42 +143,50 @@ class OrgDetails extends Component {
   };
   submitData=async()=>{
     const state=this.state
-   var  params={
-      OrgLogo: state.OrgLogo,
-      OrgID: state.OrgID,
-      OrgName: state.OrgName,
-      OrgAddress:state.OrgAddress,
-      OrgState:state.OrgState,
-      OrgCity:state.OrgCity,
-      OrgPinCode:state.OrgPinCode,
-      OrgShortName:state.OrgName.substring(0,15),
-      UserId:this.props.LoginDetails.userID,
-      GstNo:state.GstNo,
-      OrgTagLine: state.data.orgTagLine,
-      OrgShortName: state.data.orgShortName,
-      OrgFooterNote: state.data.orgFooterNote,
-      Latitude:state.currentLatitude,
-      Longitude:state.currentLongitude
+    console.log(state.OrgName,state.OrgPinCode,state.OrgAddress);
+    if(state.OrgName!=null && state.OrgName!="" && state.OrgAddress!=null && state.OrgAddress!="" &&state.OrgPinCode!=null &&state.OrgPinCode!=""){
+    
+      var  params={
+        OrgLogo: state.OrgLogo,
+        OrgID: state.OrgID,
+        OrgName: state.OrgName,
+        OrgAddress:state.OrgAddress,
+        OrgState:state.OrgState,
+        OrgCity:state.OrgCity,
+        OrgPinCode:state.OrgPinCode,
+        OrgShortName:state.OrgName.substring(0,15),
+        UserId:this.props.LoginDetails.userID,
+        GstNo:state.GstNo,
+        OrgTagLine: state.data.orgTagLine,
+        OrgShortName: state.data.orgShortName,
+        OrgFooterNote: state.data.orgFooterNote,
+        Latitude:state.currentLatitude,
+        Longitude:state.currentLongitude
+  
+      }
+      console.log(params);
+      if(state.OrgID>0){
+        let response=await axiosPost("VizOrganization/UpdateOrganization",params)
+        console.log(response);
+        Toast.show("Update Successfully ")
+        this.props.navigation.replace("SettingScreen")
 
-    }
-    console.log(params);
-    if(state.OrgID>0){
-      let response=await axiosPost("VizOrganization/UpdateOrganization",params)
-      console.log(response);
-      Toast.show("Update Successfully ")
-      this.props.navigation.navigate("SettingScreen")
-
-     
+       
+      }
+      else{
+        let response=await axiosPost("VizOrganization/SaveOrganization",params)
+        Toast.show("Successfully Add")
+        this.props.navigation.replace("FieldSetting")
+        console.log(response);
+        
+      }
+      
     }
     else{
-      let response=await axiosPost("VizOrganization/SaveOrganization",params)
-      Toast.show("Successfully Add")
-      this.props.navigation.navigate("SettingScreen")
-      console.log(response);
+      Toast.show('* This Field is not be empty')
       
-
-
     }
+   
   }
   getLocation=()=>{
     Geolocation.getCurrentPosition(
@@ -173,6 +204,26 @@ class OrgDetails extends Component {
     
           this.setState({currentLongitude:currentLongitude,currentLatitude:currentLatitude})
             }      )
+  }
+  onChangeTextZipCode=async(text)=>{
+    this.setState({OrgPinCode:text})
+
+    try {
+      await axios.get("https://api.postalpincode.in/pincode/"+text).then((response) => {
+        this.setState({zipCode:response.data[0].PostOffice})
+        response.data[0].PostOffice.filter(e=>{
+          console.log(text+"=="+e.Pincode);
+            // if(text==e.Pincode){
+              this.setState({OrgCity:e.District,OrgState:e.State})
+            // }
+        })
+        console.log("Zip Code==",response.data[0].PostOffice);
+      });
+    } catch (error) {
+      
+    }
+    // console.log(text);
+    
   }
   render() {
     return (
@@ -222,7 +273,7 @@ class OrgDetails extends Component {
           <View style={{margin: 10, marginTop: 20}}>
             <View>
               <TextInput
-                placeholder="org. Name"
+                placeholder="org. Name*"
                 // placeholderTextColor={COLORS.black}
                 value={this.state.OrgName}
                 onChangeText={txt=>this.setState({OrgName:txt})}
@@ -242,7 +293,7 @@ class OrgDetails extends Component {
             </View>
             <View style={{marginTop: 10}}>
               <TextInput
-                placeholder="Address"
+                placeholder="Address*"
                 // placeholderTextColor={COLORS.black}
                 maxLength={50}
                 multiline={true}
@@ -264,11 +315,12 @@ class OrgDetails extends Component {
             </View>
             <View style={{marginTop: 10}}>
               <TextInput
-                placeholder="Pin/Zip Code"
+                placeholder="Pin/Zip Code*"
                 // placeholderTextColor={COLORS.black}
-                maxLength={50}
+                maxLength={6}
+                keyboardType='numeric'
                 value={this.state.OrgPinCode}
-                onChangeText={txt=>this.setState({OrgPinCode:txt})}
+                onChangeText={txt=>this.onChangeTextZipCode(txt)}
                 style={styles.txtView}
               />
             </View>
@@ -277,6 +329,7 @@ class OrgDetails extends Component {
                 placeholder="City"
                 // placeholderTextColor={COLORS.black}
                 maxLength={50}
+                editable={false}
                 value={this.state.OrgCity}
                 onChangeText={txt=>this.setState({OrgCity:txt})}
                 style={styles.txtView}
@@ -287,6 +340,7 @@ class OrgDetails extends Component {
                 placeholder="State"
                 // placeholderTextColor={COLORS.black}
                 maxLength={50}
+                editable={false}
                 value={this.state.OrgState}
                 onChangeText={txt=>this.setState({OrgState:txt})}
                 style={styles.txtView}
@@ -302,12 +356,16 @@ class OrgDetails extends Component {
                 style={styles.txtView}
               />
             </View> */}
-            <TouchableOpacity onPress={() => this.chooseFileGallary()}>
+            <View style={{marginTop:10,alignItems:'center',alignSelf:'flex-start'}}>
+              <Text style={{fontWeight:'bold',fontSize:18}}>Company Logo</Text>
+              <TouchableOpacity onPress={() => this.chooseFileGallary()}>
               <Image
                 source={this.state.img}
-                style={{height: 70, width: 100,resizeMode:'contain', marginTop: 10}}
+                style={{height: 70, width: 100,resizeMode:'contain', marginTop: 5}}
               />
             </TouchableOpacity>
+            </View>
+            
             <TouchableOpacity
               onPress={() => {this.getLocation()}}
               style={{

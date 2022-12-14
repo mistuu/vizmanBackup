@@ -78,7 +78,7 @@ class Courier_Out extends Component {
     var x = [];
     var details = [];
     const groups = response.reduce((groups, game) => {
-      const date = game.courierDate.split('T')[0];
+      const date = game.courierDate?.split('T')[0];
       if (!groups[date]) {
         groups[date] = [];
       }
@@ -106,7 +106,7 @@ class Courier_Out extends Component {
     // this.setState({ courierDetails: array, dummy: array })
     if (
       this.props.LoginDetails.userRoleId == 2 ||
-      this.props.LoginDetails.userRoleId == 3
+      this.props.LoginDetails.userRoleId == 3 ||(this.props.LoginDetails.userRoleId == 1 &&!this.props.AdminSwitch)
     ) {
       this.setState({courierDetails: array, dummy: array});
 
@@ -403,7 +403,7 @@ class Courier_Out extends Component {
             right: 10,
             bottom: 100,
           }}>
-          {this.state.hideButton && (
+          {this.props.LoginDetails.userRoleId!=4 && !this.props.AdminSwitch &&(
             <LinearGradient
               style={{
                 borderRadius: 55 / 2,

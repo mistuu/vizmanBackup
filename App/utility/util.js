@@ -2,13 +2,13 @@
 //  const BASEURL="http://api.vizman.co.in/api/"
 import { Dimensions } from "react-native";
 
-const IMAGEURL = "http://192.168.1.176:82"
-const BASEURL="http://192.168.1.176:82/api/"
-const GateIMAGEURL = "https://dashboard.vizman.app"
-
-// const IMAGEURL = "https://api.vizman.app"
-// const BASEURL="https://api.vizman.app/api/"
+// const IMAGEURL = "http://192.168.1.176:82"
+// const BASEURL="http://192.168.1.176:82/api/"
 // const GateIMAGEURL = "https://dashboard.vizman.app"
+
+const IMAGEURL = "https://api.vizman.app"
+const BASEURL="https://api.vizman.app/api/"
+const GateIMAGEURL = "https://dashboard.vizman.app"
 
 // const IMAGEURL = "https://nblapi.vizman.app"
 // const GateIMAGEURL = "https://nblapp.vizman.app"

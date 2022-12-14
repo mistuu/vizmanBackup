@@ -59,15 +59,19 @@ class AdminDash extends React.Component {
       },
       dateArray: [],
       typeField: [
-        {name: 'Monthly', id: 1},
-        {name: 'Quartely', id: 2},
-        {name: 'Yearly', id: 3},
+        {name: 'Daily', id: 1},
+        {name: 'Weekly', id: 2},
+        {name: 'Monthly', id: 3},
+        {name: 'Quarterly', id: 4},
+        {name: 'Yearly', id: 5},
       ],
-      selectedValue: ["Monthly"],
+      selectedValue: ["Daily"],
       currentDate: null,
       lastDay: null,
       lastThreeMonth: null,
       yearly: null,
+      firsdate:null,
+      weekDate:null
     };
   }
 
@@ -81,13 +85,16 @@ class AdminDash extends React.Component {
 
     console.log('numArray', t);
     var date = new Date();
-    var firstDay =moment(date).format('DD-MM-YYYY');
-    var lastDay = moment(moment().subtract(30, 'days')).format('DD-MM-YYYY');
+    var firstDay =moment(date).format('DD-MM-YYYY HH:MM:SS');
+    var lastDay = moment(moment().subtract(30, 'days')).format('DD-MM-YYYY HH:MM:SS');
+    var l = moment(moment().subtract(7, 'days')).format('DD-MM-YYYY HH:MM:SS');
+    var s = moment(moment().subtract(1, 'days')).format('DD-MM-YYYY HH:MM:SS');
+    
     console.log('Dates===', lastDay,firstDay);
     this.props.GetAdminDashboard(
       this.props.LoginDetails.userID +
         '/' +
-        lastDay +
+        s +
         '/' +
         firstDay,
       this.responseAdminDsh,
@@ -107,15 +114,21 @@ class AdminDash extends React.Component {
       'last date==',
       moment(d.toLocaleDateString()).format('DD-MM-YYYY'),
     );
+    
+  
+  var today = new Date();
     this.setState({
       currentDate: firstDay,
-      lastThreeMonth: moment(d.toLocaleDateString()).format('DD-MM-YYYY'),
-      yearly: moment(y.toLocaleDateString()).format('DD-MM-YYYY'),
+      lastThreeMonth: moment(d.toLocaleDateString()).format('DD-MM-YYYY HH:MM:SS'),
+      yearly: moment(y.toLocaleDateString()).format('DD-MM-YYYY HH:MM:SS'),
       lastDay: lastDay,
+      firsdate:s,
+      weekDate:l,
+
     });
   }
   onSelectChange = val => {
-    console.log(val);
+    console.log(val,this.state.currentDate);
     this.setState({selectedValue: val});
     var now = moment();
     const fifthMonth = this.getStartAndEndDate(now.month(), now.year());
@@ -147,7 +160,7 @@ class AdminDash extends React.Component {
           this.state.currentDate,
         this.responseAdminDsh,
       );
-    } else if (val[0] == "Quartely") {
+    } else if (val[0] == "Quarterly") {
       this.props.GetAdminDashboard(
         this.props.LoginDetails.userID +
           '/' +
@@ -165,6 +178,28 @@ class AdminDash extends React.Component {
           this.state.currentDate,
         this.responseAdminDsh,
       );
+
+    }
+    else if (val[0] == "Daily") {
+      this.props.GetAdminDashboard(
+        this.props.LoginDetails.userID +
+          '/' +
+          this.state.firsdate +
+          '/' +
+          this.state.currentDate,
+        this.responseAdminDsh,
+      );
+      
+    }else if (val[0] == "Weekly") {
+      this.props.GetAdminDashboard(
+        this.props.LoginDetails.userID +
+          '/' +
+          this.state.weekDate +
+          '/' +
+          this.state.currentDate,
+        this.responseAdminDsh,
+      );
+      
     }
   };
 
@@ -174,12 +209,12 @@ class AdminDash extends React.Component {
     const lastDate = moment().date(1).month(month).daysInMonth();
 
     return {
-      startDate: moment().date(1).month(month).year(year).format('DD-MM-YYYY'),
+      startDate: moment().date(1).month(month).year(year).format('DD-MM-YYYY HH:MM:SS'),
       endDate: moment()
         .date(lastDate)
         .month(month)
         .year(year)
-        .format('DD-MM-YYYY'),
+        .format('DD-MM-YYYY HH:MM:SS'),
       date: moment().date(1).month(month).year(year),
     };
   }
@@ -267,7 +302,7 @@ class AdminDash extends React.Component {
     console.log('this.state.adminDash', this.state.adminDash);
     return (
       <View style={{flex: 1, backgroundColor: COLORS.whitef4}}>
-        <View style={{width: '100%', zIndex: 99}}>
+        <View style={{width: '100%',marginTop:Platform.OS=="ios"?-20:0, zIndex: 99}}>
           <Header title={'Dashboard'} navigation={this.props.navigation} />
         </View>
 

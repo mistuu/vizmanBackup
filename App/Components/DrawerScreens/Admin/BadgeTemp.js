@@ -182,7 +182,7 @@ class BadgeTemp extends Component {
               style={{}}>
               <Text
                 style={{
-                  color: this.state.img1SH ? COLORS.white : COLORS.black,
+                  color: this.state.img1SH ? COLORS.white : COLORS.graye00,
                   paddingLeft: 10,
                   paddingRight: 10,
                   paddingTop: 5,
@@ -211,7 +211,7 @@ class BadgeTemp extends Component {
               style={{}}>
               <Text
                 style={{
-                  color: this.state.img2SH ? COLORS.white : COLORS.black,
+                  color: this.state.img2SH ? COLORS.white : COLORS.graye00,
                   paddingLeft: 10,
                   paddingRight: 10,
                   paddingTop: 5,
@@ -240,7 +240,7 @@ class BadgeTemp extends Component {
               style={{}}>
               <Text
                 style={{
-                  color: this.state.img3SH ? COLORS.white : Colors.black,
+                  color: this.state.img3SH ? COLORS.white : Colors.graye00,
                   paddingLeft: 10,
                   paddingRight: 10,
                   paddingTop: 5,
@@ -269,7 +269,7 @@ class BadgeTemp extends Component {
               style={{}}>
               <Text
                 style={{
-                  color: this.state.img4SH ? COLORS.white : Colors.black,
+                  color: this.state.img4SH ? COLORS.white : Colors.graye00,
                   paddingLeft: 10,
                   paddingRight: 10,
                   paddingTop: 5,
@@ -301,7 +301,7 @@ class BadgeTemp extends Component {
               marginTop: 30,
               marginLeft: 'auto',
               marginRight: 10,
-              width: '30%',
+             
               alignItems: 'center',
               padding: 10,
             }}>

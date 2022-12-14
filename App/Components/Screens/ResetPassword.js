@@ -114,7 +114,7 @@ class ResetPassword extends React.Component {
                             style={{ height: 60, width: '100%', top: '1%', padding: 15, fontSize: 20, color: COLORS.white, alignSelf: 'center' }}
                             ref={(el) => { this.Mobile = el; }}
                             selectionColor={COLORS.white}
-                            maxLength={10}
+                            maxLength={15}
                             keyboardType={'phone-pad'}
                             onChangeText={(Mobile) => this.handleInputChange(Mobile)}
                             value={this.state.Mobile} placeholder="Mobile No *"

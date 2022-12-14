@@ -45,11 +45,11 @@ class ApprovalScreen extends Component {
       visitorDetails: [],
       search: "",
       tempList: [],
-      selectedItem: [],
       background: 0,
+      selectedItem: [],
       selectedEmpItems: [],
       settingsID: null,
-      approvalid: null,
+      approvalid: [],
     };
   }
   async componentDidMount() {
@@ -62,12 +62,12 @@ class ApprovalScreen extends Component {
     let respo = await axiosAuthGet(
       "Settings/GetAllSettings/" + this.props.LoginDetails.userID
     );
-    console.log("response data==", respo.settingsVM.settingsID);
+    console.log("response data==", this.props.LoginDetails);
 
     this.setState({settingsID: respo.settingsVM.settingsID,})
-    if(respo.settingsVM.approverIds!=undefined || respo.settingsVM.approverIds.length>0 ||respo.settingsVM.approverIds!=null){
+    if(respo.settingsVM.approverIds!=null){
       this.setState({urgentToggle:true})
-      this.setState({ selectedEmpItems:respo.settingsVM.approverIds});
+      this.setState({ selectedEmpItems:respo.settingsVM.approverIds,approvalid:respo.settingsVM.approverIds});
 
     }
     console.log("Heelo World");
@@ -164,25 +164,29 @@ class ApprovalScreen extends Component {
     console.log("Selcted Item:-", value);
   };
   onApproveSubmit = async () => {
-    
+    console.log(this.state.approvalid);
     if(this.state.urgentToggle){
-      var params = {
-        settingsID: this.state.settingsID,
-        userId: this.props.LoginDetails.userID,
-        orgId: this.props.LoginDetails.orgID,
-        inviteesApproval: true,
-        approverIds: this.state.approvalid,
-      };
-      if (this.state.settingsID != 0) {
-        let response = await axiosPost("Settings/UpdateApprovalMatrix", params);
-        console.log("Response==", response);
-        this.props.navigation.goBack()
-        Toast.show("Setting update successfully")
-      } else {
-        let response = await axiosPost("Settings/SaveApprovalMatrix", params);
-        this.props.navigation.goBack()
-        Toast.show("Setting save successfully")
-        console.log("Response==", response);
+      if(this.state.approvalid.length!=0){
+        var params = {
+          settingsID: this.state.settingsID,
+          userId: this.props.LoginDetails.userID,
+          orgId: this.props.LoginDetails.orgID,
+          inviteesApproval: true,
+          approverIds: this.state.approvalid,
+        };
+        if (this.state.settingsID != 0) {
+          let response = await axiosPost("Settings/UpdateApprovalMatrix", params);
+          console.log("Response==", response);
+          this.props.navigation.goBack()
+          Toast.show("Setting update successfully")
+        } else {
+          let response = await axiosPost("Settings/SaveApprovalMatrix", params);
+          this.props.navigation.goBack()
+          Toast.show("Setting save successfully")
+          console.log("Response==", response);
+        }
+      }else{
+        alert("One approval Mendetory")
       }
     }
     
@@ -254,7 +258,7 @@ class ApprovalScreen extends Component {
               marginTop: 40,
             }}
           >
-            Approval Require For Invite
+          Invite Settings
           </Text>
         </LinearGradient>
         <View
@@ -267,7 +271,7 @@ class ApprovalScreen extends Component {
           }}
         >
           <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            Approval Require For Invite?
+           Is Approval Require For Invite?
           </Text>
           <View
             style={{
@@ -520,7 +524,7 @@ class ApprovalScreen extends Component {
                                             {item.userRoleId != 1 ? <TouchableOpacity onPress={() => this.deleteEmploy(item)} style={{ marginLeft: 8, padding: 3 }}>
                                                 <Image style={{ height: 20, width: 20, tintColor: COLORS.black, resizeMode: "contain", }} source={IMAGES.delete} />
                                             </TouchableOpacity> : null}
-                                            <TouchableOpacity onPress={() => this.props.navigation.navigate("AdminNewEmploy", { EmplDtls: item, tag: "Employee Details" })} style={{ marginLeft: 8, padding: 3 }}>
+                                            <TouchableOpacity onPress={() => this.props.navigation.navigate("AdminNewEmploy", { EmplDtls: item, tag: "User Details" })} style={{ marginLeft: 8, padding: 3 }}>
                                                 <Image style={{ height: 23, width: 23, tintColor: COLORS.black, resizeMode: "contain", }} source={IMAGES.hidden} />
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => this.props.navigation.navigate("AdminEmployeDetails", { UserId: item.usrId })} style={{ marginLeft: 8, padding: 3 }}>

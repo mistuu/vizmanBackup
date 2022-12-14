@@ -3,7 +3,7 @@ import {
   Dimensions,
   Image,
   Platform,
-  ScrollView, StyleSheet, Text, TouchableOpacity, View
+  ScrollView,BackHandler, StyleSheet, Text, TouchableOpacity, View
 } from 'react-native';
 import {Buffer} from 'buffer';
 
@@ -22,6 +22,7 @@ const {width, height} = Dimensions.get('window');
 export default class Registration extends Component {
   constructor(props) {
     super(props);
+    this.handleBackButtonClick = this.handleBackButtonClick.bind(this)
     this.state = {
       formToggle: false,
       name: null,
@@ -32,9 +33,21 @@ export default class Registration extends Component {
       code: null,
       showOtp: false,
       userId: null,
+      OhidePassword: false,
     };
   }
+  componentDidMount(){
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackButtonClick);
 
+  }
+  handleBackButtonClick() {
+    this.props.navigation.goBack()
+    return true;
+  }
+  componentWillUnmount() {
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButtonClick);
+
+  }
   switchToggle = toggle => {
     this.setState({formToggle: toggle});
     if (toggle == true) {
@@ -57,6 +70,7 @@ export default class Registration extends Component {
         let response=await axiosPost("Account/VerifyAccount/"+this.state.userId,this.state.userId)
         console.log("verify response:=",response);
         if(response==true){
+          alert("New Organization Create succesfully")
             this.props.navigation.goBack()
 
         }
@@ -92,24 +106,96 @@ export default class Registration extends Component {
     var base64data = buff.toString('base64');
     return base64data;
   }
-  submitData = async () => {
-    const data = this.state;
-    const params = {
-      fullName: data.name,
-      mobile: data.phone,
-      emailId: data.email,
-      password: this.encriptPass(data.pwd),
-      userName: data.phone,
-      userRoleId: data.formToggle ? 5 : 1,
-      captchaCode: '1234',
-      refferalCode: data.referalCode,
-    };
-    console.log(params);
-    let res = await axiosPost('Account/Registration', params);
-    if (res != null) {
-      this.setState({userId: res, showOtp: true});
+  chekTextinputforconform() {
+    var filter =
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,}$/;
+    if (this.state.pwd != '') {
+      if (filter.test(this.state.pwd)) {
+        return true;
+      } else {
+        alert(
+          'Password must contain at least minimum 6,at least one letter, one number and one special character',
+        );
+        // const userProfile = Object.assign({}, this.state.userProfile, { password: "" });
+        // this.setState({ userProfile })
+      }
+    } else {
+      alert('Please Enter Password');
+      // const userProfile = Object.assign({}, this.state.userProfile, { password: "" });
+      // this.setState({ userProfile })
     }
-    console.log(res);
+  }
+  submitData = async () => {
+    
+    const data = this.state;
+    if(data.name!=null){
+      if(data.phone.length>=8 ){
+        if (
+         data.email==null || this.validate(data.email)
+        ){
+          if(this.chekTextinputforconform()){
+            const params = {
+              fullName: data.name,
+              mobile: data.phone,
+              emailId: data.email,
+              password: this.encriptPass(data.pwd),
+              userName: data.phone,
+              userRoleId: data.formToggle ? 5 : 1,
+              captchaCode: '1234',
+              refferalCode: data.referalCode,
+            };
+            console.log(params);
+            let res = await axiosPost('Account/Registration', params);
+            if (res != null) {
+              this.setState({userId: res, showOtp: true});
+            }
+            console.log(res);
+          }
+        }else{
+          alert('Invalid Email Id')
+        }
+       
+      }else{
+        alert("Invalid Mobile Number")
+      }
+    }else{
+      alert("Please Fill Mendetory Field")
+    }
+  
+  };
+  checkDuplicateMobile=async(text)=>{
+    this.setState({phone: text})
+    let response=await axiosAuthGet("Account/CheckDuplicate/"+text)
+    console.log(response);
+    if(response==true){
+      alert("Mobile Number Already Exists")
+      this.setState({phone: null})
+    }
+  } 
+  checkDuplicateUsrname=async(text)=>{
+    let response=await axiosAuthGet("Account/CheckDuplicateUsrNm/"+text)
+    console.log(response);
+    if(response==true){
+      alert("UserName Already Exists")
+      this.setState({name: null})
+    }
+  }
+  checkDuplicateEmail=async(text)=>{
+    this.setState({email: text})
+    let response=await axiosAuthGet("Account/CheckDuplicateEmail/"+text)
+    console.log(response);
+    if(response==true){
+      alert("Email Already Exists")
+      this.setState({email: null})
+    }
+  }
+  validate = text => {
+    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (reg.test(text) === false) {
+      return false;
+    } else {
+      return true;
+    }
   };
   render() {
     return (
@@ -137,7 +223,7 @@ export default class Registration extends Component {
                 justifyContent: 'center',
                 alignItems: 'center',
               }}
-              onPress={() => this.props.navigation.goBack()}>
+              onPress={() => this.handleBackButtonClick()}>
               <Image source={IMAGES.back} style={{height: 22, width: 22}} />
             </TouchableOpacity>
             <Text
@@ -200,31 +286,63 @@ export default class Registration extends Component {
               }}>
               <ScrollView>
                 <Hoshi
-                  label="Name"
+                  label="Name*"
                   style={styles.regTextInput}
-                  onChangeText={txt => this.setState({name: txt})}
+                  onChangeText={txt =>     this.setState({name: txt})                }
                   value={this.state.name}
                 />
                 <Hoshi
-                  label="Phone"
+                  label="Phone*"
                   keyboardType="phone-pad"
                   value={this.state.phone}
-                  onChangeText={txt => this.setState({phone: txt})}
+                  maxLength={15}
+                  onSubmitEditing={(mobile) => {
+                    this.checkDuplicateMobile(mobile)
+                  }}
+                  returnKeyType={Platform.OS=="android"?"next":"done"}
+                  onChangeText={txt =>this.setState({phone:txt}) }
                   style={styles.regTextInput}
                 />
                 <Hoshi
                   label="Email"
                   style={styles.regTextInput}
-                  onChangeText={txt => this.setState({email: txt})}
+                  onChangeText={txt => this.checkDuplicateEmail(txt)}
                   value={this.state.email}
                   keyboardType="email-address"
                 />
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Hoshi
-                  label="Password"
-                  style={styles.regTextInput}
+                  label="Password*"
+                  style={styles.regTextInput,{flex:1}}
+                  secureTextEntry={this.state.OhidePassword}
                   onChangeText={txt => this.setState({pwd: txt})}
                   value={this.state.pwd}
                 />
+                <TouchableOpacity
+                  style={{
+                    height: 50,
+                    width: 50,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    position: 'absolute',
+                    right: '0%',
+                  }}
+                  onPress={() =>
+                    this.setState({OhidePassword: !this.state.OhidePassword})
+                  }>
+                  <Image
+                    style={{
+                      height: 20,
+                      tintColor: COLORS.black,
+                      width: 20,
+                      resizeMode: 'contain',
+                    }}
+                    source={
+                      this.state.OhidePassword ? IMAGES.hidden : IMAGES.eye
+                    }
+                  />
+                </TouchableOpacity>
+                </View>
                 <Hoshi
                   label="Referral Code"
                   style={styles.regTextInput}
@@ -232,31 +350,74 @@ export default class Registration extends Component {
                   value={this.state.referalCode}
                 />
               </ScrollView>
+              <View style={{alignItems:'center',alignSelf:'center'}}> 
               <TouchableOpacity
-                onPress={() => this.submitData()}
-                style={{marginLeft: 100, marginRight: 100}}>
-                <View
+                  onPress={() => this.submitData()}
                   style={{
-                    marginTop: 30,
-                    borderRadius: 8,
-                    backgroundColor: Colors.primary,
+                    margin: 30,
+                    alignSelf: 'center',
+                    padding: 10,
+                    borderRadius: 9,
+                    backgroundColor: COLORS.primary,
                   }}>
                   <Text
                     style={{
-                      color: '#fff',
-                      paddingRight: 20,
-                      paddingLeft: 20,
-                      paddingTop: 5,
                       fontSize: 18,
-                      paddingBottom: 5,
-                      // justifyContent: 'center',
+                      color: COLORS.white,
+                      fontWeight: 'bold',
+                      width: 100,
                       textAlign: 'center',
                     }}>
-                    {' '}
-                    Submit{' '}
+                    Submit
                   </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                onPress={() => this.props.navigation.goBack()}
+                style={{}}>
+                <Text style={{fontSize:15,fontWeight:'bold'}}>Already have account? Sign in</Text>
+                </TouchableOpacity>
+              {/* <TouchableOpacity
+                onPress={() => this.props.navigation.goBack()}
+                style={{}}>
+                <View
+                  style={{
+                    marginTop: 30,
+                    borderRadius: 50/2,
+                    backgroundColor: Colors.primary,
+                    alignItems:'center',
+                    justifyContent:'center',
+                    height:50,
+                    width:50,
+                    alignSelf:'center'
+                  }}>
+                  <Image
+                    source={Images.leftArrow}
+                    style={{height:"70%",resizeMode:'contain', width:"70%"}}
+                  />
                 </View>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
+              {/* <TouchableOpacity
+                onPress={() => }
+                style={{marginLeft: 100, }}>
+                <View
+                  style={{
+                    marginTop: 30,
+                    borderRadius: 50/2,
+                    backgroundColor: Colors.primary,
+                    alignItems:'center',
+                    justifyContent:'center',
+                    height:50,
+                    width:50,
+                    alignSelf:'center'
+                  }}>
+                  <Image
+                    source={Images.rightArrow}
+                    style={{height:"70%",resizeMode:'contain', width:"70%"}}
+                  />
+                </View>
+              </TouchableOpacity> */}
+
+                </View>
             </View>
           </View>
         ) : (

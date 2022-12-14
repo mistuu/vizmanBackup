@@ -3,6 +3,7 @@ import {
     Text, View, Animated, Alert, TouchableWithoutFeedback, ScrollView, FlatList, StyleSheet, TextInput, TouchableOpacity, SafeAreaView,
     PermissionsAndroid,
     Platform,
+    Image,
 } from 'react-native';
 import { Header } from "../CusComponent";
 import { connect } from 'react-redux';
@@ -14,6 +15,10 @@ import Moment from 'moment';
 import { RFPercentage } from "react-native-responsive-fontsize";
 import VisitorDetails from '../Screens/VisitorDetails';
 import { visitorDetailEmpty } from '../../utility/emptyClass';
+import DateTimePicker from "@react-native-community/datetimepicker";
+import Images from '../../Assets/Images';
+import Colors from '../../Assets/Colors';
+import moment from 'moment';
 
 
 
@@ -21,30 +26,34 @@ class EmployReport extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            show:false,
+            hide:false,
             selectedVisitr: 0, selectedItem: [],
             settingArry: [], isRefreshing: false, modalVisible: false,
             additional: false, field: true, badge: false, col1: false, col2: false, col3: false, col4: false, col5: false,
-            endDate: "", startDate: "", reportDataName: [], displyReportData: [], closeTime: false
+            endDate: new Date(), startDate:new Date(), reportDataName: [], displyReportData: [], closeTime: false
         }
     }
 
     componentDidMount() {
         var startDate = Moment().clone().startOf('month').format('DD-MM-YYYY')
         var endDate = Moment().format('DD-MM-YYYY')
-        this.listReport(startDate, endDate)
-        this.setState({ startDate, endDate })
+        this.listReport(Moment().format('DD-MM-YYYY'), endDate)
+        console.log(startDate);
+        // this.setState({ startDate:new Date(startDate), endDate })
         this.focusListener = this.props.navigation.addListener('focus', () => {
             var startDate = Moment().clone().startOf('month').format('DD-MM-YYYY')
             var endDate = Moment().format('DD-MM-YYYY')
-            this.listReport(startDate, endDate)
-            this.setState({ startDate, endDate, closeTime: true })
-
+            this.listReport(Moment().format('DD-MM-YYYY'), endDate)
+            // this.setState({ startDate:new Date(startDate), endDate, closeTime: true })
+// //
         })
-        { (this.state.closeTime && this.state.reportDataName.length > 1) ? this.dropdownClose1.close() : null }
+//         { (this.state.closeTime && this.state.reportDataName.length > 1) ? this.dropdownClose1.close() : null }
 
     }
     listReport(startDate, endDate) {
         // this.setState({reportDataName:[]})
+        // console.log(startDate,endDate);
         this.props.GetVisitorReportbyEmp(this.props.LoginDetails.userID, startDate, endDate, this.props.LoginDetails.empID, this.afterListData)
     }
     afterListData = (displyReportData) => {
@@ -74,7 +83,7 @@ class EmployReport extends React.Component {
     render() {
         return (
             <View style={{ flex: 1, backgroundColor: COLORS.white }}>
-                <View style={{ width: "100%", }}>
+                <View style={{ width: "100%",marginTop:Platform.OS=="ios"?-20:0 }}>
                     <Header title={"Report"} navigation={this.props.navigation} />
                 </View>
                 <View style={{ width: '98%', alignSelf: 'center', borderRadius: 10, backgroundColor: COLORS.white }}>
@@ -83,7 +92,57 @@ class EmployReport extends React.Component {
                         <View style={{ width: "100%", marginBottom: 10, justifyContent: 'space-between', flexDirection: 'row' }}>
                             <View style={{ width: "35%", }}>
                                 <Text style={{ fontWeight: "bold", fontSize: 18, }}>From</Text>
-                                <DatePicker
+                                <TouchableOpacity
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            marginRight: 5,
+                            marginTop:10,
+                            marginBottom:5
+                          }}
+                          onPress={() => this.setState({show:true})}>
+                          <TextInput
+                            editable={false}
+                            style={{
+                              flexGrow: 1,
+                              borderBottomColor:Colors.primary,
+                              borderBottomWidth:1,
+                              marginRight: 10,
+                              color:Colors.graye00
+                            }}
+                            placeholderTextColor={Colors.primary}
+                            value={
+                                Moment(this.state.startDate).format('DD-MM-YYYY') 
+                            }
+                          />
+                          {this.state.show &&
+                          (
+                           
+                            <DateTimePicker
+                            //   testID="dateTimePicker"
+                              // style={{width: '100%', backgroundColor: 'white'}} //add this
+                              // style={{ height: 55, paddingTop: 10 }}
+                              timeZoneOffsetInMinutes={0}
+                              value={this.state.startDate}
+                            //   minimumDate={this.state.startDate}
+                              // maximumDate={Moment().add(2, 'month')}
+                              mode={'date'}
+                              is24Hour={true}
+                              display="default"
+                              onChange={(event,date)=>{this.setState({startDate:date,show:false})}}
+                            />
+                          )
+                          
+  }
+                        
+              
+                          <Image
+                            source={Images.date_icon}
+                            style={{height: 28, width: 32}}
+                          />
+                        </TouchableOpacity>
+
+                                {/* <DatePicker
                                     style={{ marginTop: 10, width: '100%' }}
                                     date={this.state.startDate}
                                     mode="date"
@@ -116,11 +175,61 @@ class EmployReport extends React.Component {
                                     onDateChange={(date) => {
                                         this.setState({ startDate: date })
                                     }}
-                                />
+                                /> */}
                             </View>
                             <View style={{ width: "35%", }}>
                                 <Text style={{ fontWeight: "bold", fontSize: 18, }}>To</Text>
-                                <DatePicker
+                                <TouchableOpacity
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            marginRight: 5,
+                            marginTop:10,
+                            marginBottom:5
+                          }}
+                          onPress={() => this.setState({hide:true})}>
+                          <TextInput
+                            editable={false}
+                            style={{
+                              flexGrow: 1,
+                              borderBottomColor:Colors.primary,
+                              borderBottomWidth:1,
+                              marginRight: 10,
+                              color:Colors.graye00
+                            }}
+                            placeholderTextColor={Colors.primary}
+                            value={
+                                Moment(this.state.endDate).format('DD-MM-YYYY') 
+                            }
+                          />
+                          {this.state.hide &&
+                          (
+                           
+                            <DateTimePicker
+                            //   testID="dateTimePicker"
+                              // style={{width: '100%', backgroundColor: 'white'}} //add this
+                              // style={{ height: 55, paddingTop: 10 }}
+                              timeZoneOffsetInMinutes={0}
+                              value={this.state.endDate}
+                            //   minimumDate={this.state.startDate}
+                              // maximumDate={Moment().add(2, 'month')}
+                              mode={'date'}
+                              is24Hour={true}
+                              display="default"
+                              onChange={(event,date)=>{this.setState({endDate:date,hide:false})}}
+                            />
+                          )
+                          
+  }
+                        
+              
+                          <Image
+                            source={Images.date_icon}
+                            style={{height: 28, width: 32}}
+                          />
+                        </TouchableOpacity>
+
+                                {/* <DatePicker
                                     style={{ marginTop: 10, width: '100%' }}
                                     date={this.state.endDate}
                                     mode="date"
@@ -154,10 +263,10 @@ class EmployReport extends React.Component {
                                     onDateChange={(date) => {
                                         this.setState({ endDate: date })
                                     }}
-                                />
+                                /> */}
                             </View>
                             <View style={{ justifyContent: "flex-end", alignItems: 'center', }}>
-                                <TouchableOpacity onPress={() => this.listReport(this.state.startDate, this.state.endDate)} style={{ padding: 5, alignItems: 'center', justifyContent: 'center', marginBottom: 5, borderRadius: 7, backgroundColor: COLORS.primary }}>
+                                <TouchableOpacity onPress={() => this.listReport(Moment(this.state.startDate).format('DD-MM-YYYY'),Moment(this.state.endDate).format('DD-MM-YYYY') )} style={{ padding: 5, alignItems: 'center', justifyContent: 'center', marginBottom: 5, borderRadius: 7, backgroundColor: COLORS.primary }}>
                                     <Text style={{ width: 80, color: COLORS.white, textAlign: "center", fontWeight: "bold", fontSize: 18, }}>Search</Text>
                                 </TouchableOpacity>
                             </View>

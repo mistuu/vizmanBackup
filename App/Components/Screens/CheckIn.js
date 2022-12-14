@@ -747,9 +747,9 @@ class CheckIn extends React.Component {
     var isArogyaSetu =
       item.isVizArogyaSetu == null ? false : item.isVizArogyaSetu;
     var vizTemp = item.vizTemp == null ? false : item.vizTemp;
-    var params1 = item.inOutId + '/' + isArogyaSetu + '/' + vizTemp;
+    var params1 = item.inOutId + '/' + isArogyaSetu + '/' + vizTemp+"/"+this.props.LoginDetails.empID;
     console.log('final data==', params1);
-    this.props.CheckIn(params1, this.insertChekInSuccess);
+    // this.props.CheckIn(params1, this.insertChekInSuccess);
     try {
       let response = await axiosPost('Visitor/CheckIn/' + params1, params1);
       console.log('Check In ', response);
@@ -800,6 +800,8 @@ class CheckIn extends React.Component {
       idprfPath: null,
       isVizArogyaSetu: isArogyaSetu,
       vizTemp: vizTemp,
+      userId:this.props.LoginDetails.userID,
+      empId:this.props.LoginDetails.empID
       // inviteCode: this.makeid(6)
     };
     console.log('Params:====', params1);
@@ -907,7 +909,7 @@ class CheckIn extends React.Component {
       userId: item.whomToMeet,
     };
     console.log('Check In notification=====', param);
-    this.props.SaveNotification(param);
+    // this.props.SaveNotification(param);
   }
   getAllReceptionst(params1, tag) {
     this.props.ReceptionList.forEach(element => {
@@ -981,7 +983,7 @@ class CheckIn extends React.Component {
       notifDate: this.getCurrentDate(),
       userId: item.usrId,
     };
-    this.props.SaveNotification(param);
+    // this.props.SaveNotification(param);
   }
   getCurrentDate() {
     var today = new Date();

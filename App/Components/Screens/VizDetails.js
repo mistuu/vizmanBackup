@@ -72,28 +72,32 @@ class VizDetails extends Component {
       RejectMeeiting: false,
       PicModalVisible: false,
       remarkImage: null,
-      Indate: new Date(),
+      Indate:Platform.OS=="android"?null:new Date(),
       time: null,
       mode: 'date',
       show: false,
-      Outdate: new Date(),
+      Outdate: Platform.OS=="android"?null:new Date(),
       Outtimee: null,
       Outmode: 'date',
       Outshow: false,
       resDate:null,
+      id:0
     };
   }
   async componentDidMount() {
     console.log('data is ==', this.props.visitorDetails);
     console.log("Emp ID:==",this.props.LoginDetails);
+    this.setState({id:this.props.route.params?.id==1?1:this.props.route.params?.id==2?2:0})
+    console.log("this.state.id",this.props.route.params?.id);
     try {
       let response = await axiosAuthGet(
         'Visitor/GetVisitorDtls/' + this.props.visitorDetails.inOutId+"/"+this.props.LoginDetails.empID,
       );
-      this.setState({VisitorDetails: response});
+
+      this.setState({VisitorDetails: response,time:response.inTime,Outtime:response.outTime==null?new Date():response.outTime});
 
       console.log('Response ====', this.state.VisitorDetails);
-      console.log("Bloed==",this.props.Blockedviz);
+      // console.log("Bloed==",this.props.Blockedviz);
     } catch (error) {}
   }
   onChangeeee = (event, selectedValue) => {
@@ -221,7 +225,7 @@ class VizDetails extends Component {
         });
       } else {
         this.setState({
-          Outtime: this.state.time,
+          Outtime: this.state.Outdate,
           Outmode: 'date',
           Outshow: false,
         });
@@ -229,7 +233,7 @@ class VizDetails extends Component {
           outTime:
             Moment(this.state.Outdate).format('MM-DD-YYYY') +
             ' ' +
-            moment(this.state.time).format("hh:mm a"),
+            moment(this.state.Outdate).format("hh:mm a"),
         });
         this.setState({
           VisitorDetails,
@@ -238,17 +242,17 @@ class VizDetails extends Component {
         Toast.show('Please select valid Out Time');
       }
     }
-    var VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
-      outTime:
-        Moment(this.state.Outdate).format('MM-DD-YYYY') +
-        ' ' +
-        Moment(outTime).format("hh:mm a"),
-    });
-    this.setState({
-      VisitorDetails,
-      // isExpectedOutVisible: false,
-    });
-    console.log("out time====",VisitorDetails);
+    // var VisitorDetails = Object.assign({}, this.state.VisitorDetails, {
+    //   outTime:
+    //     Moment(this.state.Outdate).format('MM-DD-YYYY') +
+    //     ' ' +
+    //     Moment(outTime).format("hh:mm a"),
+    // });
+    // this.setState({
+    //   VisitorDetails,
+    //   // isExpectedOutVisible: false,
+    // });
+    // console.log("out time====",VisitorDetails);
   };
 
   OutshowMode = currentMode => {
@@ -505,12 +509,13 @@ class VizDetails extends Component {
       try {
         const regex = /(<([^>]+)>)/ig;
 const result = this.state.remarks.replace(regex, '');
+console.log("result",result);
     this.props.VizRejected(
         this.state.VisitorDetails?.inOutId +
           '/' +result+"/"+
-          this.props.LoginDetails?.fullName,
+          this.props.LoginDetails?.fullName+"/"+this.props.LoginDetails.empID,
         this.vizRejectedSuccess,
-      );
+      )
         
       } catch (error) {
         console.log(error);
@@ -520,6 +525,7 @@ const result = this.state.remarks.replace(regex, '');
       var param = {
         inOutId: this.state.VisitorDetails.inOutId,
         comment: this.state.remarks,
+        userId:this.props.LoginDetails.userID
       };
       this.props.MeetingOut(param, this.meetinOutSuccess),
         this.setState({meetingoutSH: false});
@@ -544,18 +550,29 @@ const result = this.state.remarks.replace(regex, '');
           status = 'ALREADY CHECKOUT';
         } else {
           backgroundColor = COLORS.skyBlue;
-          status = 'WAITING';
+          status = 'Check In';
         }
       } else if (this.state.VisitorDetails?.status == 5) {
         backgroundColor = '#4667cc';
-        status = 'INVITED';
+        status = 'Pending';
       } else if (this.state.VisitorDetails?.status == 2) {
         backgroundColor = COLORS.tempRed;
-        status = 'REJECTED';
+        status = 'Cancelled';
       } else if (this.state.VisitorDetails?.status == 1) {
         backgroundColor = COLORS.tempGreen;
         status = 'APPROVED';
-      } else if (this.state.VisitorDetails?.status == 0) {
+      }
+      else if (this.state.VisitorDetails?.status == 6) {
+        backgroundColor = COLORS.tempGreen;
+        status = 'Meeting In';
+      }else if (this.state.VisitorDetails?.status == 7) {
+        backgroundColor = COLORS.tempGreen;
+        status = 'Meeting Out';
+      }else if (this.state.VisitorDetails?.status == 8) {
+        backgroundColor = COLORS.tempGreen;
+        status = 'Check Out';
+      }
+       else if (this.state.VisitorDetails?.status == 0) {
         backgroundColor = COLORS.white;
         status = '';
       }
@@ -1227,7 +1244,7 @@ const result = this.state.remarks.replace(regex, '');
                     </ScrollView>
                   </View>
                 )} */}
-                {(this.state.meetingoutSH || this.state.RejectMeeiting) && (
+                {(this.state.meetingoutSH || this.state.RejectMeeiting || this.state.id==1) && (
                   <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : null}
                     style={{
@@ -1239,6 +1256,7 @@ const result = this.state.remarks.replace(regex, '');
                       width: '100%',
                       fontSize: 18,
                       color: COLORS.black,
+                      
                       // borderColor: COLORS.primary,
                     }}>
                     <View
@@ -1276,6 +1294,7 @@ const result = this.state.remarks.replace(regex, '');
                         initialHeight={70}
                         keyboardDisplayRequiresUserAction={true}
                         hideKeyboardAccessoryView={true}
+                        
                         style={{backgroundColor: Colors.whitef4}}
                         editorStyle={{backgroundColor: Colors.grayf4}}
                         onChange={descriptionText => {
@@ -1531,17 +1550,16 @@ const result = this.state.remarks.replace(regex, '');
 
                   {
                   
-                  this.props.LoginDetails.isApprover==true &&(this.props.LoginDetails.userRoleId == 3 ||
+                  this.props.LoginDetails.inviteeApproval==true &&(this.props.LoginDetails.userRoleId == 3 ||
                   this.props.LoginDetails.userRoleId == 4 ||
                   this.props.LoginDetails.userRoleId == 1) ? (
                     <View style={{alignItems: 'center', padding: 10}}>
                       {
-                      this.state.VisitorDetails?.status == 5 &&
                       this.state.VisitorDetails?.checkInTime != null &&
                       this.state.VisitorDetails?.checkOutTime != null ? null : (
                         <View style={{flexDirection: 'row'}}>
                           {this.state.VisitorDetails?.checkOutTime == null &&
-                          this.state.VisitorDetails?.status == 5 ? (
+                          this.state.VisitorDetails?.status == 5 &&this.props.LoginDetails.isApprover==true? (
                             <TouchableOpacity
                               onPress={() => {
                                 this.setState({modalVisible: false});
@@ -1573,8 +1591,8 @@ const result = this.state.remarks.replace(regex, '');
                               </Text>
                             </TouchableOpacity>
                           ) : null}
-                          {this.state.VisitorDetails?.status == 4 ||
-                          this.state.VisitorDetails?.status == 5 ? (
+                          {
+                          this.state.VisitorDetails?.status == 5 &&this.props.LoginDetails.isApprover==true? (
                             <TouchableOpacity
                               onPress={() => {
                                 console.log("first"),
@@ -1595,8 +1613,8 @@ const result = this.state.remarks.replace(regex, '');
                             </TouchableOpacity>
                           ) : null}
 
-                          {this.state.VisitorDetails?.status == 4 ||
-                          this.state.VisitorDetails?.status == 5 ? (
+                          {(this.state.id!=1 && this.state.id!=2) &&(this.state.VisitorDetails?.status == 1||this.state.VisitorDetails?.status == 4 ||
+                          this.state.VisitorDetails?.status == 5)? (
                             <TouchableOpacity
                               onPress={() => {
                                 this.rescheduledVisit();
@@ -1615,7 +1633,7 @@ const result = this.state.remarks.replace(regex, '');
                               </Text>
                             </TouchableOpacity>
                           ) : null}
-                          {(this.props.LoginDetails.userRoleId == 4 ||
+                          {(
                             this.props.LoginDetails.empID ==
                               this.state.VisitorDetails?.whomToMeet) &&
                           this.props.isReport != 1 &&
@@ -1642,9 +1660,10 @@ const result = this.state.remarks.replace(regex, '');
                                 Meeting Out
                               </Text>
                             </TouchableOpacity>
-                          ) : this.props.LoginDetails.userRoleId == 1 &&
+                          ) : this.props.LoginDetails.empID ==
+                          this.state.VisitorDetails?.whomToMeet &&
                             this.props.isReport != 1 &&
-                            this.state.VisitorDetails?.status == 1 &&
+                            this.state.VisitorDetails?.status == 6 &&
                             this.state.VisitorDetails?.meetOutTime == null ? (
                             <TouchableOpacity
                               onPress={() => {
@@ -1669,10 +1688,11 @@ const result = this.state.remarks.replace(regex, '');
                             </TouchableOpacity>
                           ) : null}
                           {
-                            this.state.VisitorDetails?.status==4 &&
+                            this.state.VisitorDetails?.status==4 && this.props.LoginDetails.empID ==
+                            this.state.VisitorDetails?.whomToMeet &&
                             <TouchableOpacity
                               onPress={() => {
-                                this.props.MeetingIn(this.state.VisitorDetails.inOutId,this.vizMeetingIn())
+                                this.props.MeetingIn(this.state.VisitorDetails.inOutId+"/"+this.props.LoginDetails.userID,this.vizMeetingIn())
                               }}
                               style={{
                                 backgroundColor: COLORS.skyBlue,
@@ -1692,14 +1712,14 @@ const result = this.state.remarks.replace(regex, '');
                       )}
                     </View>
                   ) :
-                  this.props.LoginDetails.isApprover==false && this.props.LoginDetails.userId == this.state.VisitorDetails?.whomToMeet &&
+                  this.props.LoginDetails.inviteeApproval==false && 
                   <View style={{alignItems: 'center', padding: 10}}>
-                      {this.state.VisitorDetails?.status == 5 &&
+                      {
                       this.state.VisitorDetails?.checkInTime != null &&
                       this.state.VisitorDetails?.checkOutTime != null ? null : (
                         <View style={{flexDirection: 'row'}}>
                           {this.state.VisitorDetails?.checkOutTime == null &&
-                          this.state.VisitorDetails?.status == 5 ? (
+                          this.state.VisitorDetails?.status == 5 &&this.props.LoginDetails.empID == this.state.VisitorDetails?.whomToMeet ? (
                             <TouchableOpacity
                               onPress={() => {
                                 this.setState({modalVisible: false});
@@ -1731,8 +1751,8 @@ const result = this.state.remarks.replace(regex, '');
                               </Text>
                             </TouchableOpacity>
                           ) : null}
-                          {this.state.VisitorDetails?.status == 4 ||
-                          this.state.VisitorDetails?.status == 5 ? (
+                          {
+                          this.props.LoginDetails.empID == this.state.VisitorDetails?.whomToMeet &&this.state.VisitorDetails?.status == 5 ? (
                             <TouchableOpacity
                               onPress={() => {
                                 console.log("first"),
@@ -1753,8 +1773,8 @@ const result = this.state.remarks.replace(regex, '');
                             </TouchableOpacity>
                           ) : null}
 
-                          {this.state.VisitorDetails?.status == 4 ||
-                          this.state.VisitorDetails?.status == 5 ? (
+                          {(this.state.id!=1 && this.state.id!=2)&& (this.state.VisitorDetails?.status == 1||this.state.VisitorDetails?.status == 4 ||
+                          this.state.VisitorDetails?.status == 5 ) &&this.props.LoginDetails.userRoleId == 3? (
                             <TouchableOpacity
                               onPress={() => {
                                 this.rescheduledVisit();
@@ -1774,9 +1794,9 @@ const result = this.state.remarks.replace(regex, '');
                             </TouchableOpacity>
                           ) : null}
                           {!this.state.meetingoutSH &&
-                          this.props.LoginDetails.userRoleId == 4 &&
+                         
                           this.props.isReport != 1 &&
-                          this.state.VisitorDetails?.status == 1 &&
+                          this.state.VisitorDetails?.status == 6 &&this.props.LoginDetails.empID == this.state.VisitorDetails?.whomToMeet &&
                           this.state.VisitorDetails?.meetOutTime == null ? (
                             <TouchableOpacity
                               onPress={() => {
@@ -1801,8 +1821,8 @@ const result = this.state.remarks.replace(regex, '');
                               </Text>
                             </TouchableOpacity>
                           ) : this.props.LoginDetails.userRoleId == 1 &&
-                            this.props.isReport != 1 &&
-                            this.state.VisitorDetails?.status == 1 &&
+                            this.props.isReport != 1 &&this.props.LoginDetails.empID == this.state.VisitorDetails?.whomToMeet &&
+                            this.state.VisitorDetails?.status == 6 &&
                             this.state.VisitorDetails?.meetOutTime == null ? (
                             <TouchableOpacity
                               onPress={() => {
@@ -1828,10 +1848,11 @@ const result = this.state.remarks.replace(regex, '');
                             </TouchableOpacity>
                           ) : null}
                           {
-                            this.state.VisitorDetails?.status==4 &&
+                            this.state.VisitorDetails?.status==4 && this.props.LoginDetails.empID ==
+                            this.state.VisitorDetails?.whomToMeet &&
                             <TouchableOpacity
                               onPress={() => {
-                                this.props.MeetingIn(this.state.VisitorDetails.inOutId,this.vizMeetingIn())
+                                this.props.MeetingIn(this.state.VisitorDetails.inOutId+"/"+this.props.LoginDetails.userID,this.vizMeetingIn())
                               }}
                               style={{
                                 backgroundColor: COLORS.skyBlue,
@@ -2132,7 +2153,7 @@ const result = this.state.remarks.replace(regex, '');
                     </ScrollView>
                   </View>
                 )} */}
-                {(this.state.meetingoutSH || this.state.RejectMeeiting) && (
+                {(this.state.meetingoutSH || this.state.RejectMeeiting|| this.state.id==1) && (
                   <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : null}
                     style={{
@@ -2422,16 +2443,16 @@ const result = this.state.remarks.replace(regex, '');
                       </View>
                     ))}
  
-                  {this.props.LoginDetails.isApprover==true && this.props.Blockedviz.blockedId!=1 && (this.props.LoginDetails.userRoleId == 3 ||
+                  {this.props.LoginDetails.inviteeApproval==true &&  this.props.Blockedviz.blockedId!=1 && (this.props.LoginDetails.userRoleId == 3 ||
                   this.props.LoginDetails.userRoleId == 4 ||
                   this.props.LoginDetails.userRoleId == 1) ? (
                     <View style={{alignItems: 'center', padding: 10}}>
-                      {this.state.VisitorDetails?.status == 5 &&
+                      {
                       this.state.VisitorDetails?.checkInTime != null &&
                       this.state.VisitorDetails?.checkOutTime != null ? null : (
                         <View style={{flexDirection: 'row'}}>
                           {this.state.VisitorDetails?.checkOutTime == null &&
-                          this.state.VisitorDetails?.status == 5 ? (
+                          this.state.VisitorDetails?.status == 5 &&this.props.LoginDetails.isApprover==true? (
                             <TouchableOpacity
                               onPress={() => {
                                 this.setState({modalVisible: false});
@@ -2463,8 +2484,8 @@ const result = this.state.remarks.replace(regex, '');
                               </Text>
                             </TouchableOpacity>
                           ) : null}
-                          {this.state.VisitorDetails?.status == 4 ||
-                          this.state.VisitorDetails?.status == 5 ? (
+                          {
+                          this.state.VisitorDetails?.status == 5 &&this.props.LoginDetails.isApprover==true? (
                             <TouchableOpacity
                               onPress={() => {
                                 console.log("first"),
@@ -2485,8 +2506,8 @@ const result = this.state.remarks.replace(regex, '');
                             </TouchableOpacity>
                           ) : null}
 
-                          {this.state.VisitorDetails?.status == 4 ||
-                          this.state.VisitorDetails?.status == 5 ? (
+                          {(this.state.id!=1 && this.state.id!=2)&& (this.state.VisitorDetails?.status == 1||this.state.VisitorDetails?.status == 4 ||
+                          this.state.VisitorDetails?.status == 5) ? (
                             <TouchableOpacity
                               onPress={() => {
                                 this.rescheduledVisit();
@@ -2504,11 +2525,28 @@ const result = this.state.remarks.replace(regex, '');
                                 Reschedule
                               </Text>
                             </TouchableOpacity>
-                          ) : null}
+                          ) : this.props.LoginDetails.isApprover==true && this.props.LoginDetails.inviteeApproval==true&&
+                          <TouchableOpacity
+                              onPress={() => {
+                                this.rescheduledVisit();
+                              }}
+                              style={{
+                                backgroundColor: COLORS.tempYellow,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 10,
+                                height: 30,
+                                width: '28%',
+                                margin: '1%',
+                              }}>
+                              <Text style={{color: 'white', fontSize: 12}}>
+                                Reschedule
+                              </Text>
+                            </TouchableOpacity>}
                           {!this.state.meetingoutSH &&
                           this.props.LoginDetails.userRoleId == 4 &&
                           this.props.isReport != 1 &&
-                          this.state.VisitorDetails?.status == 1 &&
+                          this.state.VisitorDetails?.status == 6 &&
                           this.state.VisitorDetails?.meetOutTime == null ? (
                             <TouchableOpacity
                               onPress={() => {
@@ -2534,7 +2572,7 @@ const result = this.state.remarks.replace(regex, '');
                             </TouchableOpacity>
                           ) : this.props.LoginDetails.userRoleId == 1 &&
                             this.props.isReport != 1 &&
-                            this.state.VisitorDetails?.status == 1 &&
+                            this.state.VisitorDetails?.status == 6 &&
                             this.state.VisitorDetails?.meetOutTime == null ? (
                             <TouchableOpacity
                               onPress={() => {
@@ -2560,10 +2598,11 @@ const result = this.state.remarks.replace(regex, '');
                             </TouchableOpacity>
                           ) : null}
                           {
-                            this.state.VisitorDetails?.status==4 &&
+                            this.state.VisitorDetails?.status==4 && this.props.LoginDetails.empID ==
+                            this.state.VisitorDetails?.whomToMeet &&
                             <TouchableOpacity
                               onPress={() => {
-                                this.props.MeetingIn(this.state.VisitorDetails.inOutId,this.vizMeetingIn())
+                                this.props.MeetingIn(this.state.VisitorDetails.inOutId+"/"+this.props.LoginDetails.userID,this.vizMeetingIn())
                               }}
                               style={{
                                 backgroundColor: COLORS.skyBlue,
@@ -2582,14 +2621,16 @@ const result = this.state.remarks.replace(regex, '');
                         </View>
                       )}
                     </View>
-                  ) : this.props.LoginDetails.isApprover==false && this.props.LoginDetails.userId == this.state.VisitorDetails?.whomToMeet &&
+                  ) : 
+                  this.props.LoginDetails.inviteeApproval==false && 
                   <View style={{alignItems: 'center', padding: 10}}>
-                      {this.state.VisitorDetails?.status == 5 &&
+                      {
                       this.state.VisitorDetails?.checkInTime != null &&
                       this.state.VisitorDetails?.checkOutTime != null ? null : (
                         <View style={{flexDirection: 'row'}}>
                           {this.state.VisitorDetails?.checkOutTime == null &&
-                          this.state.VisitorDetails?.status == 5 ? (
+                          this.state.VisitorDetails?.status == 5 && this.props.LoginDetails.empID ==
+                          this.state.VisitorDetails?.whomToMeet ? (
                             <TouchableOpacity
                               onPress={() => {
                                 this.setState({modalVisible: false});
@@ -2621,8 +2662,9 @@ const result = this.state.remarks.replace(regex, '');
                               </Text>
                             </TouchableOpacity>
                           ) : null}
-                          {this.state.VisitorDetails?.status == 4 ||
-                          this.state.VisitorDetails?.status == 5 ? (
+                          {
+                          this.state.VisitorDetails?.status == 5 && this.props.LoginDetails.empID ==
+                          this.state.VisitorDetails?.whomToMeet ? (
                             <TouchableOpacity
                               onPress={() => {
                                 console.log("first"),
@@ -2643,8 +2685,9 @@ const result = this.state.remarks.replace(regex, '');
                             </TouchableOpacity>
                           ) : null}
 
-                          {this.state.VisitorDetails?.status == 4 ||
-                          this.state.VisitorDetails?.status == 5 ? (
+                          {(this.state.id!=1 && this.state.id!=2)&&(this.state.VisitorDetails?.status == 1||this.state.VisitorDetails?.status == 4 ||
+                          this.state.VisitorDetails?.status == 5) &&this.props.LoginDetails.empID ==
+                          this.state.VisitorDetails?.whomToMeet  ? (
                             <TouchableOpacity
                               onPress={() => {
                                 this.rescheduledVisit();
@@ -2666,7 +2709,7 @@ const result = this.state.remarks.replace(regex, '');
                           {!this.state.meetingoutSH &&
                           this.props.LoginDetails.userRoleId == 4 &&
                           this.props.isReport != 1 &&
-                          this.state.VisitorDetails?.status == 1 &&
+                          this.state.VisitorDetails?.status == 6 &&
                           this.state.VisitorDetails?.meetOutTime == null ? (
                             <TouchableOpacity
                               onPress={() => {
@@ -2692,7 +2735,7 @@ const result = this.state.remarks.replace(regex, '');
                             </TouchableOpacity>
                           ) : this.props.LoginDetails.userRoleId == 1 &&
                             this.props.isReport != 1 &&
-                            this.state.VisitorDetails?.status == 1 &&
+                            this.state.VisitorDetails?.status == 6 &&
                             this.state.VisitorDetails?.meetOutTime == null ? (
                             <TouchableOpacity
                               onPress={() => {
@@ -2718,10 +2761,11 @@ const result = this.state.remarks.replace(regex, '');
                             </TouchableOpacity>
                           ) : null}
                           {
-                            this.state.VisitorDetails?.status==4 &&
+                            this.state.VisitorDetails?.status==4 && this.props.LoginDetails.empID ==
+                            this.state.VisitorDetails?.whomToMeet &&
                             <TouchableOpacity
                               onPress={() => {
-                                this.props.MeetingIn(this.state.VisitorDetails.inOutId,this.vizMeetingIn())
+                                this.props.MeetingIn(this.state.VisitorDetails.inOutId+"/"+this.props.LoginDetails.userID,this.vizMeetingIn())
                               }}
                               style={{
                                 backgroundColor: COLORS.skyBlue,
@@ -3160,7 +3204,7 @@ const result = this.state.remarks.replace(regex, '');
                       flexGrow: 1,
                       marginRight: 10,
                     }}
-                    label="Expected Out Time*"
+                    label="Expected Out Time"
                     value={
                       this.state.Outdate != null &&
                       Moment(this.state.Outdate).format('DD-MM-YYYY') +
@@ -3494,7 +3538,7 @@ const result = this.state.remarks.replace(regex, '');
                   this.props.SubscriptionLimit !== 0
                     ? alert('Subscription Limit cross')
                     : this.state.Indate == null
-                    ? alert('Please Select Date')
+                    ? alert('Please Select Expected In Time')
                     : this.state.Indate == null
                     ? alert('Please Select In Time')
                     : this.rescheduleMeeting();
@@ -3885,7 +3929,7 @@ const result = this.state.remarks.replace(regex, '');
         item.fullName +
         ' ( ' +
         item.inviteCode.toString().trim() +
-        ' ) Rejected by ' +
+        ' ) Cancelled by ' +
         by;
     } else if (tag == 4) {
       notifText1 =
@@ -3901,7 +3945,7 @@ const result = this.state.remarks.replace(regex, '');
       userId: item.whomToMeet,
     };
     console.log('Notification=Reject====', param);
-    this.props.SaveNotification(param);
+    // this.props.SaveNotification(param);
   }
   getAllReceptionst(params1, tag) {
     this.props.ReceptionList.forEach(element => {
@@ -3940,7 +3984,7 @@ const result = this.state.remarks.replace(regex, '');
         params1.fullName +
         ' ( ' +
         params1.inviteCode.toString().trim() +
-        ' )  Rejected by ' +
+        ' )  Cancelled by ' +
         by; // by Employee "
     } else if (tag == 7) {
       notifText1 =
@@ -3979,7 +4023,7 @@ const result = this.state.remarks.replace(regex, '');
       userId: item.usrId,
     };
     console.log('Notification Reject==', param);
-    this.props.SaveNotification(param);
+    // this.props.SaveNotification(param);
   }
 
   checkoutSuccess = res => this.afterCheckOutSuccess(res);

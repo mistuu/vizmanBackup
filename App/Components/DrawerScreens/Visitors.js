@@ -43,6 +43,7 @@ import { axiosAuthGet } from "../../utility/apiConnection";
 import Colors from "../../Assets/Colors/index.js";
 import moment from "moment";
 import Images from "../../Assets/Images/index.js";
+import { colors } from "react-native-elements";
 const placeholderTextColor = COLORS.placeholderColor;
 const { width, height } = Dimensions.get("window");
 
@@ -205,7 +206,7 @@ class ReceptionDashboard extends React.Component {
       else if (item.status === 1)
         temp = Object.assign({}, item, { statusNName: "Approve" });
       else if (item.status === 2)
-        temp = Object.assign({}, item, { statusNName: "Rejected" });
+        temp = Object.assign({}, item, { statusNName: "Cancelled" });
       else if (item.status === 3)
         temp = Object.assign({}, item, { statusNName: "Rescheduled" });
       else if (item.status === 4) {
@@ -215,7 +216,7 @@ class ReceptionDashboard extends React.Component {
           temp = Object.assign({}, item, { statusNName: "Check In" });
         }
       } else if (item.status === 5)
-        temp = Object.assign({}, item, { statusNName: "Invite" });
+        temp = Object.assign({}, item, { statusNName: "Pending" });
       else if (item.status === 6)
         temp = Object.assign({}, item, { statusNName: "Meeting In" });
       else if (item.status === 7)
@@ -565,7 +566,7 @@ class ReceptionDashboard extends React.Component {
     // console.log(details);
     if (
       this.props.LoginDetails.empID == details.whomToMeet &&
-      status == "INVITED"
+      status == "Pending"
     ) {
       Linking.openURL(
         `whatsapp://send?phone=+91` +
@@ -1152,20 +1153,21 @@ class ReceptionDashboard extends React.Component {
                         {
                           this.props.LoginDetails.userRoleId === 2
                             ? (inTime =
-                                item.status === 3 ||
-                                item.status === 4 ||
-                                item.status === 1 ||
-                                item.status === 2
-                                  ? item.checkInTime === null
-                                    ? ""
-                                    : Moment(
-                                        moment.utc(item.checkInTime)
-                                      ).format("hh:mm A")
-                                  : item.inTime === null
-                                  ? null
-                                  : Moment(moment.utc(item.inTime)).format(
-                                      "hh:mm A"
-                                    ))
+                              item.status === 3 ||
+                              item.status === 4 ||
+                              item.status === 1 ||
+                              item.status === 2 
+                            
+                                ? item.checkInTime === null
+                                  ? ""
+                                  : Moment(
+                                      moment.utc(item.checkInTime)
+                                    ).format("hh:mm A")
+                                : item.inTime === null
+                                ? null
+                                : Moment(moment.utc(item.inTime)).format(
+                                    "hh:mm A"
+                                  ))
                             : this.props.LoginDetails.userRoleId === 4 ||
                               this.props.LoginDetails.userRoleId === 1
                             ? (inTime =
@@ -1188,7 +1190,8 @@ class ReceptionDashboard extends React.Component {
                                 item.status === 3 ||
                                 item.status === 4 ||
                                 item.status === 1 ||
-                                item.status === 2
+                                item.status === 2 
+                              
                                   ? item.checkInTime === null
                                     ? ""
                                     : Moment(
@@ -1257,7 +1260,8 @@ class ReceptionDashboard extends React.Component {
                         ) {
                           if (item.status === 3) {
                             backgroundColor = COLORS.tempYellow;
-                            status = "RESCHEDULED";
+                            status = "Rescheduled";
+                            
                           } else if (item.status === 4) {
                             if (
                               item.checkInTime !== null &&
@@ -1271,13 +1275,13 @@ class ReceptionDashboard extends React.Component {
                             }
                           } else if (item.status === 5) {
                             backgroundColor = "#4667cc";
-                            status = "INVITED";
+                            status = "Pending";
                           } else if (item.status === 2) {
                             backgroundColor = COLORS.tempRed;
-                            status = "REJECTED";
+                            status = "Cancelled";
                           } else if (item.status === 1) {
                             backgroundColor = COLORS.tempGreen;
-                            status = "APPROVED";
+                            status = "Approved";
                           } else if (item.status === 6) {
                             backgroundColor = COLORS.tempGreen;
                             status = "Meeting In";
@@ -1340,7 +1344,9 @@ class ReceptionDashboard extends React.Component {
                                   flexDirection: "row",
                                 }}
                               >
-                                <View style={{ alignItems: "center" }}>
+                                <View style={{ justifyContent:'center',alignItems:'center'}}>
+                                  <View>
+
                                   {item.photoProof != null ? (
                                     <Image
                                       source={{
@@ -1364,47 +1370,132 @@ class ReceptionDashboard extends React.Component {
                                     >
                                       {item.fullName}
                                     </TextAvatar>
+
                                   )}
-                                  <Text style={{ fontWeight: "bold" }}>
-                                    {item.designation}
-                                  </Text>
+                                  </View>
+
+                               
                                 </View>
-                                <View style={{marginLeft:10 }}>
+                                <View style={{marginLeft:10,width:width/3 }}>
+                                  
                                   <Text
                                     style={{ fontWeight: "bold", fontSize: 16 }}
                                   >
-                                    {item.fullName}
+                                    {this.props.LoginDetails.userRoleId != 4 &&
+                                    this.props.LoginDetails.userRoleId != 1 &&
+                                    this.props.LoginDetails.empID !=
+                                      item.whomToMeet &&
+                                    item.isVip == true
+                                      ? item.fullName?.replace(
+                                          /.(?=.{2,}$)/g,
+                                          '*',
+                                        )
+                                      : item.fullName}
                                   </Text>
-                                  {item.department !=null &&<Text>{item.department}</Text>}
-                                  <Text style={{marginTop:5}}>{item.mobile}</Text>
-                                  <Text style={{marginTop:5}}>{item.email}</Text>
+                                  {/* {item.department !=null &&<Text>{item.department}</Text>} */}
+                                  <Text style={{marginTop:5}}>{(this.props.LoginDetails.userRoleId ===
+                                      3 ||
+                                      this.props.LoginDetails.userRoleId ===
+                                        2) &&
+                                    this.props.LoginDetails.empID !=
+                                      item.whomToMeet
+                                      ? item.mobile?.replace(
+                                          /.(?=.{2,}$)/g,
+                                          '*',
+                                        )
+                                      : item.mobile}</Text>
+                                 <Text style={{marginTop:5}}>{item.company}</Text>
                                 </View>
-                                <View style={{left:-6}}>
-                                
-                                <Text style={{fontSize:15,color:Colors.primary, fontWeight:'bold'}}>{item.inviteCode}</Text>
-                                
+                                <View style={{}}>
+                                  
+                                {item?.checkInTime !== null ||
+                                  item?.checkOutTime !== null ? (
+                                    <View style={{ paddingTop: 2,
+                                      justifyContent: 'center',
+                                      marginTop:5,
+                                      alignSelf: 'center',
+                                      marginRight:40,
+                                      marginLeft: 'auto',
+                                      height: 20,
+                                      borderRadius: 10,
+                                      paddingHorizontal: 5,
+                                      flexDirection: 'row',
+                                      width: width / 4.5,
+                                      backgroundColor: backgroundColor,}}>
+
+                                    <Text
+                                      style={{  
+                                        fontSize:  RFPercentage(1.5),     
+                                       
+                                        textAlign: 'center',
+                                        color: Colors.white,
+                                        borderRadius: 10,
+                                        // backgroundColor: backgroundColor,
+                                        overflow: 'hidden',
+                                      }}>
+                                      {status}
+                                    </Text>
+                                      </View>
+                                  ) : (
+                                    <View style={{ paddingTop: 2,
+                                      justifyContent: 'center',
+                                      alignSelf: 'center',
+                                      marginRight:40,
+                                      marginLeft: 'auto',
+                                      height: 20,
+                                      marginTop:5,
+                                      borderRadius: 10,
+                                      paddingHorizontal: 5,
+                                      flexDirection: 'row',
+                                      width: width / 4.5,
+                                      backgroundColor: backgroundColor,}}>
+                                    <Text
+                                      style={{
+                                        
+                                        fontSize:  RFPercentage(1.5),
+                                        
+                                        textAlign: 'center',
+                                        color: Colors.white,
+                                        borderRadius: 10,
+                                        // backgroundColor: backgroundColor,
+                                        overflow: 'hidden',
+                                      }}>
+                                      {status}
+                                    </Text>
+                                      </View>
+                                  )}
+                                 {item.inviteCode!="" &&item.inviteCode!=null && <Text style={{ textAlign:'center',fontSize:16,marginTop:15, color:Colors.primary,fontWeight: "bold" }}>
+                                    {item.inviteCode}
+                                  </Text>}
                                 </View>
+                               
                               </View>
 
-                              <View style={{margin:10, height: 1, backgroundColor: Colors.graye8,}} />
-                              <View style={{margin:10,flexDirection:'row',width:width,justifyContent:'center', alignItems:'center'}}> 
+                              <View style={{marginLeft:10,marginRight:10, height: 1, backgroundColor: Colors.graye8,}} />
+                                <View style={{flexDirection:'row',width:width, paddingBottom:5, alignItems:'center', marginTop:10}}>
+                              <Text style={{width:width/3,marginLeft:10, fontWeight:'bold',color:Colors.primary}}>{item.whomToMeetName}</Text>
+                              <View style={{marginLeft:10}}> 
                                             
-                                  <Text style={{width:width/3.3, fontWeight:'bold'}}>Check In</Text>
-                                  <Text style={{width:width/3.3, fontWeight:'bold'}}>Check Out</Text>
-                                  
-                                  <Text style={{width:width/3.3, fontWeight:'bold'}}>Status</Text>  
+                                            <Image
+                                            source={Images.rightArrow}
+                                            style={{tintColor:Colors.tempGreen,height:25,width:25}}/>
+ <Image
+                                            source={Images.leftArrow}
+                                            style={{tintColor:Colors.red,height:25,marginTop:5,width:25}}/>
+                                 
                               </View>
-                              <View style={{width:width ,paddingBottom:10, flexDirection:'row',width:"100%",justifyContent:'center', alignItems:'center'}}>
-                                  <View style={{width: "32%", alignItems:'center'}}>
+                              <View style={{marginLeft:10,}}>
+                                  <View style={{alignItems:'center'}}>
                                     {/* Check In Button */}
                                   {
                                   (
                                    console.log("chec in==",inTime),
+                                   console.log("Out in==",outTime) ,
                                     dateTime <= otime && date >= b[0] && date <= x[0]
                                 
                                       ?
                                        (
-                                        item.checkInTime === null && item.status == 1? (
+                                        item.checkInTime === null && item.status != 2 && item.status != 3 &&item.status != 5 ? (
                                           
                                         <TouchableOpacity
                                           onPress={() => {
@@ -1430,6 +1521,8 @@ class ReceptionDashboard extends React.Component {
                                           style={{
                                             backgroundColor: COLORS.skyBlue,
                                             padding: 2,
+                                            paddingHorizontal:13,
+                                            
                                             borderRadius: 5,
                                           }}>
                                           <Text
@@ -1441,23 +1534,21 @@ class ReceptionDashboard extends React.Component {
                                             Check In
                                           </Text>
                                         </TouchableOpacity>
-                                      ):item.checkInTime!=null &&
-                                      <Text
-                                      style={{
-                                        // width: width / 6,
-                                        textAlign:'center',
-                                        fontWeight: 'bold',
-                                        fontSize:16,
-                                        
-                                      }}>
-                                      {' '}
-                                      {inTime}{' '}
-                                    </Text>
+                                      ):item.inTime!=null && item.status==5?
+                                      <Text style={{textAlign: 'center',
+                                      fontWeight: 'bold',
+                                      fontSize:16,}}>{' '}{inTime}{' '}</Text>:
+                                      inTime!=null &&
+                                      <Text style={{textAlign: 'center',
+                                      fontWeight: 'bold',
+                                      fontSize:16,}}>{' '}{item.checkInTime!=null && item.checkInTime!=""&& Moment(moment.utc(item.checkInTime)).format(
+                                        'hh:mm a',
+                                      )}{' '}</Text>
                                             
                                     )  
                                     :
                                     item.outTime==null  && 
-                                    item.checkInTime === null && item.status == 1 ? (
+                                    item.checkInTime === null &&item.status != 2 && item.status != 3 &&item.status != 5 ? (
                                       <TouchableOpacity
                                         onPress={() => {
                                           var imgTemp = {
@@ -1482,6 +1573,7 @@ class ReceptionDashboard extends React.Component {
                                         style={{
                                           backgroundColor: COLORS.skyBlue,
                                           padding: 2,
+                                          paddingHorizontal:13,
                                           borderRadius: 5,
                                         }}>
                                         <Text
@@ -1495,14 +1587,18 @@ class ReceptionDashboard extends React.Component {
                                       </TouchableOpacity>
                                     ) : inTime === null ? (
                                      
-                                      <Text numberOfLines={1}></Text>
+                                      <Text style={{textAlign: 'center',
+                                      fontWeight: 'bold',
+                                      fontSize:16,}}>{' '}{item.checkInTime!=null && item.checkInTime!=""&& Moment(moment.utc(item.checkInTime)).format(
+                                        'hh:mm a',
+                                      )}{' '}</Text>
                                     ) : (
                                     
                                       <Text
                                         style={{
                                           textAlign: 'center',
-                                          fontWeight: 'bold',
-                                          fontSize:16,
+                                    fontWeight: 'bold',
+                                    fontSize:16,
                                           
                                         }}>
                                         {' '}
@@ -1514,27 +1610,28 @@ class ReceptionDashboard extends React.Component {
                                   </View>
                               
                                  {/* Checkout Buttom  */}
-                                 <View style={{marginLeft:"8%"}}>
+                                 <View style={{marginLeft:"8%",marginTop:5}}>
                                  {item.checkOutTime === null &&
-                                  item.checkInTime !== null &&
+                                  item.checkInTime !== null && 
                                   Moment(moment.utc(item.date)).format(
                                     'DD-MMM-yyyy',
                                   ) ==
                                     Moment(moment.utc(new Date())).format(
                                       'DD-MMM-yyyy',
-                                    ) ? (
+                                    )&& item.status != 2 && item.status != 3 &&item.status != 5 ? (
                                     <TouchableOpacity
                                       onPress={() => {
                                         this.setState({VisitorDetails: item}),
                                           this.props.CheckOut(
-                                            item.inOutId,
+                                            item.inOutId+"/"+this.props.LoginDetails.empID,
                                             this.checkoutSuccess,
                                           );
                                       }}
                                       style={{
                                         backgroundColor: COLORS.tempYellow,
-                                        fontSize: 9,
-                                        paddingRight: 2,
+                                        
+                                        padding: 2,
+                                        paddingHorizontal:13,
                                         borderRadius: 5,
                                       }}>
                                       <Text
@@ -1546,18 +1643,27 @@ class ReceptionDashboard extends React.Component {
                                         Check Out
                                       </Text>
                                     </TouchableOpacity>
-                                  ) : outTime === null ? (
+                                  ) : item.outTime != null && item.status!=8? (
                                     <Text style={{ 
+                                      textAlign: 'center',
+                                      fontWeight: 'bold',
+                                      fontSize:16,
+                                      }}>{' '}{item.outTime!=null && item.outTime!=""&& Moment(moment.utc(item.outTime)).format(
+                                        'hh:mm a',
+                                      )}{' '}</Text>
+                                  ) :outTime != null ? <Text style={{ 
                                     textAlign: 'center',
                                     fontWeight: 'bold',
-                                    fontSize: RFPercentage(1.7),}}> </Text>
-                                  ) : (
+                                    fontSize:16,
+                                    }}>{' '}{item.checkOutTime!=null && item.checkOutTime!=""&& Moment(moment.utc(item.checkOutTime)).format(
+                                      'hh:mm a',
+                                    )}{' '}</Text>:(
                                     <Text
                                       // numberOfLines={1}
                                       style={{
-                                        // textAlign: 'center',
-                                        fontWeight: 'bold',
-                                        fontSize:16
+                                        textAlign: 'center',
+                                          fontWeight: 'bold',
+                                          fontSize:16,
                                       }}>
                                       {' '}
                                       {outTime}{' '}
@@ -1566,93 +1672,9 @@ class ReceptionDashboard extends React.Component {
 
                                  </View>
                                  
-                                  {/* Status */}
-                                  
-                                  {item?.checkInTime !== null ||
-                                  item?.checkOutTime !== null ? (
-                                    <Text
-                                      style={{
-                                        width: width / 4.3,
-                                        marginLeft:'auto',
-                                        marginRight:10,
-                                        fontSize: RFPercentage(1.5),
-                                        paddingTop: 2,
-                                        height:
-                                          status === 'ALREADY CHECKOUT'
-                                            ? 30
-                                            : 20,
-                                        alignSelf: 'center',
-                                        textAlign: 'center',
-                                        color: backgroundColor,
-                                        borderRadius: 10,
-                                        paddingHorizontal: 5,
-                                        // backgroundColor: backgroundColor,
-                                        overflow: 'hidden',
-                                      }}>
-                                      {status}
-                                    </Text>
-                                  ) : this.props.LoginDetails.empID ==
-                                      item.whomToMeet && status == 'INVITED' ? (
-                                    <TouchableOpacity
-                                      style={{
-                                        paddingTop: 2,
-                                        justifyContent: 'center',
-                                        alignSelf: 'center',
-                                        marginRight:10,
-                                        marginLeft: 'auto',
-                                        height: 20,
-                                        borderRadius: 10,
-                                        paddingHorizontal: 5,
-                                        flexDirection: 'row',
-                                        width: width / 4.5,
-                                        backgroundColor: backgroundColor,
-                                      }}
-                                      onPress={() =>
-                                        this.whatsappSharing(item, status)
-                                      }>
-                                      <Image
-                                        source={Images.whatsapp}
-                                        style={{
-                                          height: 15,
-                                          width: 15,
-                                          paddingLeft: 3,
-                                          marginRight: 5,
-                                          tintColor: Colors.white,
-                                        }}
-                                      />
-                                      <Text
-                                        style={{
-                                          fontSize: RFPercentage(1.5),
-
-                                          textAlign: 'center',
-                                          color: 'white',
-
-                                          overflow: 'hidden',
-                                        }}>
-                                        {status}
-                                      </Text>
-                                    </TouchableOpacity>
-                                  ) : (
-                                    <Text
-                                      style={{
-                                        width: width / 4.5,
-                                        marginLeft: 'auto',
-                                        marginRight:10,
-                                        fontSize: RFPercentage(1.5),
-                                        paddingTop: 2,
-                                        height: 20,
-                                        alignSelf: 'flex-end',
-                                        textAlign: 'center',
-                                        color: backgroundColor,
-                                        borderRadius: 10,
-                                        paddingHorizontal: 5,
-                                        // backgroundColor: backgroundColor,
-                                        overflow: 'hidden',
-                                      }}>
-                                      {status}
-                                    </Text>
-                                  )}
                                   </View>
+
+                                </View>
                               
                             </TouchableOpacity>
 
@@ -1661,7 +1683,7 @@ class ReceptionDashboard extends React.Component {
                       }
                     }
                     numColumns={1}
-                    keyExtractor={(item) => item.courierId}
+                    keyExtractor={(item) => item.inOutId}
                   />
                 </View>
               );
@@ -1962,7 +1984,7 @@ class ReceptionDashboard extends React.Component {
         item.fullName +
         " ( " +
         item.inviteCode.toString().trim() +
-        " ) Rejected by " +
+        " ) Cancelled by " +
         by;
     } else if (tag === 4) {
       notifText1 =
@@ -1977,7 +1999,7 @@ class ReceptionDashboard extends React.Component {
       notifDate: Moment(moment.utc()).format("YYYY-MM-DDTHH:mm:ss"),
       userId: item.whomToMeet,
     };
-    this.props.SaveNotification(param);
+    // this.props.SaveNotification(param);
   }
   getAllReceptionst(params1, tag) {
     this.props.ReceptionList.forEach((element) => {
@@ -2017,7 +2039,7 @@ class ReceptionDashboard extends React.Component {
         params1.fullName +
         " ( " +
         params1.inviteCode.toString().trim() +
-        " )  Rejected by " +
+        " )  Cancelled by " +
         by; // by Employee "
     } else if (tag === 7) {
       notifText1 =
@@ -2055,7 +2077,7 @@ class ReceptionDashboard extends React.Component {
       notifDate: Moment(moment.utc()).format("YYYY-MM-DDTHH:mm:ss"),
       userId: item.usrId,
     };
-    this.props.SaveNotification(param);
+    // this.props.SaveNotification(param);
   }
   async empCheckIn(empId) {
     console.log("Emp Id:=", empId);
@@ -2184,7 +2206,7 @@ class ReceptionDashboard extends React.Component {
     return (
       <TouchableWithoutFeedback onPress={() => this.drRef?.close()}>
         <View style={{ flex: 1, backgroundColor: COLORS.whitef4 }}>
-          <View style={{ width: "100%", zIndex: 99 }}>
+          <View style={{ width: "100%",marginTop:Platform.OS=="ios"?-20:0, zIndex: 99 }}>
             <Header
               title={
                 this.props.LoginDetails.userRoleId === 3

@@ -1,19 +1,29 @@
 import React, { Component } from 'react';
 import { View, Text, TouchableOpacity, BackHandler, Image } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { connect } from 'react-redux';
 import { COLORS, IMAGES } from '../../../Assets';
 import Images from '../../../Assets/Images';
+import { mapStateToProps } from '../../../Reducers/ApiClass';
+import { axiosAuthGet } from '../../../utility/apiConnection';
 
-export default class SettingScreen extends Component {
+class SettingScreen extends Component {
   constructor(props) {
     super(props);
     this.handleBackButtonClick = this.handleBackButtonClick.bind(this)
 
     this.state = {
+      inviteUser:false
     };
   }
-  componentDidMount(){
+ async componentDidMount(){
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButtonClick);
+    console.log(this.props.LoginDetails.userID);
+      let response=await axiosAuthGet("Users/UserCount/"+this.props.LoginDetails.userID)
+      console.log(response);
+      if(response>0){
+        this.setState({inviteUser:true})
+      }
 
   }
   handleBackButtonClick() {
@@ -95,21 +105,26 @@ export default class SettingScreen extends Component {
                 </TouchableOpacity>
 
           </LinearGradient>
-          <LinearGradient
+          {
+            this.state.inviteUser && 
+            <LinearGradient
             style={{ width:"90%",borderRadius:8,marginTop:30  }}
             colors={[
               COLORS.primary,
               COLORS.third
             ]}>
             <TouchableOpacity onPress={() =>{this.props.navigation.navigate('ApprovalScreen')}} style={{padding:10,flexDirection: 'row', }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', color: COLORS.white,textAlign:'center',alignSelf:'center' }}>Approval Require For Invite</Text>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', color: COLORS.white,textAlign:'center',alignSelf:'center' }}>Invite Settings</Text>
               <Image source={Images.right}
                 style={{ height: 25,padding:15, width: 22, tintColor: 'white', alignSelf:'flex-end',marginLeft:'auto' }} />
                 </TouchableOpacity>
        
           </LinearGradient>
+        }
+        
           </View>
       </View>
     );
   }
 }
+export default connect(mapStateToProps)(SettingScreen)
