@@ -204,16 +204,16 @@ class ReceptionDashboard extends React.Component {
       if (item.status === 0)
         temp = Object.assign({}, item, { statusNName: "" });
       else if (item.status === 1)
-        temp = Object.assign({}, item, { statusNName: "Approve" });
+        temp = Object.assign({}, item, { statusNName: "Invited" });
       else if (item.status === 2)
-        temp = Object.assign({}, item, { statusNName: "Cancelled" });
+        temp = Object.assign({}, item, { statusNName: "Rejected" });
       else if (item.status === 3)
         temp = Object.assign({}, item, { statusNName: "Rescheduled" });
       else if (item.status === 4) {
         if (item.checkInTime !== null && item.checkOutTime !== null) {
           temp = Object.assign({}, item, { statusNName: "AlreadyCheckOut" });
         } else {
-          temp = Object.assign({}, item, { statusNName: "Check In" });
+          temp = Object.assign({}, item, { statusNName: "Checked In" });
         }
       } else if (item.status === 5)
         temp = Object.assign({}, item, { statusNName: "Pending" });
@@ -222,7 +222,9 @@ class ReceptionDashboard extends React.Component {
       else if (item.status === 7)
         temp = Object.assign({}, item, { statusNName: "Meeting Out" });
       else if (item.status === 8)
-        temp = Object.assign({}, item, { statusNName: "Check Out" });
+        temp = Object.assign({}, item, { statusNName: "Checked Out" });
+        else if (item.status === 9)
+        temp = Object.assign({}, item, { statusNName: "Cancelled" });
       statusName.push(temp);
     });
     var details = [];
@@ -550,8 +552,8 @@ class ReceptionDashboard extends React.Component {
                       }}
                     >
                       {!this.state.selectedEmployee?.isCheckIN
-                        ? "Check In"
-                        : "Check Out"}
+                        ? "Checked In"
+                        : "Checked Out"}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -1122,9 +1124,10 @@ class ReceptionDashboard extends React.Component {
                         //   item.outTime=moment().endOf('day').format("yyyy-MM-DDThh:mm:ss")+"Z"
                         //   console.log("after===",item.outTime+"====="+moment().endOf('day').format("yyyy-MM-DDThh:mm:ssz"));
                         // }
-                        if (item.inTime != null) {
-                          var b = item.inTime.split("T");
+                        if (item?.inTime != null) {
+                          var b = item?.inTime.split("T");
                           var a = b[1].split("Z");
+                          console.log("b======",b);
                           var itime = b[0] + " " + a[0];
                         }
 
@@ -1271,17 +1274,17 @@ class ReceptionDashboard extends React.Component {
                               status = "ALREADY CHECKOUT";
                             } else {
                               backgroundColor = COLORS.skyBlue;
-                              status = "Check In";
+                              status = "Checked In";
                             }
                           } else if (item.status === 5) {
                             backgroundColor = "#4667cc";
                             status = "Pending";
                           } else if (item.status === 2) {
                             backgroundColor = COLORS.tempRed;
-                            status = "Cancelled";
+                            status = "Rejected";
                           } else if (item.status === 1) {
                             backgroundColor = COLORS.tempGreen;
-                            status = "Approved";
+                            status = "Invited";
                           } else if (item.status === 6) {
                             backgroundColor = COLORS.tempGreen;
                             status = "Meeting In";
@@ -1290,8 +1293,13 @@ class ReceptionDashboard extends React.Component {
                             status = "Meeting Out";
                           } else if (item.status === 8) {
                             backgroundColor = COLORS.tempGreen;
-                            status = "Check Out";
-                          } else if (item.status === 0) {
+                            status = "Checked Out";
+                            
+                          } 
+                          else if (item.status === 9) {
+                            backgroundColor = COLORS.tempRed;
+                            status = "Cancelled";
+                          }else if (item.status === 0) {
                             backgroundColor = COLORS.white;
                             status = "";
                           }
@@ -1489,8 +1497,8 @@ class ReceptionDashboard extends React.Component {
                                     {/* Check In Button */}
                                   {
                                   (
-                                   console.log("chec in==",inTime),
-                                   console.log("Out in==",outTime) ,
+                                  //  console.log("chec in==",dateTime+"=="+otime+"=="+date+"=="+b+"=="+x),
+                                  //  console.log("Out in==",outTime),
                                     dateTime <= otime && date >= b[0] && date <= x[0]
                                 
                                       ?
@@ -1546,9 +1554,10 @@ class ReceptionDashboard extends React.Component {
                                       )}{' '}</Text>
                                             
                                     )  
-                                    :
-                                    item.outTime==null  && 
-                                    item.checkInTime === null &&item.status != 2 && item.status != 3 &&item.status != 5 ? (
+                                    : 
+                                    item.outTime === null && item.inTime!=null ? 
+                                    b[0]==date && item.status != 2 && item.status != 3 &&item.status != 5 ? 
+                                          
                                       <TouchableOpacity
                                         onPress={() => {
                                           var imgTemp = {
@@ -1574,6 +1583,7 @@ class ReceptionDashboard extends React.Component {
                                           backgroundColor: COLORS.skyBlue,
                                           padding: 2,
                                           paddingHorizontal:13,
+                                          
                                           borderRadius: 5,
                                         }}>
                                         <Text
@@ -1584,27 +1594,30 @@ class ReceptionDashboard extends React.Component {
                                           }}>
                                           Check In
                                         </Text>
-                                      </TouchableOpacity>
-                                    ) : inTime === null ? (
-                                     
+                                      </TouchableOpacity>:
+                                      item.inTime!=null && item.status==5?
+                                      <Text style={{textAlign: 'center',
+                                      fontWeight: 'bold',
+                                      fontSize:16,}}>{' '}{inTime}{' '}</Text>:
+                                      inTime!=null &&
                                       <Text style={{textAlign: 'center',
                                       fontWeight: 'bold',
                                       fontSize:16,}}>{' '}{item.checkInTime!=null && item.checkInTime!=""&& Moment(moment.utc(item.checkInTime)).format(
                                         'hh:mm a',
-                                      )}{' '}</Text>
-                                    ) : (
-                                    
-                                      <Text
-                                        style={{
-                                          textAlign: 'center',
+                                      )}{' '}</Text>:
+                                    item.checkInTime!=null ?
+                                    <Text style={{textAlign: 'center',
                                     fontWeight: 'bold',
-                                    fontSize:16,
-                                          
-                                        }}>
-                                        {' '}
-                                        {inTime}{' '}
-                                      </Text>
-                                    )
+                                    fontSize:16,}}>{' '}{item.checkInTime!=null && item.checkInTime!=""&& Moment(moment.utc(item.checkInTime)).format(
+                                      'hh:mm a',
+                                    )}{' '}</Text>:
+                                    item.inTime!=null &&
+                                    <Text style={{textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    fontSize:16,}}>{' '}{item.inTime!=null && item.inTime!=""&& Moment(moment.utc(item.inTime)).format(
+                                      'hh:mm a',
+                                    )}{' '}</Text>
+                                    
                                     )
                                   }
                                   </View>
@@ -1612,18 +1625,12 @@ class ReceptionDashboard extends React.Component {
                                  {/* Checkout Buttom  */}
                                  <View style={{marginLeft:"8%",marginTop:5}}>
                                  {item.checkOutTime === null &&
-                                  item.checkInTime !== null && 
-                                  Moment(moment.utc(item.date)).format(
-                                    'DD-MMM-yyyy',
-                                  ) ==
-                                    Moment(moment.utc(new Date())).format(
-                                      'DD-MMM-yyyy',
-                                    )&& item.status != 2 && item.status != 3 &&item.status != 5 ? (
+                                  item.checkInTime !== null && item.status != 2 && item.status != 3 &&item.status != 5 ? (
                                     <TouchableOpacity
                                       onPress={() => {
                                         this.setState({VisitorDetails: item}),
                                           this.props.CheckOut(
-                                            item.inOutId+"/"+this.props.LoginDetails.empID,
+                                             item.inOutId+"/"+this.props.LoginDetails.empID,
                                             this.checkoutSuccess,
                                           );
                                       }}
@@ -1665,8 +1672,9 @@ class ReceptionDashboard extends React.Component {
                                           fontWeight: 'bold',
                                           fontSize:16,
                                       }}>
-                                      {' '}
-                                      {outTime}{' '}
+                                     {' '}{item.checkOutTime!=null && item.checkOutTime!=""&& Moment(moment.utc(item.checkOutTime)).format(
+                                      'hh:mm a',
+                                    )}{' '}
                                     </Text>
                                   )}
 

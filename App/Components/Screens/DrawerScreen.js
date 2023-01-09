@@ -40,6 +40,8 @@ import AdminViz from '../DrawerScreens/Admin/AdminViz';
 import Reports from '../DrawerScreens/Reports/Reports';
 import PendingInvitesScreen from '../DrawerScreens/PendingInvitesScreen';
 import { axiosAuthGet } from '../../utility/apiConnection';
+import AllVizRepo from '../DrawerScreens/Reports/AllVizRepo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 var PushNotification = require('react-native-push-notification');
@@ -114,6 +116,18 @@ class DrawerScreen extends Component {
 
     //   Toast.show("Switch To Admin")
     // }
+  }
+  Logout=async()=>{
+    
+    try {
+      let response=await axiosAuthGet("Notification/SaveNotifyToken/"+this.props.LoginDetails.empID+"/"+global.token+"007")
+      console.log("response==",response);
+      await AsyncStorage.clear()
+              this.props.LogOut();
+              props.navigation.replace('LoginScreen');
+    } catch (error) {
+      
+    }
   }
   CustomDrawerContent = props => {
     global.props = props;
@@ -290,8 +304,7 @@ class DrawerScreen extends Component {
           <DrawerItem
             label="Logout"
             onPress={() => {
-              this.props.LogOut();
-              props.navigation.replace('LoginScreen');
+              this.Logout()
             }}
             style={{borderColor: 'black', borderTopWidth: 1, padding: -2}}
             labelStyle={{color: COLORS.white, width: 150}}
@@ -462,7 +475,7 @@ class DrawerScreen extends Component {
   ReportsScreen=({navigation})=>{
     return(
       <View style={{height: '100%', width: '100%'}}>
-        <Reports navigation={navigation} />
+        <AllVizRepo navigation={navigation} />
       </View>
     )
   }
@@ -536,12 +549,12 @@ class DrawerScreen extends Component {
             <Drawer.Screen name="Setting" component={this.SettingScreen} />
 
           }
-            {/* {
+            {
           !this.state.adminSwitch && this.props.LoginDetails?.userRoleId == 1 && (
 
             <Drawer.Screen name="All Reports" component={this.ReportsScreen} />
 
-          )} */}
+          )}
           {this.props.LoginDetails?.userRoleId == 4 
            ? (
             <Drawer.Screen name="Report" component={this.EmployReport} />

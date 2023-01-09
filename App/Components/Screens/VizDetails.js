@@ -14,6 +14,7 @@ import {
   View,
   SafeAreaView,
   PermissionsAndroid,
+  StyleSheet,
 } from 'react-native';
 import AutoHeightWebView from 'react-native-autoheight-webview';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -46,6 +47,7 @@ import {KeyboardAvoidingView} from 'react-native';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
 import axios from 'axios';
+import ReactNativeZoomableView from '@openspacelabs/react-native-zoomable-view/src/ReactNativeZoomableView';
 import moment from 'moment';
 const placeholderTextColor = COLORS.placeholderColor;
 var s;
@@ -509,13 +511,22 @@ class VizDetails extends Component {
       try {
         const regex = /(<([^>]+)>)/ig;
 const result = this.state.remarks.replace(regex, '');
-console.log("result",result);
-    this.props.VizRejected(
-        this.state.VisitorDetails?.inOutId +
-          '/' +result+"/"+
-          this.props.LoginDetails?.fullName+"/"+this.props.LoginDetails.empID,
-        this.vizRejectedSuccess,
-      )
+console.log("result",this.state.VisitorDetails?.status);
+        if(this.state.VisitorDetails?.status==5){
+          this.props.VizRejected(
+            this.state.VisitorDetails?.inOutId +
+              '/' +result+"/"+
+              this.props.LoginDetails?.fullName+"/"+this.props.LoginDetails.empID,
+            this.vizRejectedSuccess,
+          )
+        }else{
+          this.props.vizCancle(
+            this.state.VisitorDetails?.inOutId+"/"+this.props.LoginDetails.empID,
+            this.vizCancleSuccess,
+          )
+          
+        }
+    
         
       } catch (error) {
         console.log(error);
@@ -557,7 +568,7 @@ console.log("result",result);
         status = 'Pending';
       } else if (this.state.VisitorDetails?.status == 2) {
         backgroundColor = COLORS.tempRed;
-        status = 'Cancelled';
+        status = 'Rejected';
       } else if (this.state.VisitorDetails?.status == 1) {
         backgroundColor = COLORS.tempGreen;
         status = 'APPROVED';
@@ -571,6 +582,10 @@ console.log("result",result);
       }else if (this.state.VisitorDetails?.status == 8) {
         backgroundColor = COLORS.tempGreen;
         status = 'Check Out';
+      }
+      else if (this.state.VisitorDetails?.status == 9) {
+        backgroundColor = COLORS.tempRed;
+        status = "Cancelled";
       }
        else if (this.state.VisitorDetails?.status == 0) {
         backgroundColor = COLORS.white;
@@ -1276,7 +1291,7 @@ console.log("result",result);
                         }}>
                         {this.state.meetingoutSH
                           ? 'Meeting Out'
-                          : 'Reject Reason'}
+                          :this.state.VisitorDetails?.status==5?'Reject Reason':'Cancel Reason'}
                       </Text>
                       <View
                         style={{
@@ -1293,8 +1308,7 @@ console.log("result",result);
                         placeholder="Remarks"
                         initialHeight={70}
                         keyboardDisplayRequiresUserAction={true}
-                        hideKeyboardAccessoryView={true}
-                        
+                        hideKeyboardAccessoryView={false}
                         style={{backgroundColor: Colors.whitef4}}
                         editorStyle={{backgroundColor: Colors.grayf4}}
                         onChange={descriptionText => {
@@ -1517,9 +1531,6 @@ console.log("result",result);
                         ))}
 
                       {
-                        (console.log(status),
-                        !status == null ||
-                          (!status == '' && (
                             <View style={{marginTop: 5}}>
                               <Text>Status:</Text>
                               <Text
@@ -1529,8 +1540,42 @@ console.log("result",result);
                                 }}>
                                 {status}
                               </Text>
+                              {
+                                this.state.VisitorDetails?.approvedBy!=null&&
+                                <View>
+                                  <Text style={{marginTop:5}}>{this.state.VisitorDetails?.approvedBy!=null&&"ApprovedBy:"}</Text>
+                                  <Text style={{fontWeight: 'bold',}}>{this.state.VisitorDetails?.approvedBy!=null&&this.state.VisitorDetails?.approvedBy}</Text>
+                                  </View>
+                              }
+
+                              {
+                                this.state.VisitorDetails?.createdBy!=null&&
+                                <View>
+                                  <Text style={{marginTop:5}}>{this.state.VisitorDetails?.createdBy!=null&&"InvitedBy:"}</Text>
+                                  <Text style={{fontWeight: 'bold',}}>{this.state.VisitorDetails?.createdBy!=null&&this.state.VisitorDetails?.createdBy}</Text>
+                                  </View>
+                              }
+                              {
+                                this.state.VisitorDetails?.checkInBy!=null&&
+                                <View>
+                                  <Text style={{marginTop:5}}>{this.state.VisitorDetails?.checkInBy!=null&&"CheckedInBy:"}</Text>
+                                  <Text style={{fontWeight: 'bold',}}>{this.state.VisitorDetails?.checkInBy!=null&&this.state.VisitorDetails?.checkInBy}</Text>
+                                </View>
+                              }
+                              {
+                                this.state.VisitorDetails?.isSelfCheckin==true&&
+                                <View>
+                                  <Text style={{marginTop:5,fontWeight: 'bold'}}>{this.state.VisitorDetails?.isSelfCheckin==true&&"IsSelfCheckin"}</Text>
+                                </View>
+                              }    
+                              {
+                                this.state.VisitorDetails?.checkedOutBy!=null&&
+                                <View>
+                                  <Text style={{marginTop:5}}>{this.state.VisitorDetails?.checkedOutBy!=null&&"CheckedOutBy:"}</Text>
+                                  <Text style={{fontWeight: 'bold',}}>{this.state.VisitorDetails?.checkedOutBy!=null&&this.state.VisitorDetails?.checkedOutBy}</Text>
+                                </View>
+                              }  
                             </View>
-                          )))
                       }
                     </View>
                   </View>
@@ -1608,7 +1653,7 @@ console.log("result",result);
                                 margin: '1%',
                               }}>
                               <Text style={{color: 'white', fontSize: 12}}>
-                                Reject
+                               {this.state.VisitorDetails?.status==5?"Reject":"Cancle"}
                               </Text>
                             </TouchableOpacity>
                           ) : null}
@@ -1719,7 +1764,7 @@ console.log("result",result);
                       this.state.VisitorDetails?.checkOutTime != null ? null : (
                         <View style={{flexDirection: 'row'}}>
                           {this.state.VisitorDetails?.checkOutTime == null &&
-                          this.state.VisitorDetails?.status == 5 &&this.props.LoginDetails.empID == this.state.VisitorDetails?.whomToMeet ? (
+                          this.state.VisitorDetails?.status == 5 &&(this.props.LoginDetails.empID == this.state.VisitorDetails?.whomToMeet||this.props.LoginDetails.userRoleId==3) ? (
                             <TouchableOpacity
                               onPress={() => {
                                 this.setState({modalVisible: false});
@@ -1752,7 +1797,7 @@ console.log("result",result);
                             </TouchableOpacity>
                           ) : null}
                           {
-                          this.props.LoginDetails.empID == this.state.VisitorDetails?.whomToMeet &&this.state.VisitorDetails?.status == 5 ? (
+                          this.props.LoginDetails.empID == this.state.VisitorDetails?.whomToMeet ? (
                             <TouchableOpacity
                               onPress={() => {
                                 console.log("first"),
@@ -1768,7 +1813,7 @@ console.log("result",result);
                                 margin: '1%',
                               }}>
                               <Text style={{color: 'white', fontSize: 12}}>
-                                Reject
+                              {this.state.VisitorDetails?.status==5?"Reject":"Cancle"}
                               </Text>
                             </TouchableOpacity>
                           ) : null}
@@ -2184,7 +2229,7 @@ console.log("result",result);
                         }}>
                         {this.state.meetingoutSH
                           ? 'Meeting Out'
-                          : 'Reject Reason'}
+                          :this.state.VisitorDetails?.status==5? 'Reject Reason':'Cancle Reason'}
                       </Text>
                       <View
                         style={{
@@ -2201,7 +2246,7 @@ console.log("result",result);
                         placeholder="Remarks"
                         initialHeight={70}
                         keyboardDisplayRequiresUserAction={true}
-                        hideKeyboardAccessoryView={true}
+                        hideKeyboardAccessoryView={false}
                         style={{backgroundColor: Colors.whitef4}}
                         editorStyle={{backgroundColor: Colors.grayf4}}
                         onChange={descriptionText => {
@@ -2426,6 +2471,40 @@ console.log("result",result);
                                 }}>
                                 {status}
                               </Text>
+                              {
+                                this.state.VisitorDetails?.approvedBy!=null&&
+                                <View>
+                                  <Text style={{marginTop:5}}>{this.state.VisitorDetails?.approvedBy!=null&&"ApprovedBy:"}</Text>
+                                  <Text style={{fontWeight: 'bold',}}>{this.state.VisitorDetails?.approvedBy!=null&&this.state.VisitorDetails?.approvedBy}</Text>
+                                  </View>
+                              }
+                              {
+                                this.state.VisitorDetails?.createdBy!=null&&
+                                <View>
+                                  <Text style={{marginTop:5}}>{this.state.VisitorDetails?.createdBy!=null&&"InvitedBy:"}</Text>
+                                  <Text style={{fontWeight: 'bold',}}>{this.state.VisitorDetails?.createdBy!=null&&this.state.VisitorDetails?.createdBy}</Text>
+                                  </View>
+                              }
+                              {
+                                this.state.VisitorDetails?.checkInBy!=null&&
+                                <View>
+                                  <Text style={{marginTop:5}}>{this.state.VisitorDetails?.checkInBy!=null&&"CheckedInBy:"}</Text>
+                                  <Text style={{fontWeight: 'bold',}}>{this.state.VisitorDetails?.checkInBy!=null&&this.state.VisitorDetails?.checkInBy}</Text>
+                                </View>
+                              }
+                              {
+                                this.state.VisitorDetails?.isSelfCheckin==true&&
+                                <View>
+                                  <Text style={{marginTop:5,fontWeight: 'bold'}}>{this.state.VisitorDetails?.isSelfCheckin==true&&"IsSelfCheckin"}</Text>
+                                </View>
+                              }
+                              {
+                                this.state.VisitorDetails?.checkedOutBy!=null&&
+                                <View>
+                                  <Text style={{marginTop:5}}>{this.state.VisitorDetails?.checkedOutBy!=null&&"CheckedOutBy:"}</Text>
+                                  <Text style={{fontWeight: 'bold',}}>{this.state.VisitorDetails?.checkedOutBy!=null&&this.state.VisitorDetails?.checkedOutBy}</Text>
+                                </View>
+                              }
                             </View>
                           )))
                       }
@@ -2485,7 +2564,7 @@ console.log("result",result);
                             </TouchableOpacity>
                           ) : null}
                           {
-                          this.state.VisitorDetails?.status == 5 &&this.props.LoginDetails.isApprover==true? (
+                          this.props.LoginDetails.isApprover==true? (
                             <TouchableOpacity
                               onPress={() => {
                                 console.log("first"),
@@ -2501,7 +2580,7 @@ console.log("result",result);
                                 margin: '1%',
                               }}>
                               <Text style={{color: 'white', fontSize: 12}}>
-                                Reject
+                              {this.state.VisitorDetails?.status==5?"Reject":"Cancle"}
                               </Text>
                             </TouchableOpacity>
                           ) : null}
@@ -2663,7 +2742,7 @@ console.log("result",result);
                             </TouchableOpacity>
                           ) : null}
                           {
-                          this.state.VisitorDetails?.status == 5 && this.props.LoginDetails.empID ==
+                          this.props.LoginDetails.empID ==
                           this.state.VisitorDetails?.whomToMeet ? (
                             <TouchableOpacity
                               onPress={() => {
@@ -2680,7 +2759,7 @@ console.log("result",result);
                                 margin: '1%',
                               }}>
                               <Text style={{color: 'white', fontSize: 12}}>
-                                Reject
+                              {this.state.VisitorDetails?.status==5?"Reject":"Cancle"}
                               </Text>
                             </TouchableOpacity>
                           ) : null}
@@ -2841,7 +2920,60 @@ console.log("result",result);
           onSwipeComplete={() => this.setImageOpen(false)}
           swipeDirection="left"
           onBackButtonPress={() => this.setImageOpen(false)}>
-          <View style={{alignItems: 'center', justifyContent: 'center'}}>
+            <TouchableOpacity
+              style={{
+                marginLeft: 10,
+                padding: 10,
+                height: 50,
+                width: 50,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+              onPress={() => this.setState({picModalVisible:false})}>
+              <Image source={IMAGES.cross} style={{tintColor:Colors.white, height: 22, width: 22}} />
+            </TouchableOpacity>
+        <View style={styles.container}>
+
+        <ReactNativeZoomableView
+          maxZoom={30}
+          // Give these to the zoomable view so it can apply the boundaries around the actual content.
+          // Need to make sure the content is actually centered and the width and height are
+          // dimensions when it's rendered naturally. Not the intrinsic size.
+          // For example, an image with an intrinsic size of 400x200 will be rendered as 300x150 in this case.
+          // Therefore, we'll feed the zoomable view the 300x150 size.
+          contentWidth={300}
+          contentHeight={150}
+          
+        >
+          {/* <Animated.Image
+            source={{
+              uri:
+                IMAGEURL+this.state.data.image,
+            }}
+            style={[
+              styles.image,
+              {
+                transform: [{ scale: this.scale }],
+              },
+            ]}
+            resizeMode="contain"
+          /> */}
+          {this.state.picImagePath != null ? (
+          <Image
+            source={{uri: IMAGEURL + '/' + this.state.picImagePath}}
+          style={[
+            styles.image,
+            
+          ]}
+          />):(
+            <Image
+            style={{height: '70%', width: '100%'}}
+            source={Images.def_visitor}
+          />
+          )}
+        </ReactNativeZoomableView>
+      </View>
+          {/* <View style={{alignItems: 'center', justifyContent: 'center'}}>
             {this.state.picImagePath != null ? (
               <Image
                 style={{height: '70%', width: '100%'}}
@@ -2853,7 +2985,7 @@ console.log("result",result);
                 source={Images.def_visitor}
               />
             )}
-          </View>
+          </View> */}
         </Modal>
         <Modal
           isVisible={this.state.resmodalVisible}
@@ -3878,6 +4010,32 @@ console.log("result",result);
       alert(this.state.VisitorDetails?.fullName + ' Reject Unsuccessfull');
     }
   }
+  vizCancleSuccess = res=>this.afterVizCancle(res);
+  afterVizCancle(respp){
+    if (respp) {
+      this.props.navigation.goBack();
+      Alert.alert(
+        'Success',
+        this.state.VisitorDetails?.fullName + ' Cancle successfully',
+      );
+
+      if (this.props.LoginDetails.userRoleId === 3) {
+        this.getAllReceptionst(this.state.VisitorDetails, 6);
+      } else if (
+        this.props.LoginDetails.userRoleId === 4 ||
+        this.props.LoginDetails.userRoleId === 1
+      ) {
+        // send notification to all reception
+        // this.sendNotification(this.state.VisitorDetails, 3);
+        // this.getAllReceptionst(this.state.VisitorDetails, 6);
+      }
+      // this.callApi(this.state.selectedList)
+
+      this.props.onUpdate();
+    } else {
+      alert(this.state.VisitorDetails?.fullName + ' Cancle Unsuccessfull');
+    }
+  }
   sendNotification(item, tag) {
     let by;
 
@@ -4064,4 +4222,15 @@ console.log("result",result);
     }
   }
 }
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  image: {
+    width: width,
+    height: width,
+  },
+});
 export default connect(mapStateToProps, mapDispatchToProps)(VizDetails);

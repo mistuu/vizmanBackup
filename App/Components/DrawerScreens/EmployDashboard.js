@@ -1,16 +1,20 @@
 import moment from 'moment';
 import Moment from 'moment';
 import React, { Component } from 'react';
-import { Dimensions, FlatList, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Platform, StyleSheet,Image, Text, TouchableOpacity, View } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
 import LinearGradient from "react-native-linear-gradient";
+import { RFPercentage } from 'react-native-responsive-fontsize';
 import { connect } from 'react-redux';
+import Images from "../../Assets/Images/index.js";
+import Colors from "../../Assets/Colors/index.js";
 import { COLORS } from '../../Assets/index.js';
 import { mapDispatchToProps, mapStateToProps } from '../../Reducers/ApiClass';
 import { AllSettingEmpty, visitorDetailEmpty } from '../../utility/emptyClass.js';
 import { getOrientation } from '../../utility/util';
 import { CusAlert, Header } from "../CusComponent";
 import VisitorDetails from '../Screens/VisitorDetails';
+import TextAvatar from 'react-native-text-avatar';
 const { width, height } = Dimensions.get('window');
 
 global.colors = ["#ffffff00", "#ffffff00"]
@@ -98,7 +102,7 @@ class EmployDashboard extends Component {
     this.afterSaveEmpDashList(res1)
   )
   afterSaveEmpDashList(empMeetingList) {
-    // console.log(empMeetingList);
+    console.log("DashBord",empMeetingList);
     var groups = empMeetingList.reduce((groups, game) => {
       const date = game.currDate.split('T')[0];
       if (!groups[date]) {
@@ -678,55 +682,321 @@ class EmployDashboard extends Component {
                     renderItem={({ item }) =>
                     // <View />
                     {
-                      var time
-                      time = item.status == 3 ?
-                        item.rescheduleInTime == null ? "" :
-                          Moment(moment.utc(item.rescheduleInTime)).format('HH:mm')
-                        :
-                        item.inTime == null ? "" :
-                          Moment(moment.utc(item.inTime)).format('HH:mm')
-                      var otime
-                      otime = item.status == 3 ?
-                        item.rescheduleOutTime == null ? "" :
-                          Moment(moment.utc(item.rescheduleOutTime)).format('HH:mm')
-                        :
-                        item.outTime == null ? "" :
-                          Moment(moment.utc(item.outTime)).format('HH:mm')
+                      if (item.inTime != null) {
+                        var b = item.inTime.split("T");
+                        var a = b[1].split("Z");
+                        var itime = b[0] + " " + a[0];
+                      }
+
+                      if (item.outTime != null) {
+                        var x = item.outTime.split("T");
+                        var y = x[1].split("Z");
+                        var otime = x[0] + " " + y[0];
+                      }
+                      //var dtf = new Date(frmdt);
+                      //var outf = new Date(outdt);
+                      var today = new Date();
+                      var date =
+                        today.getFullYear() +
+                        "-" +
+                        ("0" + (today.getMonth() + 1)).slice(-2) +
+                        "-" +
+                        ("0" + today.getDate()).slice(-2);
+                      var time =
+                        today.getHours() +
+                        ":" +
+                        ("0" + (today.getMinutes() + 1)).slice(-2) +
+                        ":" +
+                        today.getSeconds();
+                      var dateTime = date + " " + time;
                       // console.log("empList==", item);
+                      var backgroundColor = COLORS.white;
+                        var status = "";
+                        if (item.status === 3) {
+                          backgroundColor = COLORS.tempYellow;
+                          status = "Rescheduled";
+                          
+                        } else if (item.status === 4) {
+                          if (
+                            item.checkInTime !== null &&
+                            item.checkOutTime !== null
+                          ) {
+                            backgroundColor = "#961448";
+                            status = "ALREADY CHECKOUT";
+                          } else {
+                            backgroundColor = COLORS.skyBlue;
+                            status = "Checked In";
+                          }
+                        } else if (item.status === 5) {
+                          backgroundColor = "#4667cc";
+                          status = "Pending";
+                        } else if (item.status === 2) {
+                          backgroundColor = COLORS.tempRed;
+                          status = "Rejected";
+                        } else if (item.status === 1) {
+                          backgroundColor = COLORS.tempGreen;
+                          status = "Invited";
+                        } else if (item.status === 6) {
+                          backgroundColor = COLORS.tempGreen;
+                          status = "Meeting In";
+                        } else if (item.status === 7) {
+                          backgroundColor = COLORS.tempGreen;
+                          status = "Meeting Out";
+                        } else if (item.status === 8) {
+                          backgroundColor = COLORS.tempGreen;
+                          status = "Checked Out";
+                        } 
+                        else if (item.status === 9) {
+                          backgroundColor = COLORS.tempGreen;
+                          status = "Cancelled";
+                        } 
+                        else if (item.status === 0) {
+                          backgroundColor = COLORS.white;
+                          status = "";
+                        }
                       return (
                         <View style={{ width: '100%', zIndex: 10, justifyContent: 'center', alignItems: 'center' }}>
 
-                          <TouchableOpacity style={{ marginLeft: "1%", marginRight: "1%", width: '98%', borderRadius: 10, marginTop: 5, backgroundColor: COLORS.white, elevation: 0.5 }}
-                            onPress={() => this.modalOpenMethod(item)}
-                            style={{ marginTop: 5, marginBottom: 5, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                            <View style={{ width: "90%", borderRadius: 8, backgroundColor: COLORS.white, padding: 10 }}>
-                              <View style={{ flexDirection: 'row' }}>
-                                <View style={{ width: width / 2 }}>
-                                  <Text style={{ color: COLORS.graye00 }}>Name</Text>
-                                  <Text style={{ fontWeight: 'bold' }}>{item.fullName}</Text>
-                                  <Text style={{ color: COLORS.graye00, }}>In Time</Text>
-                                  {time != "" ? <Text style={{ fontWeight: 'bold', }}>{time}</Text> : null}
-                                </View>
+<TouchableOpacity
+                              style={{
+                                height: null,
+                                marginLeft: "1%",
+                                marginRight: "1%",
+                                width: "100%",
+                                borderRadius: 13,
+                                marginTop: 5,
+                                backgroundColor: COLORS.white,
+                                elevation: 0.5,
+                                borderWidth:0.5
+                              }}
+                              // onLongPress={()=>this.whatsappSharing(item,status)}
+                              onPress={() => {
+                                this.modalOpenMethod(item)
+                              }}
+                              style={{
+                                marginTop: 5,
+                                marginBottom: 5,
+                                width: "100%",
+                                borderWidth:0.5,
+                                borderRadius:13,
+                                backgroundColor: COLORS.white,
+                              }}
+                            >
+                              <View
+                                style={{
+                                  width: "100%",
+                                  borderRadius: 13,
+                                  backgroundColor: COLORS.white,
+                                  padding: 10,
+                                  flexDirection: "row",
+                                }}
+                              >
+                                <View style={{ justifyContent:'center',alignItems:'center'}}>
+                                  <View>
 
-                                <View style={{ width: width / 2 }}>
-                                  <Text style={{ color: COLORS.graye00, }}>Mobile</Text>
-                                  <Text style={{ fontWeight: 'bold', }}>{item.mobile}</Text>
-                                  <Text style={{ color: COLORS.graye00, }}>Out Time</Text>
-                                  {otime != "" ? <Text style={{ fontWeight: 'bold' }}>{otime}</Text> : null}
+                                  {item.photoProof != null ? (
+                                    <Image
+                                      source={{
+                                        uri: IMAGEURL + item.photoProof,
+                                      }}
+                                      style={{
+                                        resizeMode: "cover",
+                                        borderRadius: 80 / 2,
+                                        height: 80,
+                                        width: 80,
+                                        margin: 5,
+                                        alignSelf: "center",
+                                      }}
+                                    />
+                                  ) : (
+                                    <TextAvatar
+                                      backgroundColor={Colors.primary}
+                                      textColor={Colors.white}
+                                      size={80}
+                                      type={"circle"} // optional
+                                    >
+                                      {item.fullName}
+                                    </TextAvatar>
+
+                                  )}
+                                  </View>
+
+                               
                                 </View>
-                                {/* <View style={{ width: width / 2 }}>
-                          <Text style={{ color: COLORS.graye00, }}>Day</Text>
-                          <Text style={{ fontWeight: 'bold', }}>{this.getSelectedDateformate(startDate)}</Text>
-                        </View> */}
+                                <View style={{marginLeft:10,width:width/3 }}>
+                                  
+                                  <Text
+                                    style={{ fontWeight: "bold", fontSize: 16 }}
+                                  >
+                                    {this.props.LoginDetails.userRoleId != 4 &&
+                                    this.props.LoginDetails.userRoleId != 1 &&
+                                    this.props.LoginDetails.empID !=
+                                      item.whomToMeet &&
+                                    item.isVip == true
+                                      ? item.fullName?.replace(
+                                          /.(?=.{2,}$)/g,
+                                          '*',
+                                        )
+                                      : item.fullName}
+                                  </Text>
+                                  {/* {item.department !=null &&<Text>{item.department}</Text>} */}
+                                  <Text style={{marginTop:5}}>{(this.props.LoginDetails.userRoleId ===
+                                      3 ||
+                                      this.props.LoginDetails.userRoleId ===
+                                        2) &&
+                                    this.props.LoginDetails.empID !=
+                                      item.whomToMeet
+                                      ? item.mobile?.replace(
+                                          /.(?=.{2,}$)/g,
+                                          '*',
+                                        )
+                                      : item.mobile}</Text>
+                                 <Text style={{marginTop:5}}>{item.company}</Text>
+                                </View>
+                                <View style={{}}>
+                                  
+                                {item?.checkInTime !== null ||
+                                  item?.checkOutTime !== null ? (
+                                    <View style={{ paddingTop: 2,
+                                      justifyContent: 'center',
+                                      marginTop:5,
+                                      alignSelf: 'center',
+                                      marginRight:40,
+                                      marginLeft: 'auto',
+                                      height: 20,
+                                      borderRadius: 10,
+                                      paddingHorizontal: 5,
+                                      flexDirection: 'row',
+                                      width: width / 4.5,
+                                      backgroundColor: backgroundColor,}}>
+
+                                    <Text
+                                      style={{  
+                                        fontSize:  RFPercentage(1.5),     
+                                       
+                                        textAlign: 'center',
+                                        color: COLORS.white,
+                                        borderRadius: 10,
+                                        // backgroundColor: backgroundColor,
+                                        overflow: 'hidden',
+                                      }}>
+                                      {status}
+                                    </Text>
+                                      </View>
+                                  ) : (
+                                    <View style={{ paddingTop: 2,
+                                      justifyContent: 'center',
+                                      alignSelf: 'center',
+                                      marginRight:40,
+                                      marginLeft: 'auto',
+                                      height: 20,
+                                      marginTop:5,
+                                      borderRadius: 10,
+                                      paddingHorizontal: 5,
+                                      flexDirection: 'row',
+                                      width: width / 4.5,
+                                      backgroundColor: backgroundColor,}}>
+                                    <Text
+                                      style={{
+                                        
+                                        fontSize:  RFPercentage(1.5),
+                                        
+                                        textAlign: 'center',
+                                        color: COLORS.white,
+                                        borderRadius: 10,
+                                        // backgroundColor: backgroundColor,
+                                        overflow: 'hidden',
+                                      }}>
+                                      {status}
+                                    </Text>
+                                      </View>
+                                  )}
+                                 {/* {item.inviteCode!="" &&item.inviteCode!=null && <Text style={{ textAlign:'center',fontSize:16,marginTop:15, color:COLORS.primary,fontWeight: "bold" }}>
+                                    {item.inviteCode}
+                                  </Text>} */}
+                                </View>
+                               
                               </View>
-                              {/* <View style={{ flexDirection: 'row', marginTop: 10 }}>
-                        <Text style={{ color: COLORS.graye00, width: width / 2 }}>In Time</Text>
-                        <Text style={{ color: COLORS.graye00, width: width / 2 }}>Out Time</Text>
-                        <Text style={{ color: COLORS.graye00, width: width / 2 }}>Status</Text>
-                      </View> */}
 
-                            </View>
-                          </TouchableOpacity>
+                              <View style={{marginLeft:10,marginRight:10, height: 1, backgroundColor: COLORS.graye8,}} />
+                                <View style={{flexDirection:'row',width:width, paddingBottom:5, alignItems:'center', marginTop:10}}>
+                                  <View style={{width:width/3,marginLeft:10}}>
+                                {item.inTime!=null ?
+                                    <Text style={{textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    fontSize:16,}}>In Time</Text>:
+                                    <Text style={{textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    fontSize:16,}}>In Time</Text>
+                                  }
+                                  {item.outTime!=null ?
+                                    <Text style={{textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    
+                                    fontSize:16,}}>Out Time</Text>:
+                                    <Text style={{textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    
+                                    fontSize:16,}}>Out Time</Text>
+                                  }
+                                  </View>
+                              {/* <Text style={{width:width/3,marginLeft:10, fontWeight:'bold',color:COLORS.primary}}>{item.whomToMeetName}</Text> */}
+                              <View style={{marginLeft:10}}> 
+                                            
+                                            <Image
+                                            source={Images.rightArrow}
+                                            style={{tintColor:COLORS.tempGreen,height:25,width:25}}/>
+ <Image
+                                            source={Images.leftArrow}
+                                            style={{tintColor:COLORS.red,height:25,marginTop:5,width:25}}/>
+                                 
+                              </View>
+                              <View style={{marginLeft:10,}}>
+                                  <View style={{alignItems:'center'}}>
+                                    {/* Check In Button */}
+                                  {item.checkInTime!=null ?
+                                  <Text style={{textAlign: 'center',
+                                  fontWeight: 'bold',
+                                  fontSize:16,}}>{' '}{item.checkInTime!=null && item.checkInTime!=""&& Moment(moment.utc(item.checkInTime)).format(
+                                    'hh:mm a',
+                                  )}{' '}</Text>:
+                                    <Text style={{textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    fontSize:16,}}>{' '}{item.inTime!=null && item.inTime!=""&& Moment(moment.utc(item.inTime)).format(
+                                      'hh:mm a',
+                                    )}{' '}</Text>
+                                    
+                                  }
+                                 
+                                  </View>
+                              
+                                 {/* Checkout Buttom  */}
+                                 <View style={{marginLeft:"8%",marginTop:5}}>
+                                 {item.checkOutTime!=null?
+                                 <Text style={{ 
+                                  textAlign: 'center',
+                                  fontWeight: 'bold',
+                                  fontSize:16,
+                                  }}>{' '}{item.checkOutTime!=null && item.checkOutTime!=""&& Moment(moment.utc(item.checkOutTime)).format(
+                                    'hh:mm a',
+                                  )}{' '}</Text>:
+                                   <Text style={{ 
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    fontSize:16,
+                                    }}>{' '}{item.outTime!=null && item.outTime!=""&& Moment(moment.utc(item.outTime)).format(
+                                      'hh:mm a',
+                                    )}{' '}</Text>       
+                                 }
+
+                                 </View>
+                                 
+                                  </View>
+
+                                </View>
+                              
+                            </TouchableOpacity>
+
                         </View>
                         // <View style={{ marginTop: 5, marginBottom: 5, width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                         //   <View style={{ width: '20%', alignSelf: 'flex-start', paddingTop: 7 }}>
@@ -862,11 +1132,11 @@ class EmployDashboard extends Component {
           onUpdate={() => this.callApi(Moment(moment.utc(this.state.selectedItem.date)).format("MM-DD-YYYY"))}
         /> : null}
         {/* :null} */}
-        <CusAlert
+        {/* <CusAlert
           displayAlert={this.props.network.isConnected ? this.props.error != null && this.props.error != "" ? true : !this.props.network.isConnected : !this.props.network.isConnected}
           iconInternet={true}
           alertMessageText={"NO INTERNET CONNECTION"}
-        />
+        /> */}
       </View>
     );
   }

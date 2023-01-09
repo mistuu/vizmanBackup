@@ -578,11 +578,9 @@ class LoginScreen extends React.Component {
           {/* </TouchableWithoutFeedback> */}
           <CusAlert
             displayAlert={
-              this.props.network.isConnected
-                ? this.props.error != null && this.props.error != ""
-                  ? true
-                  : !this.props.network.isConnected
-                : !this.props.network.isConnected
+              !this.props.network.isConnected
+                ?true
+                : false
             }
             iconInternet={true}
             alertMessageText={"NO INTERNET CONNECTION"}

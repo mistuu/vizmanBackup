@@ -25,7 +25,7 @@ export default class Registration extends Component {
     this.handleBackButtonClick = this.handleBackButtonClick.bind(this)
     this.state = {
       formToggle: false,
-      name: null,
+      name: "",
       phone: null,
       email: null,
       pwd: null,
@@ -288,8 +288,8 @@ export default class Registration extends Component {
                 <Hoshi
                   label="Name*"
                   style={styles.regTextInput}
-                  onChangeText={txt =>     this.setState({name: txt})                }
-                  value={this.state.name}
+                  onChangeText={txt =>     this.setState({name: txt.replace(/[^0-9 ^A-Za-z]/g, '')})                }
+                  value={this.state.name.replace(/[^0-9 ^A-Za-z]/g, '')}
                 />
                 <Hoshi
                   label="Phone*"

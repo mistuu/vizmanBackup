@@ -232,6 +232,16 @@ export const mapDispatchToProps = dispatch => ({
         onSuccess,
       ),
     ),
+  vizCancle:(param, onSuccess) =>
+    dispatch(
+      Fetch(
+        'Visitor/VizCancelled/' + param,
+        'POST',
+        undefined,
+        undefined,
+        onSuccess,
+      ),
+    ),
     MeetingIn: (param, onSuccess) =>
     dispatch(Fetch('Visitor/MeetingIn/'+param, 'POST', undefined, undefined, onSuccess)),
   MeetingOut: (param, onSuccess) =>

@@ -29,7 +29,7 @@ class VisitorUpdate extends Component {
     super(props);
     this.state = {
       mob: null,
-      name: null,
+      name: "",
       email: null,
       designation: null,
       company: null,
@@ -220,8 +220,8 @@ class VisitorUpdate extends Component {
                 />
                 <TextInput
                   placeholder="Full Name*"
-                  onChangeText={txt => this.setState({name: txt})}
-                  value={this.state.name}
+                  onChangeText={txt => this.setState({name: txt.replace(/[^0-9 ^A-Za-z]/g, '')})}
+                  value={this.state.name.replace(/[^0-9 ^A-Za-z]/g, '')}
                   style={styles.textboxStyle}
                 />
                 <TextInput

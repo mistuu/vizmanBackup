@@ -859,11 +859,11 @@ class AdminEmp extends Component {
           onUpdate={() => this.callApi(Moment(this.state.selectedItem.date).format("MM-DD-YYYY"))}
         /> : null}
         {/* :null} */}
-        <CusAlert
+        {/* <CusAlert
           displayAlert={this.props.network.isConnected ? this.props.error != null && this.props.error != "" ? true : !this.props.network.isConnected : !this.props.network.isConnected}
           iconInternet={true}
           alertMessageText={"NO INTERNET CONNECTION"}
-        />
+        /> */}
       </View>
     );
   }

@@ -7,8 +7,10 @@ import {
   Dimensions,
   StyleSheet,
   Image,
+  RefreshControl,
   TouchableOpacity,
 } from 'react-native';
+import {BASEURL} from '../../utility/util'
 import {Header} from '../CusComponent';
 import {connect} from 'react-redux';
 import {COLORS, IMAGES} from '../../Assets';
@@ -23,6 +25,8 @@ import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {LineChart} from 'react-native-chart-kit';
 import moment from 'moment';
+import { axiosAuthGet } from '../../utility/apiConnection';
+import axios from 'axios';
 const labels = [
   'Label 1',
   'Label 2',
@@ -46,6 +50,7 @@ class AdminDash extends React.Component {
     super(props);
     this.state = {
       curY: new Animated.Value(0),
+      refreshing: false,
       labelArray: [],
       dataArry: [],
       height: 0,
@@ -75,45 +80,75 @@ class AdminDash extends React.Component {
     };
   }
 
-  componentDidMount() {
+ async componentDidMount() {
     // var t = ["2021-2-2", "2021-2-3", "2021-2-3", "2021-2-8", "2021-2-3", "2021-2-6", "2021-2-6", "2021-2-6", "2021-2-6", "2021-2-6", "2021-2-6", "2021-2-6"]
+   this.getdata()
+  }
+ async getdata(){
     var t = ['02-02-2021', '03-02-2021', '08-02-2021', '06-02-2021'];
     // var numArray = [140000, 104, 99];
     t.sort(function (a, b) {
       return new Date(a) - new Date(b);
     });
 
-    console.log('numArray', t);
+   
     var date = new Date();
     var firstDay =moment(date).format('DD-MM-YYYY HH:MM:SS');
     var lastDay = moment(moment().subtract(30, 'days')).format('DD-MM-YYYY HH:MM:SS');
     var l = moment(moment().subtract(7, 'days')).format('DD-MM-YYYY HH:MM:SS');
     var s = moment(moment().subtract(1, 'days')).format('DD-MM-YYYY HH:MM:SS');
     
-    console.log('Dates===', lastDay,firstDay);
-    this.props.GetAdminDashboard(
-      this.props.LoginDetails.userID +
-        '/' +
-        s +
-        '/' +
-        firstDay,
-      this.responseAdminDsh,
-    );
+    
+    // this.props.GetAdminDashboard(
+    //   this.props.LoginDetails.userID +
+    //     '/' +
+    //     s +
+    //     '/' +
+    //     firstDay,
+    //   this.responseAdminDsh,
+    // );
+    let response;
+    console.log("print id",this.props.LoginDetails.userID +
+    '/' +
+    s +
+    '/' +
+    firstDay);
+    try {
+      axios
+      .get( BASEURL+ "Users/GetAdminDashboard/"+this.props.LoginDetails.userID +
+      '/' +
+      s +
+      '/' +
+      firstDay)
+      .then((result) => {
+        console.log(result);
+      this.responseAdminDsh(result.data)
+        // document.title = result.data[0].Name;
+        // setItem(result.data);
+      }) .catch(function (error) {
+        // handle error
+        console.log("error==",error);
+      });
 
+      //  response=await axiosAuthGet()
+      // console.log("response==",response);
+    } catch (error) {
+      console.log("error==",error);
+    }
+      
+      this.setState({refreshing: false});
+    
     //last 3 month
     var d = new Date();
-    console.log(d.toLocaleDateString());
+    
     d.setMonth(d.getMonth() - 3);
 
     //last year
     var y = new Date();
-    console.log(y.toLocaleDateString());
+    
     y.setMonth(y.getMonth() - 12);
 
-    console.log(
-      'last date==',
-      moment(d.toLocaleDateString()).format('DD-MM-YYYY'),
-    );
+    
     
   
   var today = new Date();
@@ -127,30 +162,26 @@ class AdminDash extends React.Component {
 
     });
   }
+  _onRefresh = () => {
+    this.setState({refreshing: true});
+    this.getdata()
+  }
   onSelectChange = val => {
-    console.log(val,this.state.currentDate);
+   
     this.setState({selectedValue: val});
     var now = moment();
     const fifthMonth = this.getStartAndEndDate(now.month(), now.year());
-    console.log('fifth');
-
-    console.log(fifthMonth.startDate);
-    console.log(fifthMonth.endDate);
-
+    
     const fourthMonth = this.getStartAndEndDate(
       fifthMonth.date.month(),
       fifthMonth.date.year(),
     );
-    console.log('fourth');
+    
     var thirdMonth = this.getStartAndEndDate(
       fourthMonth.date.month(),
       fourthMonth.date.year(),
     );
-    console.log(
-      'thirdmonth===',
-      this.state.lastThreeMonth,
-      this.state.currentDate,
-    );
+    
     if (val[0] == "Monthly") {
       this.props.GetAdminDashboard(
         this.props.LoginDetails.userID +
@@ -219,7 +250,7 @@ class AdminDash extends React.Component {
     };
   }
   responseAdminDsh = adminDash => {
-    console.log(adminDash);
+    
     var d = Moment().format('DD');
     const tempticket = [];
     let i;
@@ -230,7 +261,7 @@ class AdminDash extends React.Component {
       if (i < d) {
         x = i;
       }
-      console.log(i);
+     
       tempticket.push(i);
     }
 
@@ -299,12 +330,13 @@ class AdminDash extends React.Component {
           this.setState({selectedSlice: {label: key, value: values1[index]}}),
       };
     });
-    console.log('this.state.adminDash', this.state.adminDash);
+    
     return (
       <View style={{flex: 1, backgroundColor: COLORS.whitef4}}>
         <View style={{width: '100%',marginTop:Platform.OS=="ios"?-20:0, zIndex: 99}}>
           <Header title={'Dashboard'} navigation={this.props.navigation} />
         </View>
+      
 
         <Animated.View
           onLayout={({nativeEvent}) =>
@@ -355,6 +387,7 @@ class AdminDash extends React.Component {
                   {'Avg Time Spent'}
                 </Text>
               </View>
+             
               <Text
                 style={{
                   color: 'white',
@@ -398,7 +431,12 @@ class AdminDash extends React.Component {
           </View>
         </Animated.View>
        
-        <ScrollView style={{flexGrow: 1, marginBottom: 15}}>
+        <ScrollView  refreshControl={
+          <RefreshControl
+            refreshing={this.state.refreshing}
+            onRefresh={this._onRefresh}
+          />
+        } style={{flexGrow: 1, marginBottom: 15}}>
           <View
             style={{
               width: '95%',

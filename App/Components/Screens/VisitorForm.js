@@ -540,7 +540,7 @@ class VisitorForm extends React.Component {
                   ref={(el) => {
                     this.fullName = el;
                   }}
-                  onChangeText={(fullName) => this.onChangedName(fullName)}
+                  onChangeText={(fullName) => this.onChangedName(fullName.replace(/[^0-9 ^A-Za-z]/g, ''))}
                   value={this.state.VisitorDetails.fullName}
                   label="Full Name*"
                   returnKeyType={"next"}
@@ -1659,7 +1659,7 @@ class VisitorForm extends React.Component {
                     this.setState({ VisitorDetails });
                   }}
                   value={this.state.VisitorDetails.purpose}
-                  label="Purpose*"
+                  label="Purpose"
                 />
               </View>
             ) : null}
@@ -3630,14 +3630,9 @@ class VisitorForm extends React.Component {
                 // if (this.state.VisitorDetails.outTime != null && this.state.VisitorDetails.outTime != '') {
                 if (this.state.VisitorDetails.whomToMeetName != null) {
                   if (this.props.AllSettings.settingsVM.vPurpose) {
-                    if (
-                      this.state.VisitorDetails.purpose != null &&
-                      this.state.VisitorDetails.purpose != ""
-                    ) {
+                    
                       this.checkArogyaSetu(this.state.VisitorDetails, 3);
-                    } else {
-                      alert("Please Enter purpose");
-                    }
+                    
                   } else {
                     this.checkArogyaSetu(this.state.VisitorDetails, 3);
                   }
@@ -3747,14 +3742,9 @@ class VisitorForm extends React.Component {
 
                     if (this.state.VisitorDetails.whomToMeetName != null) {
                       if (this.props.AllSettings.settingsVM.vPurpose) {
-                        if (
-                          this.state.VisitorDetails.purpose != null &&
-                          this.state.VisitorDetails.purpose != ""
-                        ) {
+                       
                           this.dynamicFieldValidate() && this.insertVisitor();
-                        } else {
-                          alert("Please Enter purpose");
-                        }
+                        
                       } else {
                         this.dynamicFieldValidate() && this.insertVisitor();
                       }
@@ -3765,14 +3755,9 @@ class VisitorForm extends React.Component {
                   else if(this.props.LoginDetails.isApprover == false && this.props.LoginDetails.userRoleId==1 &&!this.props.AdminSwitch){
                     if (this.state.VisitorDetails.whomToMeetName != null) {
                       if (this.props.AllSettings.settingsVM.vPurpose) {
-                        if (
-                          this.state.VisitorDetails.purpose != null &&
-                          this.state.VisitorDetails.purpose != ""
-                        ) {
+                       
                           this.dynamicFieldValidate() && this.insertVisitor();
-                        } else {
-                          alert("Please Enter purpose");
-                        }
+                        
                       } else {
                         this.dynamicFieldValidate() && this.insertVisitor();
                       }
@@ -3782,28 +3767,18 @@ class VisitorForm extends React.Component {
                   }
                   else if(this.props.LoginDetails.isApprover == false && this.props.LoginDetails.userRoleId==1 && this.props.AdminSwitch){
                     if (this.props.AllSettings.settingsVM.vPurpose) {
-                      if (
-                        this.state.VisitorDetails.purpose != null &&
-                        this.state.VisitorDetails.purpose != ""
-                      ) {
+                      
                         this.dynamicFieldValidate() && this.insertVisitor();
-                      } else {
-                        alert("Please Enter purpose");
-                      }
+                      
                     } else {
                       this.dynamicFieldValidate() && this.insertVisitor();
                     }
                   }
                    else {
                     if (this.props.AllSettings.settingsVM.vPurpose) {
-                      if (
-                        this.state.VisitorDetails.purpose != null &&
-                        this.state.VisitorDetails.purpose != ""
-                      ) {
+                      
                         this.dynamicFieldValidate() && this.insertVisitor();
-                      } else {
-                        alert("Please Enter purpose");
-                      }
+                      
                     } else {
                       this.dynamicFieldValidate() && this.insertVisitor();
                     }
@@ -3912,14 +3887,9 @@ class VisitorForm extends React.Component {
                   // if (this.state.VisitorDetails.outTime != null && this.state.VisitorDetails.outTime != '') {
                   if (this.state.VisitorDetails.whomToMeetName != null) {
                     if (this.props.AllSettings.settingsVM.vPurpose) {
-                      if (
-                        this.state.VisitorDetails.purpose != null &&
-                        this.state.VisitorDetails.purpose != ""
-                      ) {
+                     
                         this.checkArogyaSetu(this.state.VisitorDetails, 3);
-                      } else {
-                        alert("Please Enter purpose");
-                      }
+                     
                     } else {
                       this.checkArogyaSetu(this.state.VisitorDetails, 3);
                     }
@@ -3941,14 +3911,9 @@ class VisitorForm extends React.Component {
                 // this.state.VisitorDetails.inTime
                 if (this.state.VisitorDetails.whomToMeetName != null) {
                   if (this.props.AllSettings.settingsVM.vPurpose) {
-                    if (
-                      this.state.VisitorDetails.purpose != null &&
-                      this.state.VisitorDetails.purpose != ""
-                    ) {
+                    
                       this.checkArogyaSetu(this.state.VisitorDetails, 3);
-                    } else {
-                      alert("Please Enter purpose");
-                    }
+                    
                   } else {
                     this.checkArogyaSetu(this.state.VisitorDetails, 3);
                   }

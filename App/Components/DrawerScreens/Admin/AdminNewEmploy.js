@@ -627,13 +627,13 @@ class AdminNewEmploy extends React.Component {
                 this.props.route.params.tag == 'User Details' ? false : true
               }
               borderHeight={0}
-              onChangeText={fullName => {
+              onChangeText={fullName => {var name=fullName.replace(/[^0-9 ^A-Za-z]/g, '')
                 const userProfile = Object.assign({}, this.state.userProfile, {
-                  fullName,
+                  fullName:name,
                 });
                 this.setState({userProfile});
               }}
-              value={this.state.userProfile?.fullName}
+              value={this.state.userProfile?.fullName.replace(/[^0-9 ^A-Za-z]/g, '')}
               label="Full Name*"
             />
             <Hoshi

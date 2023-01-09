@@ -93,11 +93,7 @@ class SplashScreen extends React.Component {
         >
             {/* <StatusBar backgroundColor={COLORS.primary} /> */}
             <StatusBar barStyle={'dark-content'} backgroundColor='transparent' translucent={true} />
-            <CusAlert
-                displayAlert={this.props.network.isConnected ? this.props.error != null && this.props.error != "" ? true : !this.props.network.isConnected : !this.props.network.isConnected}
-                iconInternet={true}
-                alertMessageText={"NO INTERNET CONNECTION"}
-            />
+            
         </ImageBackground>)
     }
 

@@ -82,7 +82,7 @@ function Fetch(apiurl, type, params, Action, onSucess, isLoading) {
 
                 // if (apiurl == 'Users/GetUsersDetails' || apiurl == 'Account/AccountLogin' || apiurl == 'Notification/SaveNotifyToken')
                 //     console.log("FetchRes:*** ", response)
-                console.log("response@@@ ", response)
+                // console.log("response@@@ ", response)
                 if (Action != undefined) {
                     dispatch(Action(response))
                 }

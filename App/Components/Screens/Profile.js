@@ -662,13 +662,13 @@ async  componentDidMount() {
               editable={true}
               onChangeText={Name =>
                 this.setState(prevState => {
-                  prevState.userProfile.fullName = Name;
+                  prevState.userProfile.fullName = Name.replace(/[^0-9 ^A-Za-z]/g, '');
                   return {
-                    userProfile: prevState.userProfile,
+                    userProfile: prevState.userProfile.replace(/[^0-9 ^A-Za-z]/g, ''),
                   };
                 })
               }
-              value={this.state.userProfile?.fullName}
+              value={this.state.userProfile?.fullName.replace(/[^0-9 ^A-Za-z]/g, '')}
               label="Full Name *"
             />
             {/* <View style={{ flexDirection: 'row', margin: 7, alignItems: 'center' }}>
